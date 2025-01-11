@@ -2,10 +2,10 @@
   "id": "crux",
   "title": "Crux",
   "description": "Adds an expanding tray for using an actor's items, abilities and spells",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "url": "https://github.com/Relic-Repo/crux",
   "manifest": "https://github.com/Relic-Repo/crux/releases/latest/download/module.json",
-  "download": "https://github.com/Relic-Repo/crux/releases/download/1.0.0/module.zip",
+  "download": "https://github.com/Relic-Repo/crux/releases/download/1.0.1/module.zip",
   "compatibility": {
     "minimum": "11",
     "verified": "12"
