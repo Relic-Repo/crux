@@ -16,7 +16,7 @@ jobs:
       # Substitute the Manifest and Download URLs in the "module.json"
       # for a FULL RELEASE
       - name: Substitute Manifest and Download Links For Versioned Ones
-        if: github.event.release.prerelease == false
+        if: "!github.event.release.prerelease"
         id: sub_release_manifest_version
         uses: microsoft/variable-substitution@v1
         with:
@@ -31,7 +31,7 @@ jobs:
       # for a PRE RELEASE. Manifest pointing to live module.json on branch,
       # which is updated after tag.
       - name: Substitute Manifest and Download Links For Versioned Ones
-        if: github.event.release.prerelease == true
+        if: "github.event.release.prerelease"
         id: sub_prerelease_manifest_version
         uses: microsoft/variable-substitution@v1
         with:
@@ -42,12 +42,18 @@ jobs:
           manifest: https://raw.githubusercontent.com/${{ github.repository }}/next/module.json
           download: https://github.com/${{ github.repository }}/releases/download/${{ github.event.release.tag_name }}/module.zip
 
+      # Install packages.
+      - run: npm install
+
+      # Build distribution.
+      - run: npm run build
+
       # Create a zip file with all files required by the module to add to the release
       - run: zip -r ./module.zip module.json scripts/ styles/ templates/ lang/ packs/ img/
 
       # Create a release for this specific version
       - name: Update Release with Files
-        if: github.event.release.prerelease == false
+        if: "!github.event.release.prerelease"
         id: create_version_release
         uses: ncipollo/release-action@v1
         with:
@@ -62,7 +68,7 @@ jobs:
 
       # OR create a pre-release for this specific version
       - name: Update Release with Files
-        if: github.event.release.prerelease == true
+        if: "github.event.release.prerelease"
         id: create_version_prerelease
         uses: ncipollo/release-action@v1
         with:
@@ -77,7 +83,7 @@ jobs:
 
       # Update next branch
       - name: Prepare repository
-        if: github.event.release.prerelease == true
+        if: "github.event.release.prerelease"
         run: |
           git config --global user.name '${{ github.actor }}'
           git config --global user.email '${{ github.actor }}@users.noreply.github.com'
