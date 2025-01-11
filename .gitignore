@@ -1,0 +1,10 @@
+# Node Modules
+node_modules/
+
+# Development files
+.DS_Store
+.env
+*.log
+
+# Foundry VTT specific
+packs/
