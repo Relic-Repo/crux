@@ -16,7 +16,7 @@ jobs:
       # Substitute the Manifest and Download URLs in the "module.json"
       # for a FULL RELEASE
       - name: Substitute Manifest and Download Links For Versioned Ones
-        if: contains(github.event.release.prerelease, false)
+        if: github.event.release.prerelease == false
         id: sub_release_manifest_version
         uses: microsoft/variable-substitution@v1
         with:
@@ -31,7 +31,7 @@ jobs:
       # for a PRE RELEASE. Manifest pointing to live module.json on branch,
       # which is updated after tag.
       - name: Substitute Manifest and Download Links For Versioned Ones
-        if: contains(github.event.release.prerelease, true)
+        if: github.event.release.prerelease == true
         id: sub_prerelease_manifest_version
         uses: microsoft/variable-substitution@v1
         with:
@@ -47,7 +47,7 @@ jobs:
 
       # Create a release for this specific version
       - name: Update Release with Files
-        if: contains(github.event.release.prerelease, false)
+        if: github.event.release.prerelease == false
         id: create_version_release
         uses: ncipollo/release-action@v1
         with:
@@ -62,7 +62,7 @@ jobs:
 
       # OR create a pre-release for this specific version
       - name: Update Release with Files
-        if: contains(github.event.release.prerelease, true)
+        if: github.event.release.prerelease == true
         id: create_version_prerelease
         uses: ncipollo/release-action@v1
         with:
@@ -77,7 +77,7 @@ jobs:
 
       # Update next branch
       - name: Prepare repository
-        if: contains(github.event.release.prerelease, true)
+        if: github.event.release.prerelease == true
         run: |
           git config --global user.name '${{ github.actor }}'
           git config --global user.email '${{ github.actor }}@users.noreply.github.com'
