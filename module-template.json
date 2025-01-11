@@ -1,0 +1,67 @@
+{
+  "id": "crux",
+  "title": "Crux",
+  "description": "Adds an expanding tray for using an actor's items, abilities and spells",
+  "version": "",
+  "compatibility": {
+    "minimum": "11",
+    "verified": "12"
+  },
+  "authors": [
+    {
+      "name": "Relic",
+      "discord": "Relic",
+      "flags": {}
+    }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "dnd5e",
+        "type": "system"
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/cruxHooks.js",
+    "scripts/cruxSettings.js",
+    "scripts/cruxTrayState.js",
+    "scripts/cruxTrayUI.js"
+  ],
+  "styles": [
+    "styles/crux.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "packs": [
+    {
+      "name": "crux-items",
+      "label": "Crux Items",
+      "path": "packs/crux-items",
+      "type": "Item",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "system": "dnd5e",
+      "flags": {}
+    },
+    {
+      "name": "crux-macro",
+      "label": "Crux Macro",
+      "path": "packs/crux-macro",
+      "type": "Macro",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "system": "dnd5e",
+      "flags": {}
+    }
+  ]
+}
