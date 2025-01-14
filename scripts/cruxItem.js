@@ -46,7 +46,7 @@ function calculateConsumeUses(actor, consume) {
     let available = null;
     let maximum = null;
     if (consume.type === 'attribute') {
-        const value = getProperty(actor.system, consume.target);
+        const value = foundry.utils.getProperty(actor.system, consume.target);
         if (typeof value === 'number') {
             available = value;
         } else {

@@ -1,4 +1,28 @@
 import { fudgeToActor, fromUuid } from "./cruxHooks.js";
+
+/**
+ * Checks if the DnD5e system version is 4.0 or higher
+ * @returns {boolean} True if system version is 4.0+, false otherwise
+ */
+function isSystemVersionFourPlus() {
+    const system = game.system;
+    if (system.id !== "dnd5e") return false;
+    const version = system.version;
+    const majorVersion = parseInt(version.split('.')[0]);
+    return majorVersion >= 4;
+}
+
+/**
+ * Handles item recharge based on system version
+ * @param {Item} item - The item to recharge
+ */
+function handleItemRecharge(item) {
+    if (isSystemVersionFourPlus()) {
+        item.system.uses.rollRecharge();
+    } else {
+        item.rollRecharge();
+    }
+}
 import { calculateUsesForItem } from "./cruxItem.js";
 import { getActiveActors, scrollPosition, updateScrollPosition } from "./cruxTrayState.js";
 
@@ -443,7 +467,7 @@ export async function updateTray() {
     html.find('.rollable.item-recharge').mousedown(function(event) {
         const li = $(event.currentTarget).parents(".item");
         const item = fromUuid(li.data("item-uuid"));
-        item.rollRecharge();
+        handleItemRecharge(item);
         event.preventDefault();
         return false;
     });
