@@ -106,113 +106,68 @@
     opacity: 1;
 }
 
-/* Add to Combat and Set Elevation Buttons Container */
-.crux__combat-elevation-container {
+/* Utility Buttons Container */
+.crux__utility-buttons {
     display: flex;
     justify-content: space-between;
+    gap: 4px;
     margin: 10px -5px;
 }
 
-/* Add to Combat Button */
-.crux__add-to-combat {
-    padding: 1px 6px;
+/* Utility Button Common Styles */
+.crux__utility-button {
+    flex: 1;
     background-color: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 3px;
     cursor: pointer;
-    width: 48%;
-    margin: 0;
+    padding: 1px 6px;
 }
 
-.crux__add-to-combat-button {
+.crux__utility-button a {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     font-family: "Modesto Condensed", "Palatino Linotype", serif;
     font-size: 16px;
+    position: relative;
 }
 
-.crux__add-to-combat-button i {
+.crux__utility-button i {
     opacity: 0.8;
     flex: 0 0 14px;
     text-align: center;
 }
 
-.crux__add-to-combat:hover {
+.crux__utility-button:hover {
     background-color: rgba(255, 255, 255, 0.25);
 }
 
-.crux__add-to-combat:hover i {
+.crux__utility-button:hover i {
     opacity: 1;
 }
 
-/* Set Elevation Button */
-.crux__set-elevation {
-    padding: 1px 6px;
-    background-color: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 3px;
-    cursor: pointer;
-    width: 48%;
-    margin: 0;
+/* Hide text by default, show on hover */
+.crux__utility-button .button-text {
+    display: none;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
-.crux__set-elevation-button {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-family: "Modesto Condensed", "Palatino Linotype", serif;
-    font-size: 16px;
+.crux__utility-button:hover .button-text {
+    display: block;
 }
 
-.crux__set-elevation-button i {
-    opacity: 0.8;
-    flex: 0 0 14px;
-    text-align: center;
-}
-
-.crux__set-elevation:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-}
-
-.crux__set-elevation:hover i {
-    opacity: 1;
-}
-
+/* Specific button adjustments */
 .crux__set-elevation input {
-    width: 40px; /* Adjust width as needed */
-}
-
-/* Expand/Collapse All Button */
-.crux__expand-collapse {
-    margin: 10px -5px;
-    padding: 1px 6px;
-    background-color: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 3px;
-    cursor: pointer;
-}
-
-.crux__expand-collapse-button {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-family: "Modesto Condensed", "Palatino Linotype", serif;
-    font-size: 16px;
-}
-
-.crux__expand-collapse-button i {
-    opacity: 0.8;
-    flex: 0 0 14px;
-    text-align: center;
-}
-
-.crux__expand-collapse:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-}
-
-.crux__expand-collapse:hover i {
-    opacity: 1;
+    width: 40px;
 }
 
 /* Section Headers */
@@ -436,7 +391,7 @@
 
 /* Cursor styling for favorites */
 .crux__item[data-is-favorite="true"] {
-    cursor: grab;
+    cursor: default;
 }
 
 /* Favorites section styling */
