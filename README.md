@@ -14,6 +14,15 @@ CRUX streamlines gameplay by providing instant access to all activatable items a
 - Sliding tray panel with customizable width and icon sizes
 - Quick access to all activatable items, spells, and abilities
 - Support for Foundry VTT v11+ and DND5E system
+- Drag and drop support for managing favorites
+
+
+### Token Controls
+- Quick access to token configuration
+- Target mode toggle
+- Status effects management window
+- Combat integration (add to combat)
+- Elevation control with numeric input
 
 ### Action Display
 - **Basic Actions**: Quick access to common actions
@@ -42,6 +51,7 @@ Items are tagged for easy identification when they are:
 - Legendary actions
 
 ### Interactive Features
+- Flippable character portrait (click to flip for more Stats)
 - Right-click on item name/icon for fast-forward activation (skips dialog)
 - Click item name to expand and view description
 - Quick access to:
@@ -49,6 +59,9 @@ Items are tagged for easy identification when they are:
   - End turn function (in combat)
   - Character sheet (via character name)
   - Initiative rolling (when unrolled in combat)
+  - Status effects management
+- Expand/collapse all sections button
+- Drag and drop items to add to favorites (hover and press "-" to remove)
 
 ### Hot Keys
 - Toggle tray visibility (default: E)
@@ -67,6 +80,7 @@ Items are tagged for easy identification when they are:
   - Three icon sizes (Small, Medium, Large)
   - Two tray widths (Small, Large)
   - Optional spell slot dots
+
 - **Skills Display**:
   - Collapsible at top
   - Listed at bottom
