@@ -103,9 +103,16 @@ Hooks.once('init', () => {
     console.log("Crux | Initializing Crux hooks");
 });
 
+import CruxEffectsApp from "./cruxEffectsApp.js";
+
 // Update on token selection
-Hooks.on("controlToken", () => {
+Hooks.on("controlToken", (token, isControlled) => {
     updateTrayState();
+    
+    // Update effects window if token is controlled
+    if (isControlled && token.actor) {
+        CruxEffectsApp.updateInstance(token.actor, token);
+    }
 });
 
 // Update when actor changes

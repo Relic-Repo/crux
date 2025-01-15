@@ -131,7 +131,29 @@
             <div class="crux__actor" data-actor-uuid="{{actor.actor.uuid}}">
                 <div class="crux__top-section">
                     <div class="crux__portrait">
-                        <img src="{{actor.actor.img}}" alt="Character Portrait">
+                        <div class="crux__portrait-inner">
+                            <div class="crux__portrait-front">
+                                <img src="{{actor.actor.img}}" alt="Character Portrait">
+                            </div>
+                            <div class="crux__portrait-back">
+                                <div class="crux__stat-row">
+                                    <img src="modules/crux/img/shield.svg" alt="AC">
+                                    <span>AC: {{actor.actor.system.attributes.ac.value}}</span>
+                                </div>
+                                <div class="crux__stat-row">
+                                    <img src="modules/crux/img/hearts.svg" alt="HP">
+                                    <span>HP: {{actor.actor.system.attributes.hp.value}}/{{actor.actor.system.attributes.hp.max}}</span>
+                                </div>
+                                <div class="crux__stat-row">
+                                    <img src="modules/crux/img/eye-target.svg" alt="Passive Perception">
+                                    <span>P. Perc.: {{add actor.actor.system.skills.prc.total 10}}</span>
+                                </div>
+                                <div class="crux__stat-row">
+                                    <img src="modules/crux/img/walk.svg" alt="Walk">
+                                    <span>Speed: {{actor.actor.system.attributes.movement.walk}}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="crux__info-section">
                         <h1><a class="crux__actor-name">{{name}}</a></h1>
@@ -175,6 +197,29 @@
                         </a>
                         <a class="crux__action-button" data-action="shove" title="{{localize "crux.action.shove"}}">
                             <img src="modules/crux/img/shove.svg" alt="Shove">
+                        </a>
+                    </div>
+                </div>
+
+                <div class="crux__utility-buttons crux__token-controls">
+                    <div class="crux__utility-button crux__open-token">
+                        <a class="crux__open-token-button" title="{{localize "crux.open-token"}}">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="button-text">{{localize "crux.open-token"}}</span>
+                        </a>
+                    </div>
+
+                    <div class="crux__utility-button crux__toggle-target">
+                        <a class="crux__toggle-target-button" title="{{localize "crux.toggle-target"}}">
+                            <i class="fas fa-bullseye"></i>
+                            <span class="button-text">{{localize "crux.toggle-target"}}</span>
+                        </a>
+                    </div>
+
+                    <div class="crux__utility-button crux__status-effects">
+                        <a class="crux__status-effects-button" title="{{localize "crux.status-effects"}}">
+                            <img src="modules/crux/img/aura.svg" alt="Status Effects">
+                            <span class="button-text">{{localize "crux.status-effects"}}</span>
                         </a>
                     </div>
                 </div>

@@ -1,10 +1,11 @@
 import { fudgeToActor, fromUuid } from "./cruxHooks.js";
+import CruxEffectsApp from "./cruxEffectsApp.js";
 
 /**
  * Checks if the DnD5e system version is 4.0 or higher
  * @returns {boolean} True if system version is 4.0+, false otherwise
  */
-function isSystemVersionFourPlus() {
+function DnDv4() {
     const system = game.system;
     if (system.id !== "dnd5e") return false;
     const version = system.version;
@@ -17,7 +18,7 @@ function isSystemVersionFourPlus() {
  * @param {Item} item - The item to recharge
  */
 function handleItemRecharge(item) {
-    if (isSystemVersionFourPlus()) {
+    if (DnDv4()) {
         item.system.uses.rollRecharge();
     } else {
         item.rollRecharge();
@@ -565,6 +566,42 @@ export async function updateTray() {
         }
     });
 
+    
+    // Add click handlers for token control buttons
+    html.find('.crux__open-token-button').click(async function(event) {
+        const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
+        const actor = fudgeToActor(fromUuid(actorUuid));
+        if (!actor) return;
+
+        const token = actor.getActiveTokens()[0];
+        if (token) {
+            token.sheet.render(true);
+        }
+    });
+
+    html.find('.crux__toggle-target-button').click(async function(event) {
+        const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
+        const actor = fudgeToActor(fromUuid(actorUuid));
+        if (!actor) return;
+
+        const token = actor.getActiveTokens()[0];
+        if (token) {
+            token.setTarget(!token.isTargeted, { releaseOthers: false });
+        }
+    });
+
+    html.find('.crux__status-effects-button').click(async function(event) {
+        const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
+        const actor = fudgeToActor(fromUuid(actorUuid));
+        if (!actor) return;
+
+        const token = actor.getActiveTokens()[0];
+        if (token) {
+            const app = new CruxEffectsApp(actor, token, this);
+            app.render(true);
+        }
+    });
+
     // Add click handler for expand/collapse all button
     html.find('.crux__expand-collapse-button').click(function(event) {
         const actor = $(this).closest('.crux__actor');
@@ -728,6 +765,11 @@ export async function updateTray() {
         }
     }
 
+    // Add portrait flip handler
+    html.find('.crux__portrait').click(function(event) {
+        $(this).toggleClass('flipped');
+    });
+
     html.find('.crux__actor-name').click(function(event) {
         const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
         const actor = fudgeToActor(fromUuid(actorUuid));
@@ -818,5 +860,12 @@ Handlebars.registerHelper({
         if (collection instanceof Set) return collection.has(value);
         if (Array.isArray(collection)) return collection.includes(value);
         return false;
+    },
+    add: (a, b) => {
+        return Number(a) + Number(b);
+    },
+    uppercase: (str) => {
+        if (!str) return '';
+        return str.toUpperCase();
     }
 });

@@ -13,6 +13,9 @@
         "roll-initiative": "Roll initiative!",
         "add-to-combat": "Add to Combat",
         "set-elevation": "Set Elevation",
+        "open-token": "Open Token",
+        "toggle-target": "Toggle Target",
+        "status-effects": "Status Effects",
         "elevation": {
             "title": "Set Token Elevation",
             "label": "Enter elevation value",
