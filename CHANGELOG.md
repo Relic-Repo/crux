@@ -1,0 +1,67 @@
+# Changelog
+
+All notable changes to the CRUX module will be documented in this file.
+
+## [2024-01-16]
+
+### Current Features
+- Core Functionality
+  - Sliding tray panel with customizable width and icon sizes
+  - Quick access to all activatable items, spells, and abilities
+  - Support for Foundry VTT v12+ and DND5E system
+  - Integration with Tidy 5e Sheet Sections
+
+- Token Controls
+  - Quick access to token configuration
+  - Target mode toggle
+  - Status effects management window
+  - Combat integration
+  - Elevation control with numeric input
+
+- Action Display
+  - Basic Actions (Dash, Disengage, Dodge, Grapple, Hide, Shove)
+  - Categorized display of Favorites, Equipped items, Inventory items, Features, and Spells
+  - Spell organization by level (cantrips through 9th level)
+
+- Special Indicators for:
+  - Bonus Actions
+  - Reactions
+  - Concentration spells
+  - Ritual spells
+  - Unprepared spells
+  - Legendary actions
+
+- Interactive Features
+  - Flippable character portrait with stats
+  - Right-click fast-forward activation
+  - Expandable item descriptions
+  - Quick access to ability checks and saves
+  - Combat turn management
+  - Status effects management
+  - Expand/collapse all sections
+
+- Hot Keys
+  - Toggle tray visibility (default: E)
+  - Access skills list (default: K)
+
+- Customization Options
+  - Multiple display modes (Toggle, When Token Selected, Automatic, Always Show)
+  - Configurable icon sizes and tray widths
+  - Optional spell slot dots
+  - Configurable section states and sorting options
+  - Flexible skills display positioning
+
+## [2025-01-11]
+
+### Changed
+- Update GitHub Actions workflow
+- Update GitHub Actions workflow conditions
+- Fix GitHub Actions workflow syntax
+- Add GitHub Actions workflow for releases
+
+## [2025-01-10]
+
+### Added
+- Add Foundry VTT installation URLs to module.json
+- Add packs directory to repository
+- Initial commit: Add CRUX Foundry VTT module files

@@ -14,8 +14,7 @@ CRUX streamlines gameplay by providing instant access to all activatable items a
 - Sliding tray panel with customizable width and icon sizes
 - Quick access to all activatable items, spells, and abilities
 - Support for Foundry VTT v11+ and DND5E system
-- Drag and drop support for managing favorites
-
+- Integration with Tidy5e Sheet sections (optional)
 
 ### Token Controls
 - Quick access to token configuration
@@ -34,7 +33,7 @@ CRUX streamlines gameplay by providing instant access to all activatable items a
   - Shove
 
 - **Item Categories**:
-  - Favorites (drag and drop items from character sheet to add, hover and press "-" to remove)
+  - Favorites section for quick access to important items
   - Equipped items (displayed at the top)
   - Inventory items with activation types
   - Features with activation types
@@ -43,16 +42,15 @@ CRUX streamlines gameplay by providing instant access to all activatable items a
 
 ### Special Indicators
 Items are tagged for easy identification when they are:
-- Bonus Actions
-- Reactions
-- Concentration spells
-- Ritual spells
-- Unprepared spells
-- Legendary actions
+- Bonus Actions (B)
+- Reactions (R)
+- Concentration spells (C)
+- Ritual spells (Rt)
+- Unprepared spells (U)
+- Legendary actions (L)
 
 ### Interactive Features
 - Flippable character portrait (click to flip for more Stats)
-- Right-click on item name/icon for fast-forward activation (skips dialog)
 - Click item name to expand and view description
 - Quick access to:
   - Ability checks and saves
@@ -61,7 +59,7 @@ Items are tagged for easy identification when they are:
   - Initiative rolling (when unrolled in combat)
   - Status effects management
 - Expand/collapse all sections button
-- Drag and drop items to add to favorites (hover and press "-" to remove)
+- Item context menu options to show/hide items in Crux
 
 ### Hot Keys
 - Toggle tray visibility (default: E)
@@ -73,9 +71,9 @@ Items are tagged for easy identification when they are:
 ### Customization Options
 - **Display Modes**:
   - Toggle: Manual open/close
-  - When Token Selected: Automatic display with selection
   - Automatic: Toggle for players, Selection-based for DMs
   - Always Show: Persistent display
+
 - **Visual Settings**:
   - Three icon sizes (Small, Medium, Large)
   - Two tray widths (Small, Large)
@@ -84,16 +82,19 @@ Items are tagged for easy identification when they are:
 - **Skills Display**:
   - Collapsible at top
   - Listed at bottom
+  - None (disabled)
+
 - **Section States**:
-  - Configurable default states for skills section
-  - Configurable default states for main sections
-  - Configurable default states for sub-sections
+  - Configurable default states for skills section (Open/Collapsed)
+  - Configurable default states for main sections (Open/Collapsed)
+  - Configurable default states for sub-sections (Open/Collapsed)
+
 - **Additional Options**:
   - Alphabetical sorting (optional)
-  - Always show cantrips
-  - Toggle visibility of tray activation icon
+  - Show unprepared cantrips (optional)
   - Hide/show depleted items
   - Assume default character when no token is selected
+  - Use Tidy5e Sheet sections instead of standard Crux sections
 
 ## Installation
 
