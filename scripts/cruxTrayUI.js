@@ -1,4 +1,4 @@
-import { fudgeToActor, fromUuid } from "./cruxHooks.js";
+import { resolveActor, fromUuid } from "./cruxHooks.js";
 import CruxEffectsApp from "./cruxEffectsApp.js";
 
 /**
@@ -39,13 +39,13 @@ export async function updateTray() {
     const settingSkillsExpanded = game.settings.get("crux", "skills-expanded") === "open";
     const settingMainSectionsExpanded = game.settings.get("crux", "main-sections-expanded") === "open";
     const settingSubSectionsExpanded = game.settings.get("crux", "sub-sections-expanded") === "open";
+    const useTidy5e = game.settings.get("crux", "use-tidy5e-sections");
 
     const actors = getActiveActors().map(actor => {
         const actorData = actor.system;
 
         const canCastUnpreparedRituals = !!actor.items.find(i => i.name === "Wizard");
 
-        // Initialize sections structure
         const sections = {
             favorites: { items: [], title: "crux.category.favorites" },
             equipped: { items: [], title: "crux.category.equipped" },
@@ -58,7 +58,13 @@ export async function updateTray() {
                     other: { items: [], title: "crux.category.other" }
                 }
             },
-            feature: { items: [], title: "crux.category.feature", groups: systemFeatureGroups() },
+            feature: { 
+                items: [], 
+                title: "crux.category.feature", 
+                groups: {
+                    ...systemFeatureGroups()
+                }
+            },
             spell: {
                 title: "crux.category.spell",
                 groups: {
@@ -74,74 +80,110 @@ export async function updateTray() {
             passive: { items: [], title: "crux.category.passive" }
         };
 
-    // Process each item
     for (let item of actor.items) {
         const itemData = item.system;
         const uses = calculateUsesForItem(item);
         const hasUses = settingShowNoUses || !uses || uses.available;
-        const isFavorite = item.getFlag("crux", "cruxFav");
-
-        // Add to favorites if flagged - no other conditions needed
-        if (isFavorite && !item.getFlag("crux", "hidden")) {
-            sections.favorites.items.push({ item, uses });
+        const favoriteEntry = actorData.favorites?.find(f => {
+            const favoriteId = f.id.startsWith(".") ? f.id.substring(1) : f.id;
+            return favoriteId === `Item.${item.id}`;
+        });
+        if (favoriteEntry && !item.getFlag("crux", "hidden")) {
+            sections.favorites.items.push({ item, uses, sort: favoriteEntry.sort });
         }
 
             if (hasUses && itemData.activation?.type && itemData.activation.type !== "none" && !item.getFlag("crux", "hidden")) {
                 switch (item.type) {
                     case "feat":
-                        const type = item.system.type.value;
-                        const subtype = item.system.type.subtype;
-
-                        if (subtype) {
-                            sections.feature.groups[subtype].items.push({ item, uses });
-                        } else if (type) {
-                            sections.feature.groups[type].items.push({ item, uses });
+                        const featureSection = useTidy5e ? item.flags?.["tidy5e-sheet"]?.section : null;
+                        if (featureSection) {
+                            const sectionKey = `tidy5e_${featureSection.toLowerCase().replace(/\s+/g, '_')}`;
+                            if (!sections.feature.groups[sectionKey]) {
+                                sections.feature.groups[sectionKey] = {
+                                    items: [],
+                                    title: featureSection
+                                };
+                            }
+                            sections.feature.groups[sectionKey].items.push({ item, uses });
                         } else {
-                            sections.feature.groups.general.items.push({ item, uses });
+                            const type = item.system.type.value;
+                            const subtype = item.system.type.subtype;
+
+                            if (subtype) {
+                                sections.feature.groups[subtype].items.push({ item, uses });
+                            } else if (type) {
+                                sections.feature.groups[type].items.push({ item, uses });
+                            } else {
+                                sections.feature.groups.general.items.push({ item, uses });
+                            }
                         }
                         break;
                     case "spell":
-                        switch (itemData.preparation?.mode) {
-                            case "prepared":
-                            case "always":
-                                const isAlways = itemData.preparation?.mode !== "prepared";
-                                const isPrepared = itemData.preparation?.prepared;
-                                const isCastableRitual = (canCastUnpreparedRituals && itemData.components?.ritual);
-                                const isDisplayableCantrip = itemData.level == 0 && settingShowUnpreparedCantrips;
-                                if (isAlways || isPrepared || isCastableRitual || isDisplayableCantrip) {
-                                    sections.spell.groups[`spell${itemData.level}`].items.push({ item, uses });
-                                }
-                                break;
-                            case "atwill":
-                                sections.spell.groups.atwill.items.push({ item, uses });
-                                break;
-                            case "innate":
-                                sections.spell.groups.innate.items.push({ item, uses });
-                                break;
-                            case "pact":
-                                sections.spell.groups.pact.items.push({ item, uses });
-                                break;
+                        const spellSection = useTidy5e ? item.flags?.["tidy5e-sheet"]?.section : null;
+                        if (spellSection) {
+                            const sectionKey = `tidy5e_${spellSection.toLowerCase().replace(/\s+/g, '_')}`;
+                            if (!sections.spell.groups[sectionKey]) {
+                                sections.spell.groups[sectionKey] = {
+                                    items: [],
+                                    title: spellSection
+                                };
+                            }
+                            sections.spell.groups[sectionKey].items.push({ item, uses });
+                        } else {
+                            switch (itemData.preparation?.mode) {
+                                case "prepared":
+                                case "always":
+                                    const isAlways = itemData.preparation?.mode !== "prepared";
+                                    const isPrepared = itemData.preparation?.prepared;
+                                    const isCastableRitual = (canCastUnpreparedRituals && itemData.components?.ritual);
+                                    const isDisplayableCantrip = itemData.level == 0 && settingShowUnpreparedCantrips;
+                                    if (isAlways || isPrepared || isCastableRitual || isDisplayableCantrip) {
+                                        sections.spell.groups[`spell${itemData.level}`].items.push({ item, uses });
+                                    }
+                                    break;
+                                case "atwill":
+                                    sections.spell.groups.atwill.items.push({ item, uses });
+                                    break;
+                                case "innate":
+                                    sections.spell.groups.innate.items.push({ item, uses });
+                                    break;
+                                case "pact":
+                                    sections.spell.groups.pact.items.push({ item, uses });
+                                    break;
+                            }
                         }
                         break;
                     default:
-                        switch (item.type) {
-                            case "weapon":
-                                if (itemData.equipped) {
-                                    sections.equipped.items.push({ item, uses });
-                                } else {
-                                    sections.inventory.groups.weapon.items.push({ item, uses });
-                                }
-                                break;
-                            case "equipment":
-                                sections.inventory.groups.equipment.items.push({ item, uses });
-                                break;
-                            case "consumable":
-                                if (itemData.consumableType !== "ammo") {
-                                    sections.inventory.groups.consumable.items.push({ item, uses });
-                                }
-                                break;
-                            default:
-                                sections.inventory.groups.other.items.push({ item, uses });
+                        const inventorySection = useTidy5e ? item.flags?.["tidy5e-sheet"]?.section : null;
+                        if (inventorySection) {
+                            const sectionKey = `tidy5e_${inventorySection.toLowerCase().replace(/\s+/g, '_')}`;
+                            if (!sections.inventory.groups[sectionKey]) {
+                                sections.inventory.groups[sectionKey] = {
+                                    items: [],
+                                    title: inventorySection
+                                };
+                            }
+                            sections.inventory.groups[sectionKey].items.push({ item, uses });
+                        } else {
+                            switch (item.type) {
+                                case "weapon":
+                                    if (itemData.equipped) {
+                                        sections.equipped.items.push({ item, uses });
+                                    } else {
+                                        sections.inventory.groups.weapon.items.push({ item, uses });
+                                    }
+                                    break;
+                                case "equipment":
+                                    sections.inventory.groups.equipment.items.push({ item, uses });
+                                    break;
+                                case "consumable":
+                                    if (itemData.consumableType !== "ammo") {
+                                        sections.inventory.groups.consumable.items.push({ item, uses });
+                                    }
+                                    break;
+                                default:
+                                    sections.inventory.groups.other.items.push({ item, uses });
+                            }
                         }
                         break;
                 }
@@ -167,7 +209,6 @@ export async function updateTray() {
                 return prev;
             }, {});
             
-            // Add general features group
             groups.general = {
                 items: [],
                 title: "crux.category.general"
@@ -186,7 +227,6 @@ export async function updateTray() {
         }
 
         return Object.entries(sections).reduce((acc, [key, value]) => {
-            // Always keep the favorites section, even if empty
             if (key === 'favorites' || hasItems(value)) {
                 acc[key] = value;
             }
@@ -214,17 +254,25 @@ export async function updateTray() {
         }
 
         function sortItems(sections) {
-            Object.entries(sections).forEach(([key, value]) => {
-                if (key === "items") {
-                    value.sort((a, b) => {
-                        if (settingSortAlphabetically) {
-                            return a.item.name.localeCompare(b.item.name);
-                        } else {
-                            return a.item.sort - b.item.sort;
-                        }
-                    });
-                } else if (typeof value === "object") {
-                    sortItems(value);
+            if (!sections || typeof sections !== "object") return sections;
+
+            Object.entries(sections).forEach(([sectionKey, value]) => {
+                if (!value || typeof value !== "object") return;
+                if (Array.isArray(value.items)) {
+                    if (sectionKey === "favorites") {
+                        value.items.sort((a, b) => a.sort - b.sort);
+                    } else {
+                        value.items.sort((a, b) => {
+                            if (settingSortAlphabetically) {
+                                return a.item.name.localeCompare(b.item.name);
+                            } else {
+                                return a.item.sort - b.item.sort;
+                            }
+                        });
+                    }
+                }
+                if (value.groups) {
+                    sortItems(value.groups);
                 }
             });
             return sections;
@@ -232,14 +280,11 @@ export async function updateTray() {
 
         const combatant = game.combat?.combatants.find(c => c.actor === actor);
         const needsInitiative = combatant && !combatant.initiative;
-
-        // Set showSkills based on both stored state and skillMode
         let doShowSkills = false;
         const { uuid, showSkills } = scrollPosition;
         if (actor.uuid === uuid && showSkills !== undefined) {
             doShowSkills = showSkills;
         } else if (settingSkillMode === "dropdown") {
-            // If no stored state but skillMode is dropdown, use the skills-expanded setting
             doShowSkills = settingSkillsExpanded;
         }
 
@@ -252,7 +297,6 @@ export async function updateTray() {
             };
         }
 
-        // Get token elevation for the elevation button
         const token = actor.getActiveTokens()[0];
         const elevation = token?.elevation ?? 0;
 
@@ -277,14 +321,12 @@ export async function updateTray() {
     const traySize = prefix(game.settings.get("crux", "tray-size"), "tray");
     const showSpellDots = game.settings.get("crux", "show-spell-dots");
 
-    // Render template and update UI
     const htmlString = await renderTemplate("modules/crux/templates/crux.hbs", { actors, iconSize, showSpellDots });
     const container = $('#crux');
     const html = container.html(htmlString);
     container[0].classList.remove("tray-small", "tray-medium", "tray-large");
     container[0].classList.add(traySize);
 
-    // Restore scroll position
     if (actors.length == 1) {
         const currentUuid = actors[0].actor.uuid;
         const { uuid, scroll } = scrollPosition;
@@ -326,114 +368,7 @@ export async function updateTray() {
         Hooks.callAll(hookName, item, $(event.currentTarget));
     }
 
-    // Bind event handlers
     html.find('.rollable .item-image').mousedown(roll);
-
-    // Add drag and drop handlers
-    let hoveredFavoriteItem = null;
-
-    html.find('.crux__item').each((i, el) => {
-        const itemUuid = el.dataset.itemUuid;
-        const item = fromUuid(itemUuid);
-        const isFavorite = item?.getFlag("crux", "cruxFav");
-        
-        // Set data attribute for CSS cursor styling
-        el.setAttribute('data-is-favorite', isFavorite ? "true" : "false");
-
-        // Enable dragging for all items (so they can be added to favorites)
-        el.draggable = true;
-        el.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', e.target.dataset.itemUuid);
-        });
-
-        // Track hover state for favorites
-        if (isFavorite) {
-            $(el).hover(
-                function() { // mouseenter
-                    hoveredFavoriteItem = this;
-                },
-                function() { // mouseleave
-                    if (hoveredFavoriteItem === this) {
-                        hoveredFavoriteItem = null;
-                    }
-                }
-            );
-        }
-    });
-
-    html.find('.crux__section').each((i, el) => {
-        // Handle dragover for favorites section
-        el.addEventListener('dragover', (e) => {
-            const section = e.target.closest('.crux__section');
-            if (!section) return;
-            
-            const sectionTitle = section.querySelector('.crux__section-header span')?.textContent;
-            if (sectionTitle === game.i18n.localize("crux.category.favorites")) {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = "copy";
-            }
-        });
-
-        // Handle drop events for adding new favorites
-        el.addEventListener('drop', async (e) => {
-            const section = e.target.closest('.crux__section');
-            if (!section) return;
-            
-            const sectionTitle = section.querySelector('.crux__section-header span')?.textContent;
-            if (sectionTitle !== game.i18n.localize("crux.category.favorites")) return;
-
-            e.preventDefault();
-            
-            try {
-                // Try getting data from various formats
-                const plainData = e.dataTransfer.getData('text/plain');
-
-                let item = null;
-                try {
-                    // First try parsing as JSON
-                    const jsonData = JSON.parse(plainData);
-
-                    if (jsonData.type === "Item") {
-                        item = await fromUuid(jsonData.uuid);
-                    } else if (jsonData.type === "Item5e") {
-                        const actor = game.actors.get(jsonData.actorId);
-                        item = actor?.items.get(jsonData.data._id);
-                    }
-                } catch (err) {
-                    // If not JSON, try as direct UUID
-                    item = await fromUuid(plainData);
-                }
-
-                if (item) {
-                    await item.setFlag("crux", "cruxFav", true);
-                    ui.notifications.info(`Added ${item.name} to favorites`);
-                    updateTray();
-                } else {
-                    ui.notifications.warn("Could not add item to favorites - invalid item data");
-                }
-            } catch (error) {
-                ui.notifications.error("Error adding item to favorites");
-            }
-        });
-    });
-
-    // Add minus key handler for removing favorites
-    $(window).on('keydown.crux-favorites', async function(event) {
-        
-        // Check for both regular minus and numpad minus
-        if ((event.key === '-' || event.key === 'NumpadSubtract') && hoveredFavoriteItem) {
-            event.preventDefault(); // Prevent the key event from bubbling
-            event.stopPropagation(); // Stop event from bubbling up
-            
-            const itemUuid = hoveredFavoriteItem.closest('.item').dataset.itemUuid;
-            const item = await fromUuid(itemUuid);
-            if (item) {
-                await item.unsetFlag("crux", "cruxFav");
-                ui.notifications.info(`Removed ${item.name} from favorites`);
-                updateTray();
-            }
-        }
-    });
 
     html.find('.rollable.item-name')
         .hover(
@@ -475,7 +410,7 @@ export async function updateTray() {
 
     html.find('.group-dots .dot').click(function(event) {
         const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
-        const actor = fudgeToActor(fromUuid(actorUuid));
+        const actor = resolveActor(fromUuid(actorUuid));
         const group = this.closest('.group-dots').dataset.groupName;
         const slot = parseInt(this.dataset.slot) + 1;
 
@@ -490,7 +425,7 @@ export async function updateTray() {
     html.find('.crux__ability').click(function(event) {
         const abl = this.dataset.ability;
         const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
-        const actor = fudgeToActor(fromUuid(actorUuid));
+        const actor = resolveActor(fromUuid(actorUuid));
         if (abl && actor) {
             actor.rollAbility(abl, { event: event });
         }
@@ -499,7 +434,7 @@ export async function updateTray() {
     html.find('.crux__skill-row').click(function(event) {
         const skill = event.currentTarget.dataset.skill;
         const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
-        const actor = fudgeToActor(fromUuid(actorUuid));
+        const actor = resolveActor(fromUuid(actorUuid));
         return actor.rollSkill(skill, { event: event });
     });
 
@@ -508,7 +443,6 @@ export async function updateTray() {
         const skillContainer = event.target.closest('.crux__skill-container');
         skillContainer.classList.toggle("is-open");
         
-        // Update scroll position state for skills
         if (getActiveActors().length == 1) {
             const actor = getActiveActors()[0];
             if (!actor) return;
@@ -567,10 +501,9 @@ export async function updateTray() {
     });
 
     
-    // Add click handlers for token control buttons
     html.find('.crux__open-token-button').click(async function(event) {
         const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
-        const actor = fudgeToActor(fromUuid(actorUuid));
+        const actor = resolveActor(fromUuid(actorUuid));
         if (!actor) return;
 
         const token = actor.getActiveTokens()[0];
@@ -581,7 +514,7 @@ export async function updateTray() {
 
     html.find('.crux__toggle-target-button').click(async function(event) {
         const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
-        const actor = fudgeToActor(fromUuid(actorUuid));
+        const actor = resolveActor(fromUuid(actorUuid));
         if (!actor) return;
 
         const token = actor.getActiveTokens()[0];
@@ -592,7 +525,7 @@ export async function updateTray() {
 
     html.find('.crux__status-effects-button').click(async function(event) {
         const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
-        const actor = fudgeToActor(fromUuid(actorUuid));
+        const actor = resolveActor(fromUuid(actorUuid));
         if (!actor) return;
 
         const token = actor.getActiveTokens()[0];
@@ -602,17 +535,14 @@ export async function updateTray() {
         }
     });
 
-    // Add click handler for expand/collapse all button
     html.find('.crux__expand-collapse-button').click(function(event) {
         const actor = $(this).closest('.crux__actor');
         const sections = actor.find('.crux__section');
         const groups = actor.find('.crux__group');
         
-        // Check current state to determine new state
         const isAnySectionCollapsed = sections.toArray().some(section => $(section).hasClass('is-collapsed'));
         const isAnyGroupCollapsed = groups.toArray().some(group => $(group).hasClass('is-collapsed'));
         
-        // Toggle based on current state
         if (isAnySectionCollapsed) {
             sections.removeClass('is-collapsed');
         } else {
@@ -625,7 +555,6 @@ export async function updateTray() {
             groups.addClass('is-collapsed');
         }
         
-        // Update scroll position state
         if (getActiveActors().length == 1) {
             const actor = getActiveActors()[0];
             if (!actor) return;
@@ -638,13 +567,11 @@ export async function updateTray() {
                 groupStates: {}
             };
             
-            // Update all section states
             sections.each(function() {
                 const title = $(this).find('.crux__section-header span').text();
                 newScrollState.sectionStates[title] = !$(this).hasClass('is-collapsed');
             });
             
-            // Update all group states
             groups.each(function() {
                 const title = $(this).find('.crux__group-header h3 span').text();
                 newScrollState.groupStates[title] = !$(this).hasClass('is-collapsed');
@@ -653,11 +580,9 @@ export async function updateTray() {
             updateScrollPosition(newScrollState);
         }
     });
-
-    // Add click handler for add to combat button
     html.find('.crux__add-to-combat-button').click(async function(event) {
         const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
-        const actor = fudgeToActor(fromUuid(actorUuid));
+        const actor = resolveActor(fromUuid(actorUuid));
         if (!actor) return;
 
         const combat = game.combat;
@@ -673,10 +598,9 @@ export async function updateTray() {
             await Combat.create();
         } else {
             ui.notifications.warn(`No Active Combat Encounter. Please wait for creation and try again.`);
-            return; // If no combat and not a GM, warn.
+            return;
         }
 
-        // Get the token for this actor
         const token = actor.getActiveTokens()[0];
         if (token) {
             await game.combat.createEmbeddedDocuments("Combatant", [{
@@ -687,10 +611,9 @@ export async function updateTray() {
         }
     });
 
-    // Add click handler for set elevation button
     html.find('.crux__set-elevation-button').click(async function(event) {
         const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
-        const actor = fudgeToActor(fromUuid(actorUuid));
+        const actor = resolveActor(fromUuid(actorUuid));
         if (!actor) return;
 
         const token = actor.getActiveTokens()[0];
@@ -698,7 +621,6 @@ export async function updateTray() {
 
         const currentElevation = token.elevation ?? 0;
 
-        // Create dialog content
         const content = `
             <form>
                 <div class="form-group">
@@ -707,7 +629,6 @@ export async function updateTray() {
                 </div>
             </form>`;
 
-        // Show dialog
         new foundry.applications.api.DialogV2({
             window: { title: game.i18n.localize("crux.elevation.title") },
             content: content,
@@ -730,7 +651,6 @@ export async function updateTray() {
         }).render(true);
     });
 
-    // Apply initial states based on settings
     if (settingMainSectionsExpanded === false) {
         html.find('.crux__section').addClass('is-collapsed');
     }
@@ -741,7 +661,6 @@ export async function updateTray() {
         html.find('.crux__skill-container').addClass('is-open');
     }
 
-    // Restore section and group states from saved position
     if (actors.length == 1) {
         const currentUuid = actors[0].actor.uuid;
         const { uuid, sectionStates, groupStates } = scrollPosition;
@@ -765,14 +684,13 @@ export async function updateTray() {
         }
     }
 
-    // Add portrait flip handler
     html.find('.crux__portrait').click(function(event) {
         $(this).toggleClass('flipped');
     });
 
     html.find('.crux__actor-name').click(function(event) {
         const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
-        const actor = fudgeToActor(fromUuid(actorUuid));
+        const actor = resolveActor(fromUuid(actorUuid));
         if (actor) {
             if (!actor.sheet.rendered) actor.sheet.render(true);
             else actor.sheet.close();
@@ -785,31 +703,26 @@ export async function updateTray() {
 
     html.find('.crux__initiative').click(function(event) {
         const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
-        const actor = fudgeToActor(fromUuid(actorUuid));
+        const actor = resolveActor(fromUuid(actorUuid));
         const combatantId = game.combat?.combatants.find(c => c.actor === actor).id;
         game.combat?.rollInitiative([combatantId]);
     });
 
-    // Handle action button clicks
     html.find('.crux__action-button').click(async function(event) {
         const actorUuid = this.closest('.crux__actor').dataset.actorUuid;
-        const actor = fudgeToActor(fromUuid(actorUuid));
+        const actor = resolveActor(fromUuid(actorUuid));
         if (!actor) return;
 
         const action = this.dataset.action;
         const actionName = game.i18n.localize(`crux.action.${action}`);
-
-        // Search for matching item
         const matchingItem = actor.items.find(item => {
             const name = item.name.toLowerCase();
             return name === action.toLowerCase() || name === actionName.toLowerCase();
         });
 
         if (matchingItem) {
-            // Use the item if found
             await matchingItem.use({}, event);
         } else {
-            // Create chat message if no item found
             const content = `<p>${actor.name} uses ${actionName}</p>`;
             await ChatMessage.create({
                 user: game.user.id,
@@ -835,10 +748,8 @@ export async function updateTray() {
         }
     });
 
-    // Clean up previous event handlers
     $(document).off('keydown.crux-favorites');
     
-    // Add cleanup when tray is closed
     Hooks.once('closeTray', () => {
         $(document).off('keydown.crux-favorites');
     });
@@ -846,7 +757,6 @@ export async function updateTray() {
     Hooks.call('crux.updateTray', html, actors);
 }
 
-// Register Handlebars helpers
 Handlebars.registerHelper({
     cruxSlots: (available, maximum) => {
         const slots = [];

@@ -30,14 +30,12 @@ class CruxEffectsApp extends Application {
     }
 
     getData(options={}) {
-        // Get all available status effects
         const choices = {};
         for (const status of CONFIG.statusEffects) {
             if ((status.hud === false) || ((foundry.utils.getType(status.hud) === "Object")
                 && (status.hud.actorTypes?.includes(this.actor.type) === false))) {
                 continue;
             }
-            // Skip effects without images
             if (!status.img && !status.icon) continue;
             choices[status.id] = {
                 _id: status._id,
@@ -49,7 +47,6 @@ class CruxEffectsApp extends Application {
             };
         }
 
-        // Update the status of effects which are active for the token actor
         const activeEffects = this.actor?.effects || [];
         for (const effect of activeEffects) {
             for (const statusId of effect.statuses) {
@@ -66,7 +63,6 @@ class CruxEffectsApp extends Application {
             }
         }
 
-        // Flag status CSS class
         for (const status of Object.values(choices)) {
             status.cssClass = [
                 status.isActive ? "active" : null,
@@ -82,7 +78,6 @@ class CruxEffectsApp extends Application {
     activateListeners(html) {
         super.activateListeners(html);
 
-        // Handle effect toggling
         html.find('.effect-control').click(this._onToggleEffect.bind(this));
         html.find('.effect-control').contextmenu(event => this._onToggleEffect(event, {overlay: true}));
     }

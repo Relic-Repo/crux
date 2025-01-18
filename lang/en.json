@@ -106,7 +106,9 @@
             "main-sections-expanded": "Main Sections Default State",
             "main-sections-expanded-hint": "Choose whether the main sections (like Features, Spells, etc.) start open or collapsed by default",
             "sub-sections-expanded": "Sub-Sections Default State",
-            "sub-sections-expanded-hint": "Choose whether sub-sections (like spell levels) start open or collapsed by default"
+            "sub-sections-expanded-hint": "Choose whether sub-sections (like spell levels) start open or collapsed by default",
+            "use-tidy5e-sections": "Use Tidy 5e Sheet Sections",
+            "use-tidy5e-sections-hint": "When enabled, recognizes and uses Tidy 5e Sheet sections instead of standard Crux sections"
         },
         "item-context": {
             "show": "Show in Crux",

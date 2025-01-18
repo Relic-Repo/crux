@@ -50,6 +50,15 @@ export const SETTINGS = {
         default: false,
         onChange: () => updateTray()
     },
+    "use-tidy5e-sections": {
+        name: "Use Tidy 5e Sheet Sections",
+        hint: "When enabled, recognizes and uses Tidy 5e Sheet sections instead of standard Crux sections.",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: false,
+        onChange: () => updateTray()
+    },
     "skills-expanded": {
         name: "Skills Section Default State",
         hint: "Choose whether the Skills section starts expanded or collapsed by default",
@@ -220,14 +229,11 @@ function toggleSkills() {
     }
 }
 
-// Initialize settings and keybindings when the module loads
 Hooks.once('init', () => {
-    // Register all settings
     for (const [key, setting] of Object.entries(SETTINGS)) {
         game.settings.register("crux", key, setting);
     }
 
-    // Register keybindings
     game.keybindings.register("crux", "toggle-tray", {
         name: "Toggle Tray",
         hint: "Toggle the visibility of the action tray",

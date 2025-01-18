@@ -12,14 +12,20 @@ export function fromUuid(uuid) {
 }
 
 /**
- * Converts an item or actor into an actor
- * @param {object} item - The item or actor to convert
- * @returns {Actor|null} The actor if conversion successful, null otherwise
+ * Resolves a token, actor, or item into its associated actor
+ * @param {object} candidate - The object to resolve into an actor
+ * @returns {Actor|null} The resolved actor if successful, null otherwise
  */
-export function fudgeToActor(item) {
-    if (!item) return null;
-    if (item instanceof Actor) return item;
-    return item.actor;
+export function resolveActor(candidate) {
+    if (!candidate) return null;
+    if (candidate instanceof CONFIG.Actor.documentClass) {
+        return candidate;
+    } else if (candidate instanceof CONFIG.Token.documentClass) {
+        return candidate.object.actor;
+    } else {
+        console.warn('Expected', candidate, 'to be actor');
+        return null;
+    }
 }
 
 /**
@@ -38,18 +44,19 @@ export function updateCombatStatus() {
     if (!combat) {
         container.removeClass("in-combat");
         container.removeClass("my-turn");
+        container.removeClass("is-current-combatant");
         return;
     }
 
     container.addClass("in-combat");
 
     const currentActor = currentlyActiveActor();
-    const activeActors = getActiveActors();
+    const actors = canvas.tokens.controlled.map(t => t.actor);
 
-    if (currentActor && activeActors.includes(currentActor)) {
-        container.addClass("my-turn");
+    if (game.combat && currentActor && actors.some(a => a?.id === currentActor?.id)) {
+        container.addClass("is-current-combatant");
     } else {
-        container.removeClass("my-turn");
+        container.removeClass("is-current-combatant");
     }
 }
 
@@ -64,12 +71,10 @@ export function currentlyActiveActor() {
     const combatant = combat.combatants.get(combat.current.combatantId);
     if (!combatant) return null;
 
-    return combatant.actor;
+    return resolveActor(combatant.token);
 }
 
-// Initialize the tray when Foundry is ready
 Hooks.on("ready", () => {
-    // Create the tray container if it doesn't exist
     if (!$('#crux').length) {
         const trayHtml = `
             <div id="crux">
@@ -85,7 +90,6 @@ Hooks.on("ready", () => {
         `;
         $('#interface').prepend(trayHtml);
 
-        // Add initial classes based on settings
         const container = $('#crux');
         const iconSize = game.settings.get("crux", "icon-size");
         const traySize = game.settings.get("crux", "tray-size");
@@ -94,28 +98,23 @@ Hooks.on("ready", () => {
         if (traySize) container.addClass(`tray-${traySize}`);
     }
 
-    // Initial tray state update
     updateTrayState();
 });
 
-// Add initialization hook to ensure proper setup
 Hooks.once('init', () => {
     console.log("Crux | Initializing Crux hooks");
 });
 
 import CruxEffectsApp from "./cruxEffectsApp.js";
 
-// Update on token selection
 Hooks.on("controlToken", (token, isControlled) => {
     updateTrayState();
     
-    // Update effects window if token is controlled
     if (isControlled && token.actor) {
         CruxEffectsApp.updateInstance(token.actor, token);
     }
 });
 
-// Update when actor changes
 Hooks.on("updateActor", (actor) => {
     if (getActiveActors().includes(actor)) {
         updateTray();
@@ -132,7 +131,6 @@ function checkItemUpdate(item) {
     }
 }
 
-// Item update hooks
 Hooks.on("updateItem", (item) => {
     checkItemUpdate(item);
 });
@@ -145,7 +143,6 @@ Hooks.on("createItem", (item) => {
     checkItemUpdate(item);
 });
 
-// Combat hooks
 Hooks.on("updateCombat", () => {
     updateCombatStatus();
 });

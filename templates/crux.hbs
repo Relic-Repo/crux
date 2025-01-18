@@ -4,7 +4,6 @@
             <ul class="crux__items">
                 {{#each this}}
                     <li class="crux__item item" data-item-uuid="{{item.uuid}}" data-item-id="{{item.id}}">
-                        {{#if (eq ../../title "crux.category.favorites")}}<div class="remove-favorite"></div>{{/if}}
                         <div class="item-name rollable flexrow">
                             <div class="item-image" style="background-image: url('{{item.img}}')">
                                 <i class="fa fa-dice-d20"></i>

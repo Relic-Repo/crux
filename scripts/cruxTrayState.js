@@ -26,22 +26,18 @@ export function getActiveActors() {
 export function updateTrayState() {
     const container = $('#crux');
     
-    // Ensure the container exists
     if (!container.length) {
         ui.notifications.error("Tray container not found");
         return;
     }
 
     try {
-        // Get current state
         const wasOpen = container.hasClass("is-open");
         const wasAlwaysOn = container.hasClass("always-on");
         
-        // Determine new state
         const shouldBeOpen = isTrayAutoHide() ? getActiveActors().length > 0 : wasOpen;
         const shouldBeAlwaysOn = isTrayAlwaysOn();
 
-        // Update classes
         if (shouldBeOpen) {
             container.addClass("is-open");
         } else {
@@ -54,10 +50,8 @@ export function updateTrayState() {
             container.removeClass("always-on");
         }
 
-        // Update combat status
         updateCombatStatus();
         
-        // Update tray contents
         updateTray();
 
     } catch (error) {

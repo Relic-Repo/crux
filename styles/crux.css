@@ -450,11 +450,6 @@
     position: relative;
 }
 
-/* Cursor styling for favorites */
-.crux__item[data-is-favorite="true"] {
-    cursor: default;
-}
-
 /* Favorites section styling */
 .crux__section:first-child .crux__section-header {
     background-color: rgba(255, 215, 0, 0.2);
