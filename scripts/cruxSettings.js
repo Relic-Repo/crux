@@ -5,6 +5,51 @@ import { updateTray } from "./cruxTrayUI.js";
  * Configuration settings for the CRUX module
  */
 export const SETTINGS = {
+    "show-favorites-section": {
+        name: "Show Favorites Section",
+        hint: "Display the Favorites section in the tray.",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: () => updateTray()
+    },
+    "show-equipped-section": {
+        name: "Show Equipped Section",
+        hint: "Display the Equipped section in the tray.",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: () => updateTray()
+    },
+    "show-features-section": {
+        name: "Show Features Section",
+        hint: "Display the Features section in the tray.",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: () => updateTray()
+    },
+    "show-spells-section": {
+        name: "Show Spells Section",
+        hint: "Display the Spells section in the tray.",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: () => updateTray()
+    },
+    "show-inventory-section": {
+        name: "Show Inventory Section",
+        hint: "Display the Inventory section in the tray.",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: () => updateTray()
+    },
     "assume-default-character": {
         name: "Assume Default Character",
         hint: "When no other token is selected, show the tray for the user's default character (usually only set for players). This can help with scenes with no tokens (or a generic party token) visible.",
@@ -273,4 +318,5 @@ Hooks.once('init', () => {
             }
         }
     });
+
 });

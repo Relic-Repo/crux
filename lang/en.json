@@ -108,7 +108,17 @@
             "sub-sections-expanded": "Sub-Sections Default State",
             "sub-sections-expanded-hint": "Choose whether sub-sections (like spell levels) start open or collapsed by default",
             "use-tidy5e-sections": "Use Tidy 5e Sheet Sections",
-            "use-tidy5e-sections-hint": "When enabled, recognizes and uses Tidy 5e Sheet sections instead of standard Crux sections"
+            "use-tidy5e-sections-hint": "When enabled, recognizes and uses Tidy 5e Sheet sections instead of standard Crux sections",
+            "show-favorites-section": "Show Favorites Section",
+            "show-favorites-section-hint": "Display the Favorites section in the tray",
+            "show-equipped-section": "Show Equipped Section",
+            "show-equipped-section-hint": "Display the Equipped section in the tray",
+            "show-features-section": "Show Features Section",
+            "show-features-section-hint": "Display the Features section in the tray",
+            "show-spells-section": "Show Spells Section",
+            "show-spells-section-hint": "Display the Spells section in the tray",
+            "show-inventory-section": "Show Inventory Section",
+            "show-inventory-section-hint": "Display the Inventory section in the tray"
         },
         "item-context": {
             "show": "Show in Crux",

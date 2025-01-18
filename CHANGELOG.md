@@ -2,6 +2,21 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2024-01-18]
+
+### Added
+- New charge modification feature:
+  - Shift + Left Click to increase item charges
+  - Now uses Shift + Right Click to decrease item charges
+
+- New settings to control visibility of main sections:
+  - Show/Hide Favorites Section
+  - Show/Hide Equipped Section
+  - Show/Hide Features Section
+  - Show/Hide Spells Section
+  - Show/Hide Inventory Section
+  Each section can be individually toggled and is visible by default.
+
 ## [2024-01-16]
 
 ### Current Features
@@ -33,7 +48,6 @@ All notable changes to the CRUX module will be documented in this file.
 
 - Interactive Features
   - Flippable character portrait with stats
-  - Right-click fast-forward activation
   - Expandable item descriptions
   - Quick access to ability checks and saves
   - Combat turn management

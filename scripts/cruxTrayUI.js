@@ -226,8 +226,20 @@ export async function updateTray() {
             return Object.values(object).some(v => hasItems(v));
         }
 
+        function isSectionEnabled(key) {
+            const settingMap = {
+                favorites: "show-favorites-section",
+                equipped: "show-equipped-section",
+                feature: "show-features-section",
+                spell: "show-spells-section",
+                inventory: "show-inventory-section"
+            };
+            const setting = settingMap[key];
+            return !setting || game.settings.get("crux", setting);
+        }
+
         return Object.entries(sections).reduce((acc, [key, value]) => {
-            if (key === 'favorites' || hasItems(value)) {
+            if ((key === 'favorites' || hasItems(value)) && isSectionEnabled(key)) {
                 acc[key] = value;
             }
             return acc;
@@ -341,16 +353,33 @@ export async function updateTray() {
         event.preventDefault();
         const itemUuid = event.currentTarget.closest(".item").dataset.itemUuid;
         const item = fromUuid(itemUuid);
-        if (item) {
-            if (!game.modules.get("wire")?.active && game.modules.get("itemacro")?.active && game.settings.get("itemacro", "defaultmacro")) {
-                if (item.hasMacro()) {
-                    item.executeMacro();
-                    return false;
-                }
+        if (!item) return false;
+        // Handle charge modifications with Shift key
+        if (event.shiftKey && item.system.uses?.max > 0) {
+            const currentValue = item.system.uses.value;
+            const maxValue = item.system.uses.max;
+            let newValue;
+
+            if (event.which === 1) { // Left click
+                newValue = Math.min(currentValue + 1, maxValue);
+            } else if (event.which === 3) { // Right click
+                newValue = Math.max(currentValue - 1, 0);
             }
 
-            item.use({}, event);
+            if (newValue !== undefined && newValue !== currentValue) {
+                item.update({"system.uses.value": newValue});
+                return false;
+            }
         }
+
+        if (!game.modules.get("wire")?.active && game.modules.get("itemacro")?.active && game.settings.get("itemacro", "defaultmacro")) {
+            if (item.hasMacro()) {
+                item.executeMacro();
+                return false;
+            }
+        }
+
+        item.use({}, event);
         return false;
     }
 
@@ -368,43 +397,78 @@ export async function updateTray() {
         Hooks.callAll(hookName, item, $(event.currentTarget));
     }
 
-    html.find('.rollable .item-image').mousedown(roll);
+    html.find('.rollable .item-image, .rollable.item-name').mousedown(async function(event) {
+        event.preventDefault();
+        const itemUuid = event.currentTarget.closest(".item").dataset.itemUuid;
+        const item = fromUuid(itemUuid);
+        if (!item) return false;
 
-    html.find('.rollable.item-name')
-        .hover(
-            event => hover(event, "actorItemHoverIn"),
-            event => hover(event, "actorItemHoverOut")
-        );
+        // Handle shift-click for both image and name
+        if (event.shiftKey && item.system.uses?.max > 0) {
+            const currentValue = item.system.uses.value;
+            const maxValue = item.system.uses.max;
+            let newValue;
 
-    html.find('.rollable.item-name').mousedown(async function(event) {
-        if (event.which == 2) {
+            if (event.which === 1) { // Left click
+                newValue = Math.min(currentValue + 1, maxValue);
+            } else if (event.which === 3) { // Right click
+                newValue = Math.max(currentValue - 1, 0);
+            }
+
+            if (newValue !== undefined && newValue !== currentValue) {
+                await item.update({"system.uses.value": newValue});
+                return false;
+            }
+        }
+
+        // Handle middle-click on name
+        if ($(event.currentTarget).hasClass('item-name') && event.which === 2) {
             return openSheet(event);
         }
 
-        event.preventDefault();
-        const li = $(event.currentTarget).parents(".item");
-        const item = await fromUuid(li.data("item-uuid"));
-        const chatData = await item.getChatData({ secrets: item.actor.isOwner });
+        // Handle normal click on name (expand description)
+        if ($(event.currentTarget).hasClass('item-name') && !event.shiftKey) {
+            const li = $(event.currentTarget).closest(".item");
+            const chatData = await item.getChatData({ secrets: item.actor.isOwner });
 
-        if (li.hasClass("expanded")) {
-            let summary = li.children(".item-summary");
-            summary.slideUp(200, () => summary.remove());
-        } else {
-            let div = $(`<div class="item-summary">${chatData.description.value}</div>`);
-            let props = $('<div class="item-properties"></div>');
-            chatData.properties.forEach(p => props.append(`<span class="tag">${p}</span>`));
-            div.append(props);
-            li.append(div.hide());
-            div.slideDown(200);
+            if (li.hasClass("expanded")) {
+                let summary = li.children(".item-summary");
+                summary.slideUp(200, () => summary.remove());
+            } else {
+                let div = $(`<div class="item-summary">${chatData.description.value}</div>`);
+                let props = $('<div class="item-properties"></div>');
+                chatData.properties.forEach(p => props.append(`<span class="tag">${p}</span>`));
+                div.append(props);
+                li.append(div.hide());
+                div.slideDown(200);
+            }
+            li.toggleClass("expanded");
+            return false;
         }
-        li.toggleClass("expanded");
+
+        // Handle normal click on image (use item)
+        if (!event.shiftKey) {
+            if (!game.modules.get("wire")?.active && game.modules.get("itemacro")?.active && game.settings.get("itemacro", "defaultmacro")) {
+                if (item.hasMacro()) {
+                    item.executeMacro();
+                    return false;
+                }
+            }
+            item.use({}, event);
+        }
+        return false;
     });
 
+    html.find('.rollable.item-name').hover(
+        event => hover(event, "actorItemHoverIn"),
+        event => hover(event, "actorItemHoverOut")
+    );
+
     html.find('.rollable.item-recharge').mousedown(function(event) {
-        const li = $(event.currentTarget).parents(".item");
-        const item = fromUuid(li.data("item-uuid"));
-        handleItemRecharge(item);
         event.preventDefault();
+        const itemUuid = event.currentTarget.closest(".item").dataset.itemUuid;
+        const item = fromUuid(itemUuid);
+        if (item) handleItemRecharge(item);
         return false;
     });
 

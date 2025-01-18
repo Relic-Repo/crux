@@ -52,6 +52,12 @@ Items are tagged for easy identification when they are:
 ### Interactive Features
 - Flippable character portrait (click to flip for more Stats)
 - Click item name to expand and view description
+- Charge modification for items with uses:
+  - Hold Shift + Left Click to increase charges
+  - Hold Shift + Right Click to decrease charges
+  - Middle Click Opens Item Sheet
+  - Clicking on Name Expands Description
+  - Clicking on Image Rolls Item.
 - Quick access to:
   - Ability checks and saves
   - End turn function (in combat)
@@ -73,6 +79,14 @@ Items are tagged for easy identification when they are:
   - Toggle: Manual open/close
   - Automatic: Toggle for players, Selection-based for DMs
   - Always Show: Persistent display
+
+- **Section Visibility**:
+  - Show/Hide Favorites Section
+  - Show/Hide Equipped Section
+  - Show/Hide Features Section
+  - Show/Hide Spells Section
+  - Show/Hide Inventory Section
+  Each section can be individually toggled through settings
 
 - **Visual Settings**:
   - Three icon sizes (Small, Medium, Large)
