@@ -106,6 +106,6 @@ Items are tagged for easy identification when they are:
    ```
 
 ## Compatibility
-- Requires Foundry VTT version 11 or higher
+- Requires Foundry VTT version 12 or higher
 - Verified compatible with Foundry VTT version 12
 - Designed for the DND5E system
