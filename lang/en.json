@@ -97,6 +97,7 @@
             "sort-alphabetic": "Sort items alphabetically",
             "show-unprepared-cantrips": "Show cantrips even if they are not prepared",
             "show-spell-dots": "Show spell slot dots",
+            "show-spell-fractions": "Show spell slot numbers",
             "skill-mode": "Skill list location",
             "skill-mode-hint": "If \"Collapsible at the top\" is selected, the skill toggle hot key (in control settings) can be used to toggle the skill list open and closed, opening the panel if needed. If skills are at the bottom of the panel, the hotkey automatically scrolls to reveal them.",
             "skill-mode-dropdown": "Collapsible at the top",

@@ -2,9 +2,14 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
-## [2024-01-18]
+## [2025-01-18] [1.0.7 - 1.0.8]
 
 ### Added
+- New setting to control visibility of spell slot numbers:
+  - Toggle display of numerical spell slot fractions (e.g., 3/4, 2/2)
+  - Independent from spell slot dots setting
+  - Enabled by default
+
 - New charge modification feature:
   - Shift + Left Click to increase item charges
   - Now uses Shift + Right Click to decrease item charges
@@ -17,7 +22,7 @@ All notable changes to the CRUX module will be documented in this file.
   - Show/Hide Inventory Section
   Each section can be individually toggled and is visible by default.
 
-## [2024-01-16]
+## [2025-01-16] [1.0.6]
 
 ### Current Features
 - Core Functionality

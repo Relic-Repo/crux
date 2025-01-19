@@ -60,7 +60,7 @@
                         {{> item-list }}
                     {{/with}}
                     {{#each groups as |group groupName|}}
-                        {{> item-group groupName=groupName showSpellDots=../showSpellDots }}
+                        {{> item-group groupName=groupName showSpellDots=../showSpellDots showSpellFractions=../showSpellFractions }}
                     {{/each}}
                 </div>
             </div>
@@ -81,7 +81,9 @@
                             {{/if}}
                         </h3>
                         {{#if uses}}
-                            <div class="group-uses">{{uses.available}}/{{uses.maximum}}</div>
+                            {{#if showSpellFractions}}
+                                <div class="group-uses">{{uses.available}}/{{uses.maximum}}</div>
+                            {{/if}}
                         {{/if}}
                         <i class="fas fa-caret-up"></i>
                     </div>
@@ -257,7 +259,7 @@
                         {{> item-category}}
                     {{/with}}
                     {{#with spell}}
-                        {{> item-category showSpellDots=../../../showSpellDots}}
+                        {{> item-category showSpellDots=../../../showSpellDots showSpellFractions=../../../showSpellFractions}}
                     {{/with}}
                     {{#with inventory}}
                         {{> item-category}}

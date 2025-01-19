@@ -86,6 +86,15 @@ export const SETTINGS = {
         default: true,
         onChange: () => updateTray()
     },
+    "show-spell-fractions": {
+        name: "Show Spell Slot Numbers",
+        hint: "Display numerical fractions showing available/maximum spell slots.",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: () => updateTray()
+    },
     "sort-alphabetic": {
         name: "Sort Items Alphabetically",
         hint: "Sort items in alphabetical order rather than by their default sorting.",

@@ -332,8 +332,9 @@ export async function updateTray() {
     const iconSize = prefix(game.settings.get("crux", "icon-size"), "icon");
     const traySize = prefix(game.settings.get("crux", "tray-size"), "tray");
     const showSpellDots = game.settings.get("crux", "show-spell-dots");
+    const showSpellFractions = game.settings.get("crux", "show-spell-fractions");
 
-    const htmlString = await renderTemplate("modules/crux/templates/crux.hbs", { actors, iconSize, showSpellDots });
+    const htmlString = await renderTemplate("modules/crux/templates/crux.hbs", { actors, iconSize, showSpellDots, showSpellFractions });
     const container = $('#crux');
     const html = container.html(htmlString);
     container[0].classList.remove("tray-small", "tray-medium", "tray-large");
@@ -354,15 +355,14 @@ export async function updateTray() {
         const itemUuid = event.currentTarget.closest(".item").dataset.itemUuid;
         const item = fromUuid(itemUuid);
         if (!item) return false;
-        // Handle charge modifications with Shift key
         if (event.shiftKey && item.system.uses?.max > 0) {
             const currentValue = item.system.uses.value;
             const maxValue = item.system.uses.max;
             let newValue;
 
-            if (event.which === 1) { // Left click
+            if (event.which === 1) {
                 newValue = Math.min(currentValue + 1, maxValue);
-            } else if (event.which === 3) { // Right click
+            } else if (event.which === 3) {
                 newValue = Math.max(currentValue - 1, 0);
             }
 
@@ -403,15 +403,14 @@ export async function updateTray() {
         const item = fromUuid(itemUuid);
         if (!item) return false;
 
-        // Handle shift-click for both image and name
         if (event.shiftKey && item.system.uses?.max > 0) {
             const currentValue = item.system.uses.value;
             const maxValue = item.system.uses.max;
             let newValue;
 
-            if (event.which === 1) { // Left click
+            if (event.which === 1) {
                 newValue = Math.min(currentValue + 1, maxValue);
-            } else if (event.which === 3) { // Right click
+            } else if (event.which === 3) {
                 newValue = Math.max(currentValue - 1, 0);
             }
 
@@ -421,12 +420,10 @@ export async function updateTray() {
             }
         }
 
-        // Handle middle-click on name
         if ($(event.currentTarget).hasClass('item-name') && event.which === 2) {
             return openSheet(event);
         }
 
-        // Handle normal click on name (expand description)
         if ($(event.currentTarget).hasClass('item-name') && !event.shiftKey) {
             const li = $(event.currentTarget).closest(".item");
             const chatData = await item.getChatData({ secrets: item.actor.isOwner });
@@ -446,7 +443,6 @@ export async function updateTray() {
             return false;
         }
 
-        // Handle normal click on image (use item)
         if (!event.shiftKey) {
             if (!game.modules.get("wire")?.active && game.modules.get("itemacro")?.active && game.settings.get("itemacro", "defaultmacro")) {
                 if (item.hasMacro()) {
@@ -468,7 +464,7 @@ export async function updateTray() {
         event.preventDefault();
         const itemUuid = event.currentTarget.closest(".item").dataset.itemUuid;
         const item = fromUuid(itemUuid);
-        if (item) handleItemRecharge(item);
+        event.preventDefault();
         return false;
     });
 

@@ -1,4 +1,5 @@
 # CRUX - Action Tray Module for Foundry VTT
+*(Combat Ready User Xperience)*
 
 > This module is a continuation and enhancement of the "Action Pack" module originally created by Tero Parvinen. You can find the original module here: https://github.com/teroparvinen/foundry-action-pack
 
@@ -91,7 +92,8 @@ Items are tagged for easy identification when they are:
 - **Visual Settings**:
   - Three icon sizes (Small, Medium, Large)
   - Two tray widths (Small, Large)
-  - Optional spell slot dots
+  - Optional spell slot dots and numbers
+  - Independent toggles for spell slot dots and numerical fractions
 
 - **Skills Display**:
   - Collapsible at top
