@@ -14,7 +14,7 @@ CRUX streamlines gameplay by providing instant access to all activatable items a
 ### Core Functionality
 - Sliding tray panel with customizable width and icon sizes
 - Quick access to all activatable items, spells, and abilities
-- Support for Foundry VTT v11+ and DND5E system
+- Support for Foundry VTT v12+ and DND5E system
 - Integration with Tidy5e Sheet sections (optional)
 
 ### Token Controls
@@ -53,12 +53,14 @@ Items are tagged for easy identification when they are:
 ### Interactive Features
 - Flippable character portrait (click to flip for more Stats)
 - Click item name to expand and view description
-- Charge modification for items with uses:
-  - Hold Shift + Left Click to increase charges
-  - Hold Shift + Right Click to decrease charges
-  - Middle Click Opens Item Sheet
-  - Clicking on Name Expands Description
-  - Clicking on Image Rolls Item.
+- Item Interaction Features:
+  - Drag and drop targeting system (hold targeting key to enable)
+  - Charge modification:
+    - Hold Shift + Left Click to increase charges
+    - Hold Shift + Right Click to decrease charges
+  - Middle Click to open item sheet
+  - Click on name to expand description
+  - Click on image to roll item
 - Quick access to:
   - Ability checks and saves
   - End turn function (in combat)
@@ -66,7 +68,6 @@ Items are tagged for easy identification when they are:
   - Initiative rolling (when unrolled in combat)
   - Status effects management
 - Expand/collapse all sections button
-- Item context menu options to show/hide items in Crux
 
 ### Hot Keys
 - Toggle tray visibility (default: E)
@@ -74,6 +75,9 @@ Items are tagged for easy identification when they are:
   - Opens panel and reveals skills if closed
   - Toggles skill list when panel is open
   - Scrolls to skill list if at bottom of panel
+- Item targeting (configurable key)
+  - Hold to enable targeting mode
+  - Drag items onto tokens to use them
 
 ### Customization Options
 - **Display Modes**:
@@ -92,8 +96,10 @@ Items are tagged for easy identification when they are:
 - **Visual Settings**:
   - Three icon sizes (Small, Medium, Large)
   - Two tray widths (Small, Large)
-  - Optional spell slot dots and numbers
-  - Independent toggles for spell slot dots and numerical fractions
+  - Spell slot visualization:
+    - Optional spell slot dots
+    - Optional numerical fractions (e.g., 3/4)
+    - Independent toggles for dots and numbers
 
 - **Skills Display**:
   - Collapsible at top

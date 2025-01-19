@@ -2,6 +2,20 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2025-01-19] [1.0.9]
+
+### Added
+- New drag and drop targeting system:
+  - Hold targeting key (configurable) to enable targeting mode
+  - Drag items onto tokens to use them on that target
+  - Visual targeting cursor feedback
+  - Automatic target selection and item usage
+
+### Changed
+- Improved spell slot visualization:
+  - Independent toggles for spell slot dots and numerical fractions
+  - More intuitive spell slot management interface
+
 ## [2025-01-18] [1.0.7 - 1.0.8]
 
 ### Added

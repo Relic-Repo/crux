@@ -56,7 +56,7 @@ export const SETTINGS = {
         scope: "client",
         config: true,
         type: Boolean,
-        default: true,
+        default: false,
         onChange: () => updateTrayState()
     },
     "show-no-uses": {
@@ -92,7 +92,7 @@ export const SETTINGS = {
         scope: "client",
         config: true,
         type: Boolean,
-        default: true,
+        default: false,
         onChange: () => updateTray()
     },
     "sort-alphabetic": {
@@ -123,7 +123,7 @@ export const SETTINGS = {
             "open": "Open",
             "collapsed": "Collapsed"
         },
-        default: "open",
+        default: "collapsed",
         onChange: () => updateTray()
     },
     "main-sections-expanded": {
@@ -149,7 +149,7 @@ export const SETTINGS = {
             "open": "Open",
             "collapsed": "Collapsed"
         },
-        default: "open",
+        default: "collapsed",
         onChange: () => updateTray()
     },
     "skill-mode": {
@@ -177,7 +177,7 @@ export const SETTINGS = {
             "medium": "Medium",
             "large": "Large"
         },
-        default: "medium",
+        default: "small",
         onChange: () => updateTray()
     },
     "tray-size": {
@@ -190,7 +190,7 @@ export const SETTINGS = {
             "small": "Small",
             "large": "Large"
         },
-        default: "large",
+        default: "small",
         onChange: () => updateTray()
     },
     "tray-mode": {
@@ -204,9 +204,9 @@ export const SETTINGS = {
             "always": "Always Show",
             "manual": "Toggle"
         },
-        default: "auto",
+        default: "manual",
         onChange: () => updateTrayState()
-    }
+    },
 };
 
 /**
@@ -306,6 +306,16 @@ Hooks.once('init', () => {
                 return false;
             }
         }
+    });
+
+    game.keybindings.register("crux", "item-drag", {
+        name: "Item Drag Key",
+        hint: "Hold this key to drag items onto target tokens",
+        editable: [
+            { key: "KeyX", modifiers: []}
+        ],
+        restricted: false,
+        precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL
     });
 
     game.keybindings.register("crux", "toggle-skills", {

@@ -1,4 +1,8 @@
 {
+    "crux.warning.dropOnToken": "Drop the item on a token to use it",
+    "crux.warning.holdTargetKey": "Hold the targeting key while dropping to use the item",
+    "crux.error.itemNotFound": "Could not find the dragged item",
+    "crux.error.useItemFailed": "Error using item on target",
     "crux": {
         "action": {
             "dash": "Dash",
@@ -73,7 +77,9 @@
         "keybindings": {
             "toggle-tray": "Toggle tray open or closed",
             "toggle-skills": "Toggle skills open or closed",
-            "toggle-skills-hint": "The skill list placement can be selected in the module settings. When using a collapsible list, if the panel is already open, this will toggle skills open and closed and if the tray is not open, it will be opened with skills visible. When the skill list is placed at the bottom, this key will scroll to reveal the skill list."
+            "toggle-skills-hint": "The skill list placement can be selected in the module settings. When using a collapsible list, if the panel is already open, this will toggle skills open and closed and if the tray is not open, it will be opened with skills visible. When the skill list is placed at the bottom, this key will scroll to reveal the skill list.",
+            "item-drag": "Hold to drag items onto targets",
+            "item-drag-hint": "While holding this key, hover over an item and drag it onto a token to use the item on that target"
         },
         "settings": {
             "tray-display": "Tray display mode",

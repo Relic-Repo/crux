@@ -350,11 +350,73 @@ export async function updateTray() {
         updateScrollPosition({});
     }
 
-    function roll(event) {
+    async function activateItem(event, options = {}) {
         event.preventDefault();
-        const itemUuid = event.currentTarget.closest(".item").dataset.itemUuid;
+        const itemUuid = event.currentTarget?.closest(".item")?.dataset.itemUuid || options.itemUuid;
         const item = fromUuid(itemUuid);
         if (!item) return false;
+
+            if (options.eventData?.type === "crux-drop") {
+                event.stopImmediatePropagation();
+                event.stopPropagation();
+                event.preventDefault();
+                
+                const config = {
+                    targetIds: options.targets?.map(t => t.document.id) || [],
+                    targets: options.targets || []
+                };
+                const useOptions = {
+                    configureDialog: false,
+                    createMessage: true,
+                    event: { 
+                        type: "crux-drop",
+                        showDescription: false,
+                        skipDialog: true,
+                        originalEvent: event
+                    }
+                };
+
+                // Configure spells based on their type, preparation mode, and properties
+                if (item.type === "spell") {
+                    const prepMode = item.system.preparation?.mode;
+                    const spellLevel = item.system.level;
+                    const spellProps = new Set(item.system.properties);
+
+                    // Base configuration
+                    config.createMeasuredTemplate = item.hasAreaTarget;
+                    config.versatile = spellProps.has("ver");
+
+                    // Handle different spell types
+                    if (spellLevel === 0) {
+                        // Cantrips don't need a slot level and never consume slots
+                        config.slotLevel = 0;
+                        config.consumeSpellSlot = false;
+                    } else if (prepMode === "pact") {
+                        config.slotLevel = item.actor.system.spells.pact.level;
+                        config.consumeSpellSlot = true;
+                    } else if (prepMode === "atwill" || prepMode === "innate") {
+                        // At-will and innate spells don't consume slots
+                        config.consumeSpellSlot = false;
+                        config.slotLevel = spellLevel;
+                    } else {
+                        // Regular spells use their normal level
+                        config.slotLevel = spellLevel;
+                        config.consumeSpellSlot = true;
+                    }
+                }
+                
+                const originalShowItemInfo = item.actor.showItemInfo;
+                item.actor.showItemInfo = () => false;
+                
+                try {
+                    await item.use(config, useOptions);
+                } finally {
+                    item.actor.showItemInfo = originalShowItemInfo;
+                }
+                
+                return false;
+            }
+
         if (event.shiftKey && item.system.uses?.max > 0) {
             const currentValue = item.system.uses.value;
             const maxValue = item.system.uses.max;
@@ -379,7 +441,52 @@ export async function updateTray() {
             }
         }
 
-        item.use({}, event);
+            if (event.currentTarget?.classList.contains('item-image')) {
+                if (event.type === 'drop' || event.type === 'crux-drop' || options.eventData?.type === 'crux-drop') {
+                    return false;
+                }
+                
+                const config = {};
+                // Configure spells based on their type, preparation mode, and properties
+                if (item.type === "spell") {
+                    const prepMode = item.system.preparation?.mode;
+                    const spellLevel = item.system.level;
+                    const spellProps = new Set(item.system.properties);
+
+                    // Base configuration
+                    config.createMeasuredTemplate = item.hasAreaTarget;
+                    config.versatile = spellProps.has("ver");
+
+                    // Handle different spell types
+                    if (spellLevel === 0) {
+                        // Cantrips don't need a slot level and never consume slots
+                        config.slotLevel = 0;
+                        config.consumeSpellSlot = false;
+                    } else if (prepMode === "pact") {
+                        config.slotLevel = item.actor.system.spells.pact.level;
+                        config.consumeSpellSlot = true;
+                    } else if (prepMode === "atwill" || prepMode === "innate") {
+                        // At-will and innate spells don't consume slots
+                        config.consumeSpellSlot = false;
+                        config.slotLevel = spellLevel;
+                    } else {
+                        // Regular spells use their normal level
+                        config.slotLevel = spellLevel;
+                        config.consumeSpellSlot = true;
+                    }
+                }
+
+                await item.use(config, { 
+                    configureDialog: false,
+                    createMessage: true,
+                    event: { 
+                        type: "click",
+                        showDescription: false,
+                        skipDialog: true
+                    }
+                });
+                event.stopPropagation();
+            }
         return false;
     }
 
@@ -397,34 +504,225 @@ export async function updateTray() {
         Hooks.callAll(hookName, item, $(event.currentTarget));
     }
 
-    html.find('.rollable .item-image, .rollable.item-name').mousedown(async function(event) {
-        event.preventDefault();
+    html.on('mouseenter', function() {
+        $(document).on('keydown.crux-drag keyup.crux-drag', function(event) {
+            const dragKey = game.keybindings.get("crux", "item-drag")[0];
+            const isKeyDown = event.type === 'keydown' && event.code === dragKey.key;
+            
+            if (isKeyDown && !event.repeat) {
+                html.addClass('crux-targeting');
+                html.find('.rollable .item-image').each(function() {
+                    this.draggable = true;
+                    $(this).attr('draggable', 'true');
+                });
+            } else if (!event.repeat) {
+                html.removeClass('crux-targeting');
+                html.find('.rollable .item-image').each(function() {
+                    this.draggable = false;
+                    $(this).removeAttr('draggable');
+                });
+            }
+        });
+    });
+
+    html.on('mouseleave', function() {
+        $(document).off('keydown.crux-drag keyup.crux-drag');
+        html.removeClass('crux-targeting');
+        html.find('.rollable .item-image').each(function() {
+            this.draggable = false;
+            $(this).removeAttr('draggable');
+        });
+    });
+
+    html.find('.rollable .item, .rollable .item *').on('mousedown mouseup click', function(event) {
+        const dragKey = game.keybindings.get("crux", "item-drag")[0];
+        if (game.keyboard.downKeys.has(dragKey.key)) {
+            event.preventDefault();
+            event.stopPropagation();
+            return false;
+        }
+    });
+
+    html.find('.rollable .item-image').on('dragstart', function(event) {
+        event.stopPropagation();
+        
+        const dragKey = game.keybindings.get("crux", "item-drag")[0];
+        if (!game.keyboard.downKeys.has(dragKey.key)) {
+            event.preventDefault();
+            return false;
+        }
+        
         const itemUuid = event.currentTarget.closest(".item").dataset.itemUuid;
         const item = fromUuid(itemUuid);
-        if (!item) return false;
-
-        if (event.shiftKey && item.system.uses?.max > 0) {
-            const currentValue = item.system.uses.value;
-            const maxValue = item.system.uses.max;
-            let newValue;
-
-            if (event.which === 1) {
-                newValue = Math.min(currentValue + 1, maxValue);
-            } else if (event.which === 3) {
-                newValue = Math.max(currentValue - 1, 0);
+        if (!item) {
+            event.preventDefault();
+            return false;
+        }
+        
+        const dragImage = document.createElement('img');
+        dragImage.src = item.img;
+        dragImage.style.width = '32px';
+        dragImage.style.height = '32px';
+        dragImage.style.position = 'fixed';
+        dragImage.style.top = '-1000px';
+        dragImage.style.left = '-1000px';
+        document.body.appendChild(dragImage);
+        
+        try {
+            const dragData = {
+                type: "Item",
+                uuid: `crux:${itemUuid}`,
+            };
+            
+            event.originalEvent.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+            event.originalEvent.dataTransfer.effectAllowed = "all";
+            event.originalEvent.dataTransfer.setDragImage(dragImage, 16, 16);
+            event.currentTarget.dragImage = dragImage;
+            
+            return true;
+        } catch (error) {
+            console.error("Drag operation failed:", error);
+            if (document.body.contains(dragImage)) {
+                document.body.removeChild(dragImage);
             }
+            event.preventDefault();
+            return false;
+        }
+    });
 
-            if (newValue !== undefined && newValue !== currentValue) {
-                await item.update({"system.uses.value": newValue});
+    html.find('.rollable .item-image').on('drag', function(event) {
+        event.stopPropagation();
+        const dragKey = game.keybindings.get("crux", "item-drag")[0];
+        if (!game.keyboard.downKeys.has(dragKey.key)) {
+            event.preventDefault();
+            return false;
+        }
+        return true;
+    });
+
+    canvas.tokens.activate();
+    
+    canvas.app.view.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        const dragKey = game.keybindings.get("crux", "item-drag")[0];
+        if (game.keyboard.downKeys.has(dragKey.key)) {
+            event.dataTransfer.dropEffect = 'copy';
+        }
+    });
+
+    canvas.app.view.addEventListener('drop', async (event) => {
+        event.preventDefault();
+        
+        const dragKey = game.keybindings.get("crux", "item-drag")[0];
+        if (!game.keyboard.downKeys.has(dragKey.key)) {
+            return false;
+        }
+
+        try {
+            const rect = canvas.app.view.getBoundingClientRect();
+            const dropPosition = {
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top
+            };
+            
+            const transform = canvas.tokens.worldTransform;
+            const canvasPosition = {
+                x: (dropPosition.x - transform.tx) / canvas.stage.scale.x,
+                y: (dropPosition.y - transform.ty) / canvas.stage.scale.y
+            };
+            
+            const token = canvas.tokens.placeables.find(token => {
+                const tokenBounds = token.bounds;
+                return canvasPosition.x >= tokenBounds.left && 
+                       canvasPosition.x <= tokenBounds.right && 
+                       canvasPosition.y >= tokenBounds.top && 
+                       canvasPosition.y <= tokenBounds.bottom;
+            });
+            
+            if (!token) return false;
+
+            let dragData;
+            try {
+                dragData = JSON.parse(event.dataTransfer.getData('text/plain'));
+            } catch (e) {
                 return false;
             }
+            
+            if (!dragData || dragData.type !== "Item") return false;
+
+            const uuid = dragData.uuid;
+            const isOurDrag = uuid.startsWith("crux:");
+            if (!isOurDrag) return false;
+
+            const actualUuid = uuid.replace("crux:", "");
+            const item = await fromUuid(actualUuid);
+            if (!item) return false;
+
+            event.stopImmediatePropagation();
+            
+            const dropEvent = new Event('crux-drop', { bubbles: false, cancelable: true });
+            Object.defineProperty(dropEvent, 'target', { value: event.target });
+            
+            // Clear other targets first
+            token.setTarget(true, { releaseOthers: true });
+            
+            // Activate item but don't clear target after - let the item workflow handle it
+            const result = await activateItem(dropEvent, { 
+                itemUuid: actualUuid,
+                targets: [token],
+                eventData: { type: "crux-drop", target: token, showDescription: false }
+            });
+
+            event.stopPropagation();
+            event.preventDefault();
+            
+            return result;
+        } catch (error) {
+            console.error("Drop handling failed:", error);
+            return false;
         }
+    });
+
+    html.find('.rollable .item-image').on('dragend', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        html.removeClass('crux-targeting');
+        html.find('.rollable .item-image').each(function() {
+            this.draggable = false;
+            $(this).removeAttr('draggable');
+        });
+        
+        if (event.currentTarget.dragImage && document.body.contains(event.currentTarget.dragImage)) {
+            document.body.removeChild(event.currentTarget.dragImage);
+            event.currentTarget.dragImage = null;
+        }
+    });
+
+    html.find('.rollable .item-image, .rollable.item-name').on('mousedown', async function(event) {
+        const dragKey = game.keybindings.get("crux", "item-drag")[0];
+        if (game.keyboard.downKeys.has(dragKey.key)) {
+            return false;
+        }
+        event.preventDefault();
+        event.stopPropagation();
 
         if ($(event.currentTarget).hasClass('item-name') && event.which === 2) {
             return openSheet(event);
         }
 
-        if ($(event.currentTarget).hasClass('item-name') && !event.shiftKey) {
+        if (event.shiftKey) return false;
+
+        if (event.currentTarget.classList.contains('item-image')) {
+
+            if (event.which === 1) {
+                return activateItem(event);
+            }
+        } else if (event.currentTarget.classList.contains('item-name') && event.which === 1) {
+
+            const itemUuid = event.currentTarget.closest(".item").dataset.itemUuid;
+            const item = fromUuid(itemUuid);
+            if (!item) return false;
+
             const li = $(event.currentTarget).closest(".item");
             const chatData = await item.getChatData({ secrets: item.actor.isOwner });
 
@@ -440,17 +738,6 @@ export async function updateTray() {
                 div.slideDown(200);
             }
             li.toggleClass("expanded");
-            return false;
-        }
-
-        if (!event.shiftKey) {
-            if (!game.modules.get("wire")?.active && game.modules.get("itemacro")?.active && game.settings.get("itemacro", "defaultmacro")) {
-                if (item.hasMacro()) {
-                    item.executeMacro();
-                    return false;
-                }
-            }
-            item.use({}, event);
         }
         return false;
     });
