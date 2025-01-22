@@ -19,6 +19,7 @@
         "set-elevation": "Set Elevation",
         "open-token": "Open Token",
         "toggle-target": "Toggle Target",
+        "drag-target": "Drag Target",
         "status-effects": "Status Effects",
         "elevation": {
             "title": "Set Token Elevation",

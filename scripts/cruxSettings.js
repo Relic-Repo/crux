@@ -193,6 +193,28 @@ export const SETTINGS = {
         default: "small",
         onChange: () => updateTray()
     },
+    "health-overlay-enabled": {
+        name: "Enable Health Overlay",
+        hint: "Show a dynamic health overlay on character portraits",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: true,
+        onChange: () => updateTray()
+    },
+    "health-overlay-direction": {
+        name: "Health Overlay Direction",
+        hint: "Choose whether the health overlay fills up or down",
+        scope: "client",
+        config: true,
+        type: String,
+        choices: {
+            "up": "Fill Up",
+            "down": "Fill Down"
+        },
+        default: "up",
+        onChange: () => updateTray()
+    },
     "tray-mode": {
         name: "Tray Display Mode",
         hint: "Toggle - only hide tray when toggled (using hot key) / When token selected - Hide the tray if no tokens are selected, show otherwise / Automatic - Toggle for players, When token selected for the GM",
@@ -206,6 +228,32 @@ export const SETTINGS = {
         },
         default: "manual",
         onChange: () => updateTrayState()
+    },
+    "toggle-target-mode": {
+        name: "Toggle Target Mode",
+        hint: "When enabled, the target button becomes a toggle for drag & target mode",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: false,
+        onChange: () => {
+            const isEnabled = game.settings.get("crux", "toggle-target-mode");
+            const containers = document.querySelectorAll('.crux__toggle-target');
+            containers.forEach(container => {
+                container.classList.toggle('toggled-off', isEnabled);
+                container.classList.remove('toggled-on');
+            });
+            updateTray();
+        }
+    },
+    "drag-target-state": {
+        name: "Drag Target State",
+        hint: "Stores whether drag targeting is enabled",
+        scope: "client",
+        config: false,
+        type: Boolean,
+        default: false,
+        onChange: () => updateTray()
     },
 };
 

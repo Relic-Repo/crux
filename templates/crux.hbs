@@ -135,6 +135,13 @@
                         <div class="crux__portrait-inner">
                             <div class="crux__portrait-front">
                                 <img src="{{actor.actor.img}}" alt="Character Portrait">
+                                {{#if (lookup @root.settings "health-overlay-enabled")}}
+                                    <div class="crux__portrait-health-overlay {{#if (eq (lookup @root.settings "health-overlay-direction") "up")}}health-overlay-up{{else}}health-overlay-down{{/if}}"
+                                         style="height: {{calculateHealthOverlay actor.actor.system.attributes.hp.value actor.actor.system.attributes.hp.max}}%"
+                                         data-current-hp="{{actor.actor.system.attributes.hp.value}}"
+                                         data-max-hp="{{actor.actor.system.attributes.hp.max}}">
+                                    </div>
+                                {{/if}}
                             </div>
                             <div class="crux__portrait-back">
                                 <div class="crux__stat-row">
@@ -210,10 +217,10 @@
                         </a>
                     </div>
 
-                    <div class="crux__utility-button crux__toggle-target">
-                        <a class="crux__toggle-target-button" title="{{localize "crux.toggle-target"}}">
+                    <div class="crux__utility-button crux__toggle-target {{#if toggleTargetMode}}toggled-off{{/if}}">
+                        <a class="crux__toggle-target-button" title="{{localize_by_mode toggleTargetMode 'crux.drag-target' 'crux.toggle-target'}}">
                             <i class="fas fa-bullseye"></i>
-                            <span class="button-text">{{localize "crux.toggle-target"}}</span>
+                            <span class="button-text">{{localize_by_mode toggleTargetMode 'crux.drag-target' 'crux.toggle-target'}}</span>
                         </a>
                     </div>
 

@@ -2,6 +2,30 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+
+## [2025-01-21] [1.1.0]
+
+### Added
+- New health monitor overlay for character portraits:
+  - Dynamic red overlay that visualizes current health percentage
+  - Granular scaling with different increments:
+    * 100% to 50%: 10% increments
+    * 50% to 10%: 5% increments
+    * 10% to 0%: 1% increments
+  - Configurable direction (fill up or down)
+  - Smooth transitions for health changes
+  - Semi-transparent overlay preserves portrait visibility
+
+### Changed
+- Enhanced drag target functionality:
+  - Added client-based persistence for drag target toggle state
+  - Toggle state now remains consistent when switching between actors
+  - Improved visual feedback for active targeting state
+  - Better handling of targeting mode across actor changes
+
+### Bug Fixing
+- Removed artifact code causing some items to fail.
+
 ## [2025-01-19] [1.0.9]
 
 ### Added

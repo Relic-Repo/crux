@@ -2,6 +2,22 @@ import { resolveActor, fromUuid } from "./cruxHooks.js";
 import CruxEffectsApp from "./cruxEffectsApp.js";
 
 /**
+ * Calculates the health overlay height percentage based on current and max HP
+ * @param {number} currentHP - Current hit points
+ * @param {number} maxHP - Maximum hit points
+ * @returns {number} The calculated height percentage for the overlay
+ */
+function calculateHealthOverlay(currentHP, maxHP) {
+    const percentage = ((maxHP - currentHP) / maxHP) * 100; // Calculate damage percentage
+    if (percentage > 50) {
+        return Math.round(percentage / 10) * 10;
+    } else if (percentage > 10) {
+        return Math.round(percentage / 5) * 5;
+    }
+    return Math.round(percentage);
+}
+
+/**
  * Checks if the DnD5e system version is 4.0 or higher
  * @returns {boolean} True if system version is 4.0+, false otherwise
  */
@@ -333,12 +349,23 @@ export async function updateTray() {
     const traySize = prefix(game.settings.get("crux", "tray-size"), "tray");
     const showSpellDots = game.settings.get("crux", "show-spell-dots");
     const showSpellFractions = game.settings.get("crux", "show-spell-fractions");
+    const toggleTargetMode = game.settings.get("crux", "toggle-target-mode");
 
-    const htmlString = await renderTemplate("modules/crux/templates/crux.hbs", { actors, iconSize, showSpellDots, showSpellFractions });
-    const container = $('#crux');
-    const html = container.html(htmlString);
-    container[0].classList.remove("tray-small", "tray-medium", "tray-large");
-    container[0].classList.add(traySize);
+    const htmlString = await renderTemplate("modules/crux/templates/crux.hbs", { 
+        actors, 
+        iconSize, 
+        showSpellDots, 
+        showSpellFractions,
+        toggleTargetMode,
+        settings: {
+            "health-overlay-enabled": game.settings.get("crux", "health-overlay-enabled"),
+            "health-overlay-direction": game.settings.get("crux", "health-overlay-direction")
+        }
+    });
+    const cruxContainer = $('#crux');
+    const html = cruxContainer.html(htmlString);
+    cruxContainer[0].classList.remove("tray-small", "tray-medium", "tray-large");
+    cruxContainer[0].classList.add(traySize);
 
     if (actors.length == 1) {
         const currentUuid = actors[0].actor.uuid;
@@ -375,35 +402,7 @@ export async function updateTray() {
                         originalEvent: event
                     }
                 };
-
-                // Configure spells based on their type, preparation mode, and properties
-                if (item.type === "spell") {
-                    const prepMode = item.system.preparation?.mode;
-                    const spellLevel = item.system.level;
-                    const spellProps = new Set(item.system.properties);
-
-                    // Base configuration
-                    config.createMeasuredTemplate = item.hasAreaTarget;
-                    config.versatile = spellProps.has("ver");
-
-                    // Handle different spell types
-                    if (spellLevel === 0) {
-                        // Cantrips don't need a slot level and never consume slots
-                        config.slotLevel = 0;
-                        config.consumeSpellSlot = false;
-                    } else if (prepMode === "pact") {
-                        config.slotLevel = item.actor.system.spells.pact.level;
-                        config.consumeSpellSlot = true;
-                    } else if (prepMode === "atwill" || prepMode === "innate") {
-                        // At-will and innate spells don't consume slots
-                        config.consumeSpellSlot = false;
-                        config.slotLevel = spellLevel;
-                    } else {
-                        // Regular spells use their normal level
-                        config.slotLevel = spellLevel;
-                        config.consumeSpellSlot = true;
-                    }
-                }
+                
                 
                 const originalShowItemInfo = item.actor.showItemInfo;
                 item.actor.showItemInfo = () => false;
@@ -446,37 +445,7 @@ export async function updateTray() {
                     return false;
                 }
                 
-                const config = {};
-                // Configure spells based on their type, preparation mode, and properties
-                if (item.type === "spell") {
-                    const prepMode = item.system.preparation?.mode;
-                    const spellLevel = item.system.level;
-                    const spellProps = new Set(item.system.properties);
-
-                    // Base configuration
-                    config.createMeasuredTemplate = item.hasAreaTarget;
-                    config.versatile = spellProps.has("ver");
-
-                    // Handle different spell types
-                    if (spellLevel === 0) {
-                        // Cantrips don't need a slot level and never consume slots
-                        config.slotLevel = 0;
-                        config.consumeSpellSlot = false;
-                    } else if (prepMode === "pact") {
-                        config.slotLevel = item.actor.system.spells.pact.level;
-                        config.consumeSpellSlot = true;
-                    } else if (prepMode === "atwill" || prepMode === "innate") {
-                        // At-will and innate spells don't consume slots
-                        config.consumeSpellSlot = false;
-                        config.slotLevel = spellLevel;
-                    } else {
-                        // Regular spells use their normal level
-                        config.slotLevel = spellLevel;
-                        config.consumeSpellSlot = true;
-                    }
-                }
-
-                await item.use(config, { 
+                await item.use({}, { 
                     configureDialog: false,
                     createMessage: true,
                     event: { 
@@ -504,34 +473,75 @@ export async function updateTray() {
         Hooks.callAll(hookName, item, $(event.currentTarget));
     }
 
-    html.on('mouseenter', function() {
+    const isTargetMode = game.settings.get("crux", "toggle-target-mode");
+    let isDragModeEnabled = isTargetMode ? game.settings.get("crux", "drag-target-state") : false;
+    let isActivelyDragging = false;
+    const trayContainer = html.find('.crux__container');
+    
+    if (isTargetMode) {
+        const containers = html.find('.crux__toggle-target');
+        containers.each(function() {
+            const container = $(this);
+            if (isDragModeEnabled) {
+                container.addClass('toggled-on').removeClass('toggled-off');
+            } else {
+                container.addClass('toggled-off').removeClass('toggled-on');
+            }
+        });
+        
+        if (isDragModeEnabled) {
+            trayContainer.addClass('crux-targeting');
+            html.find('.rollable .item-image').each(function() {
+                this.draggable = true;
+                $(this).attr('draggable', 'true');
+            });
+        }
+    }
+
+    function updateDragMode(enabled) {
+        isDragModeEnabled = enabled;
+        
+        if (enabled) {
+            trayContainer.addClass('crux-targeting');
+            html.find('.rollable .item-image').each(function() {
+                this.draggable = true;
+                $(this).attr('draggable', 'true');
+            });
+        } else if (!isActivelyDragging) {
+            trayContainer.removeClass('crux-targeting');
+            html.find('.rollable .item-image').each(function() {
+                this.draggable = false;
+                $(this).removeAttr('draggable');
+            });
+        }
+    }
+
+    trayContainer.on('mouseenter', function() {
+        if (isTargetMode && isDragModeEnabled) {
+            trayContainer.addClass('crux-targeting');
+        }
+        
         $(document).on('keydown.crux-drag keyup.crux-drag', function(event) {
             const dragKey = game.keybindings.get("crux", "item-drag")[0];
             const isKeyDown = event.type === 'keydown' && event.code === dragKey.key;
             
-            if (isKeyDown && !event.repeat) {
-                html.addClass('crux-targeting');
-                html.find('.rollable .item-image').each(function() {
-                    this.draggable = true;
-                    $(this).attr('draggable', 'true');
-                });
-            } else if (!event.repeat) {
-                html.removeClass('crux-targeting');
-                html.find('.rollable .item-image').each(function() {
-                    this.draggable = false;
-                    $(this).removeAttr('draggable');
-                });
+            if (!isTargetMode) {
+                if (isKeyDown && !event.repeat) {
+                    updateDragMode(true);
+                } else if (!event.repeat && !isActivelyDragging) {
+                    updateDragMode(false);
+                }
             }
         });
     });
 
-    html.on('mouseleave', function() {
-        $(document).off('keydown.crux-drag keyup.crux-drag');
-        html.removeClass('crux-targeting');
-        html.find('.rollable .item-image').each(function() {
-            this.draggable = false;
-            $(this).removeAttr('draggable');
-        });
+    trayContainer.on('mouseleave', function() {
+        if (!isActivelyDragging) {
+            trayContainer.removeClass('crux-targeting');
+        }
+        if (!isTargetMode) {
+            $(document).off('keydown.crux-drag keyup.crux-drag');
+        }
     });
 
     html.find('.rollable .item, .rollable .item *').on('mousedown mouseup click', function(event) {
@@ -547,7 +557,8 @@ export async function updateTray() {
         event.stopPropagation();
         
         const dragKey = game.keybindings.get("crux", "item-drag")[0];
-        if (!game.keyboard.downKeys.has(dragKey.key)) {
+        const isToggleMode = game.settings.get("crux", "toggle-target-mode");
+        if (!isDragModeEnabled && !game.keyboard.downKeys.has(dragKey.key) && !isToggleMode) {
             event.preventDefault();
             return false;
         }
@@ -558,6 +569,9 @@ export async function updateTray() {
             event.preventDefault();
             return false;
         }
+        
+        isActivelyDragging = true;
+        trayContainer.addClass('active-drag');
         
         const dragImage = document.createElement('img');
         dragImage.src = item.img;
@@ -585,6 +599,8 @@ export async function updateTray() {
             if (document.body.contains(dragImage)) {
                 document.body.removeChild(dragImage);
             }
+            isActivelyDragging = false;
+            trayContainer.removeClass('active-drag');
             event.preventDefault();
             return false;
         }
@@ -593,7 +609,8 @@ export async function updateTray() {
     html.find('.rollable .item-image').on('drag', function(event) {
         event.stopPropagation();
         const dragKey = game.keybindings.get("crux", "item-drag")[0];
-        if (!game.keyboard.downKeys.has(dragKey.key)) {
+        const isToggleMode = game.settings.get("crux", "toggle-target-mode");
+        if (!isDragModeEnabled && !game.keyboard.downKeys.has(dragKey.key) && !isToggleMode) {
             event.preventDefault();
             return false;
         }
@@ -605,7 +622,8 @@ export async function updateTray() {
     canvas.app.view.addEventListener('dragover', (event) => {
         event.preventDefault();
         const dragKey = game.keybindings.get("crux", "item-drag")[0];
-        if (game.keyboard.downKeys.has(dragKey.key)) {
+        const isToggleMode = game.settings.get("crux", "toggle-target-mode");
+        if (isDragModeEnabled || game.keyboard.downKeys.has(dragKey.key) || isToggleMode) {
             event.dataTransfer.dropEffect = 'copy';
         }
     });
@@ -614,7 +632,8 @@ export async function updateTray() {
         event.preventDefault();
         
         const dragKey = game.keybindings.get("crux", "item-drag")[0];
-        if (!game.keyboard.downKeys.has(dragKey.key)) {
+        const isToggleMode = game.settings.get("crux", "toggle-target-mode");
+        if (!isDragModeEnabled && !game.keyboard.downKeys.has(dragKey.key) && !isToggleMode) {
             return false;
         }
 
@@ -662,11 +681,7 @@ export async function updateTray() {
             
             const dropEvent = new Event('crux-drop', { bubbles: false, cancelable: true });
             Object.defineProperty(dropEvent, 'target', { value: event.target });
-            
-            // Clear other targets first
             token.setTarget(true, { releaseOthers: true });
-            
-            // Activate item but don't clear target after - let the item workflow handle it
             const result = await activateItem(dropEvent, { 
                 itemUuid: actualUuid,
                 targets: [token],
@@ -686,11 +701,17 @@ export async function updateTray() {
     html.find('.rollable .item-image').on('dragend', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        html.removeClass('crux-targeting');
-        html.find('.rollable .item-image').each(function() {
-            this.draggable = false;
-            $(this).removeAttr('draggable');
-        });
+        
+        isActivelyDragging = false;
+        trayContainer.removeClass('active-drag');
+        
+        if (!isTargetMode || !isDragModeEnabled) {
+            trayContainer.removeClass('crux-targeting');
+            html.find('.rollable .item-image').each(function() {
+                this.draggable = false;
+                $(this).removeAttr('draggable');
+            });
+        }
         
         if (event.currentTarget.dragImage && document.body.contains(event.currentTarget.dragImage)) {
             document.body.removeChild(event.currentTarget.dragImage);
@@ -700,7 +721,8 @@ export async function updateTray() {
 
     html.find('.rollable .item-image, .rollable.item-name').on('mousedown', async function(event) {
         const dragKey = game.keybindings.get("crux", "item-drag")[0];
-        if (game.keyboard.downKeys.has(dragKey.key)) {
+        const isToggleMode = game.settings.get("crux", "toggle-target-mode");
+        if (game.keyboard.downKeys.has(dragKey.key) || (isToggleMode && isDragModeEnabled)) {
             return false;
         }
         event.preventDefault();
@@ -864,9 +886,18 @@ export async function updateTray() {
         const actor = resolveActor(fromUuid(actorUuid));
         if (!actor) return;
 
-        const token = actor.getActiveTokens()[0];
-        if (token) {
-            token.setTarget(!token.isTargeted, { releaseOthers: false });
+        if (game.settings.get("crux", "toggle-target-mode")) {
+            isDragModeEnabled = !isDragModeEnabled;
+            game.settings.set("crux", "drag-target-state", isDragModeEnabled);
+            updateDragMode(isDragModeEnabled);
+            const container = $(this).closest('.crux__toggle-target');
+            container.toggleClass('toggled-on', isDragModeEnabled);
+            container.toggleClass('toggled-off', !isDragModeEnabled);
+        } else {
+            const token = actor.getActiveTokens()[0];
+            if (token) {
+                token.setTarget(!token.isTargeted, { releaseOthers: false });
+            }
         }
     });
 
@@ -1105,6 +1136,18 @@ export async function updateTray() {
 }
 
 Handlebars.registerHelper({
+    calculateHealthOverlay: (currentHP, maxHP) => {
+        const percentage = ((maxHP - currentHP) / maxHP) * 100; // Calculate damage percentage
+        if (percentage > 50) {
+            return Math.round(percentage / 10) * 10;
+        } else if (percentage > 10) {
+            return Math.round(percentage / 5) * 5;
+        }
+        return Math.round(percentage);
+    },
+    localize_by_mode: function(toggleMode, key1, key2) {
+        return game.i18n.localize(toggleMode ? key1 : key2);
+    },
     cruxSlots: (available, maximum) => {
         const slots = [];
         for (let i = 0; i < maximum; i++) {

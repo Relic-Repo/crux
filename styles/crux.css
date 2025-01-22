@@ -66,7 +66,6 @@
     margin: 5px 0 0 0;
 }
 
-/* Action Buttons */
 .crux__actions-container {
     margin: 10px -5px;
 }
@@ -119,7 +118,6 @@
     opacity: 1;
 }
 
-/* Utility Buttons Container */
 .crux__utility-buttons {
     display: flex;
     justify-content: space-between;
@@ -127,7 +125,6 @@
     margin: 10px -5px;
 }
 
-/* Utility Button Common Styles */
 .crux__utility-button {
     flex: 1;
     background-color: rgba(255, 255, 255, 0.15);
@@ -160,7 +157,24 @@
     opacity: 1;
 }
 
-/* Hide text by default, show on hover */
+.crux__utility-button.crux__toggle-target {
+    background-color: rgba(255, 255, 255, 0.15);
+    transition: background-color 0.2s;
+}
+
+.crux__utility-button.crux__toggle-target.toggled-on {
+    background-color: #ff0000;
+}
+
+.crux__utility-button.crux__toggle-target.toggled-off {
+    background-color: #ff6400;
+}
+
+.crux__toggle-target-button {
+    width: 100%;
+    height: 100%;
+}
+
 .crux__utility-button .button-text {
     display: none;
     position: absolute;
@@ -178,12 +192,10 @@
     display: block;
 }
 
-/* Specific button adjustments */
 .crux__set-elevation input {
     width: 40px;
 }
 
-/* Section Headers */
 .crux__section-header {
     position: relative;
     background-color: rgba(255, 255, 255, 0.15);
@@ -217,7 +229,6 @@
     max-height: 0;
 }
 
-/* Group Headers */
 .crux__group-header {
     position: relative;
     padding: 1px 6px;
@@ -289,12 +300,10 @@
     max-height: 0;
 }
 
-/* Add spacing between sections */
 .crux__section {
     margin-bottom: 10px;
 }
 
-/* Add spacing between groups within sections */
 .crux__section-content > div {
     margin-bottom: 8px;
 }
@@ -305,7 +314,6 @@
     padding-top: 10px;
 }
 
-/* Top Section Layout */
 .crux__top-section {
     display: flex;
     gap: 10px;
@@ -345,12 +353,30 @@
     border-radius: 5px;
     border: 1px solid rgba(255, 255, 255, 0.3);
     overflow: hidden;
+    transform-origin: center;
 }
 
 .crux__portrait-front img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.crux__portrait-health-overlay {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 0, 0, 0.3);
+    transition: height 0.3s ease;
+    pointer-events: none;
+}
+
+.health-overlay-up {
+    bottom: 0;
+}
+
+.health-overlay-down {
+    top: 0;
 }
 
 .crux__portrait-back {
@@ -385,7 +411,6 @@
     margin: 0 0 5px 0;
 }
 
-/* Abilities Container */
 .crux__abilities {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -393,7 +418,6 @@
     margin-top: 3px;
 }
 
-/* Ability Buttons */
 .crux__ability {
     padding: 2px 3px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
@@ -407,7 +431,6 @@
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* Adjustments for Small Tray Size */
 #crux.tray-small .crux__ability {
     padding: 0px 1px;
 }
@@ -450,7 +473,6 @@
     position: relative;
 }
 
-/* Favorites section styling */
 .crux__section:first-child .crux__section-header {
     background-color: rgba(255, 215, 0, 0.2);
     border-color: rgba(255, 215, 0, 0.3);
@@ -487,11 +509,11 @@
     user-drag: element;
 }
 
-.crux-targeting {
+.crux__container.crux-targeting {
     cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cstyle%3E.crosshair %7B stroke: red; stroke-width: 2; %7D%3C/style%3E%3Cline class='crosshair' x1='11' y1='0' x2='11' y2='9'/%3E%3Cline class='crosshair' x1='11' y1='15' x2='11' y2='24'/%3E%3Cline class='crosshair' x1='0' y1='11' x2='9' y2='11'/%3E%3Cline class='crosshair' x1='15' y1='11' x2='24' y2='11'/%3E%3C/svg%3E") 11 11, crosshair !important;
 }
 
-.crux-targeting * {
+.crux__container.crux-targeting * {
     cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cstyle%3E.crosshair %7B stroke: red; stroke-width: 2; %7D%3C/style%3E%3Cline class='crosshair' x1='11' y1='0' x2='11' y2='9'/%3E%3Cline class='crosshair' x1='11' y1='15' x2='11' y2='24'/%3E%3Cline class='crosshair' x1='0' y1='11' x2='9' y2='11'/%3E%3Cline class='crosshair' x1='15' y1='11' x2='24' y2='11'/%3E%3C/svg%3E") 11 11, crosshair !important;
 }
 
@@ -500,7 +522,8 @@
     user-drag: element;
 }
 
-.crux-targeting [draggable="true"] {
+.crux__container.active-drag,
+.crux__container.active-drag * {
     cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cstyle%3E.crosshair %7B stroke: red; stroke-width: 2; %7D%3C/style%3E%3Cline class='crosshair' x1='11' y1='0' x2='11' y2='9'/%3E%3Cline class='crosshair' x1='11' y1='15' x2='11' y2='24'/%3E%3Cline class='crosshair' x1='0' y1='11' x2='9' y2='11'/%3E%3Cline class='crosshair' x1='15' y1='11' x2='24' y2='11'/%3E%3C/svg%3E") 11 11, crosshair !important;
 }
 
@@ -748,7 +771,6 @@
     opacity: 0.2;
 }
 
-/* Effects Window Styles */
 #crux-effects {
     background: transparent;
     border: none;
