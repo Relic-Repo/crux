@@ -4,8 +4,6 @@ All notable changes to the CRUX module will be documented in this file.
 
 ## [2025-01-27] [1.1.1]
 
-## [2025-01-27] [1.1.1]
-
 ### Changed
 - Enhanced Add to Combat functionality:
   - Added support for multiple actor selection
