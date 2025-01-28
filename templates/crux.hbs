@@ -1,0 +1,293 @@
+<div class="crux__container {{iconSize}}">
+    <div class="crux__actors">
+        {{#*inline "item-list"}}
+            <ul class="crux__items">
+                {{#each this}}
+                    <li class="crux__item item" data-item-uuid="{{item.uuid}}" data-item-id="{{item.id}}">
+                        <div class="item-name rollable flexrow">
+                            <div class="item-image" style="background-image: url('{{item.img}}')">
+                                <i class="fa fa-dice-d20"></i>
+                            </div>
+                            <h4>
+                                {{item.name}}
+                                {{#if (and uses (or (not (eq item.type "spell")) (eq item.system.preparation.mode "innate")))}}
+                                    ({{uses.available}}{{#if uses.maximum}}/{{uses.maximum}}{{/if}})
+                                {{/if}}
+                            </h4>
+
+                            {{#if (and (eq item.type "spell") (has item.system.properties "ritual"))}}
+                                <div class="ritual flag" title="{{localize "crux.flag.ritual-title"}}">{{localize "crux.flag.ritual"}}</div>
+                            {{/if}}
+
+                            {{#if (eq item.system.activation.type "bonus")}}
+                                <div class="bonus flag" title="{{localize "crux.flag.bonus-title"}}">{{localize "crux.flag.bonus"}}</div>
+                            {{/if}}
+                            {{#if (eq item.system.activation.type "reaction")}}
+                                <div class="reaction flag" title="{{localize "crux.flag.reaction-title"}}">{{localize "crux.flag.reaction"}}</div>
+                            {{/if}}
+                            {{#if (eq item.system.activation.type "legendary")}}
+                                <div class="legendary flag" title="{{localize "crux.flag.legendary-title"}}">{{localize "crux.flag.legendary"}}</div>
+                            {{/if}}
+
+                            {{#if (and (eq item.type "spell") (has item.system.properties "concentration"))}}
+                                <div class="concentration flag" title="{{localize "crux.flag.concentration-title"}}">{{localize "crux.flag.concentration"}}</div>
+                            {{/if}}
+
+                            {{#if (and item.system.recharge.value item.system.recharge.charged)}}
+                               <div class="flag"><i class="fas fa-bolt"></i></div>
+                            {{/if}}
+                            {{#if (and item.system.recharge.value (not item.system.recharge.charged))}}
+                               <div class="flag"><a class="rollable item-recharge"><i class="fas fa-dice-six"></i> {{item.system.recharge.value}}+</a></div>
+                            {{/if}}
+
+                            {{#if (and (eq item.system.preparation.mode "prepared") (not item.system.preparation.prepared) (ne item.system.level 0))}}
+                                <div class="unprepared flag" title="{{localize "crux.flag.unprepared-title"}}">{{localize "crux.flag.unprepared"}}</div>
+                            {{/if}}
+                        </div>
+                    </li>
+                {{/each}}
+            </ul>
+        {{/inline}}
+
+        {{#*inline "item-category"}}
+            <div class="crux__section">
+                <h2 class="crux__section-header">
+                    <span>{{localize title}}</span>
+                    <i class="fas fa-caret-up"></i>
+                </h2>
+                <div class="crux__section-content">
+                    {{#with items}}
+                        {{> item-list }}
+                    {{/with}}
+                    {{#each groups as |group groupName|}}
+                        {{> item-group groupName=groupName showSpellDots=../showSpellDots showSpellFractions=../showSpellFractions }}
+                    {{/each}}
+                </div>
+            </div>
+        {{/inline}}
+
+        {{#*inline "item-group"}}
+            {{#if (or items.length (and uses.maximum showSpellDots))}}
+                <div class="crux__group">
+                    <div class="crux__group-header flexrow">
+                        <h3>
+                            <span>{{localize title}}</span>
+                            {{#if (and uses showSpellDots)}}
+                                <div class="group-dots" data-group-name="{{groupName}}">
+                                    {{#each (cruxSlots uses.available uses.maximum) as |available slotNumber|}}
+                                        <div class="dot {{#unless available}}empty{{/unless}}" data-slot="{{slotNumber}}"></div>
+                                    {{/each}}
+                                </div>
+                            {{/if}}
+                        </h3>
+                        {{#if uses}}
+                            {{#if showSpellFractions}}
+                                <div class="group-uses">{{uses.available}}/{{uses.maximum}}</div>
+                            {{/if}}
+                        {{/if}}
+                        <i class="fas fa-caret-up"></i>
+                    </div>
+                    <div class="crux__group-content">
+                        {{#with items}}
+                            {{> item-list }}
+                        {{/with}}
+                    </div>
+                </div>
+            {{/if}}
+        {{/inline}}
+
+        {{#*inline "skill-container"}}
+            <div class="crux__skill-container {{skillMode}} {{#if showSkills}}is-open{{/if}}">
+                <a class="crux__skill-header">
+                    Skills
+                    <i class="fas fa-caret-up"></i>
+                </a>
+                <div class="crux__skills">
+                    {{#each actor.system.skills as |skill s|}}
+                        <a class="crux__skill-row flexrow {{#if (gte skill.proficient 1)}}proficient{{/if}}" data-skill="{{s}}">
+                            <div class="flex0">
+                                {{#if (eq skill.proficient 0)}}<i class="far fa-circle"></i>{{/if}}
+                                {{#if (eq skill.proficient 0.5)}}<i class="fas fa-adjust"></i>{{/if}}
+                                {{#if (eq skill.proficient 1)}}<i class="fas fa-check"></i>{{/if}}
+                                {{#if (eq skill.proficient 2)}}<i class="fas fa-check-double"></i>{{/if}}
+                            </div>
+                            <div class="crux__skill-label">
+                                {{#with (lookup ../skills s)}}
+                                    <span>{{label}}</span>
+                                {{/with}}
+                            </div>
+                            <div class="flex1 crux__skill-bonus">
+                                {{numberFormat total decimals=0 sign=true}}
+                            </div>
+                            <div class="flex1 crux__skill-passive">
+                                ({{passive}})
+                            </div>
+                        </a>
+                    {{/each}}
+                </div>
+            </div>
+        {{/inline}}
+
+        {{#each actors as |actor|}}
+            <div class="crux__actor" data-actor-uuid="{{actor.actor.uuid}}">
+                <div class="crux__top-section">
+                    <div class="crux__portrait">
+                        <div class="crux__portrait-inner">
+                            <div class="crux__portrait-front">
+                                <img src="{{actor.actor.img}}" alt="Character Portrait">
+                                {{#if (lookup @root.settings "health-overlay-enabled")}}
+                                    <div class="crux__portrait-health-overlay {{#if (eq (lookup @root.settings "health-overlay-direction") "up")}}health-overlay-up{{else}}health-overlay-down{{/if}}"
+                                         style="height: {{calculateHealthOverlay actor.actor.system.attributes.hp.value actor.actor.system.attributes.hp.max}}%"
+                                         data-current-hp="{{actor.actor.system.attributes.hp.value}}"
+                                         data-max-hp="{{actor.actor.system.attributes.hp.max}}">
+                                    </div>
+                                {{/if}}
+                            </div>
+                            <div class="crux__portrait-back">
+                                <div class="crux__stat-row">
+                                    <img src="modules/crux/img/shield.svg" alt="AC">
+                                    <span>AC: {{actor.actor.system.attributes.ac.value}}</span>
+                                </div>
+                                <div class="crux__stat-row">
+                                    <img src="modules/crux/img/hearts.svg" alt="HP">
+                                    <span>HP: {{actor.actor.system.attributes.hp.value}}/{{actor.actor.system.attributes.hp.max}}</span>
+                                </div>
+                                <div class="crux__stat-row">
+                                    <img src="modules/crux/img/eye-target.svg" alt="Passive Perception">
+                                    <span>P. Perc.: {{add actor.actor.system.skills.prc.total 10}}</span>
+                                </div>
+                                <div class="crux__stat-row">
+                                    <img src="modules/crux/img/walk.svg" alt="Walk">
+                                    <span>Speed: {{actor.actor.system.attributes.movement.walk}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="crux__info-section">
+                        <h1><a class="crux__actor-name">{{name}}</a></h1>
+                        <div class="crux__abilities">
+                            {{#each abilities as |details abbr|}}
+                                <a class="crux__ability" data-ability="{{abbr}}" title="{{details.label}} {{details.value}} ({{numberFormat details.mod decimals=0 sign=true}} / {{numberFormat details.save decimals=0 sign=true}})">
+                                {{abbr}}
+                                </a>
+                            {{/each}}
+                        </div>
+                    </div>
+                </div>
+
+                {{#if needsInitiative}}
+                    <a class="crux__initiative flexrow">
+                        <i class="flex0 fas fa-swords crux__initiative-icon"></i>
+                        <div>{{localize "crux.roll-initiative"}}</div>
+                    </a>
+                {{/if}}
+
+                {{#if (eq skillMode "dropdown")}}
+                    {{> skill-container}}
+                {{/if}}
+
+                <div class="crux__actions-container">
+                    <div class="crux__action-buttons">
+                        <a class="crux__action-button" data-action="dash" title="{{localize "crux.action.dash"}}">
+                            <img src="modules/crux/img/dash.svg" alt="Dash">
+                        </a>
+                        <a class="crux__action-button" data-action="disengage" title="{{localize "crux.action.disengage"}}">
+                            <img src="modules/crux/img/disengage.svg" alt="Disengage">
+                        </a>
+                        <a class="crux__action-button" data-action="dodge" title="{{localize "crux.action.dodge"}}">
+                            <img src="modules/crux/img/dodge.svg" alt="Dodge">
+                        </a>
+                        <a class="crux__action-button" data-action="grapple" title="{{localize "crux.action.grapple"}}">
+                            <img src="modules/crux/img/grapple.svg" alt="Grapple">
+                        </a>
+                        <a class="crux__action-button" data-action="hide" title="{{localize "crux.action.hide"}}">
+                            <img src="modules/crux/img/hide.svg" alt="Hide">
+                        </a>
+                        <a class="crux__action-button" data-action="shove" title="{{localize "crux.action.shove"}}">
+                            <img src="modules/crux/img/shove.svg" alt="Shove">
+                        </a>
+                    </div>
+                </div>
+
+                <div class="crux__utility-buttons crux__token-controls">
+                    <div class="crux__utility-button crux__open-token">
+                        <a class="crux__open-token-button" title="{{localize "crux.open-token"}}">
+                            <i class="fas fa-user-circle"></i>
+                            <span class="button-text">{{localize "crux.open-token"}}</span>
+                        </a>
+                    </div>
+
+                    <div class="crux__utility-button crux__toggle-target {{#if toggleTargetMode}}toggled-off{{/if}}">
+                        <a class="crux__toggle-target-button" title="{{localize_by_mode toggleTargetMode 'crux.drag-target' 'crux.toggle-target'}}">
+                            <i class="fas fa-bullseye"></i>
+                            <span class="button-text">{{localize_by_mode toggleTargetMode 'crux.drag-target' 'crux.toggle-target'}}</span>
+                        </a>
+                    </div>
+
+                    <div class="crux__utility-button crux__status-effects">
+                        <a class="crux__status-effects-button" title="{{localize "crux.status-effects"}}">
+                            <img src="modules/crux/img/aura.svg" alt="Status Effects">
+                            <span class="button-text">{{localize "crux.status-effects"}}</span>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="crux__utility-buttons">
+                    <div class="crux__utility-button crux__add-to-combat">
+                        <a class="crux__add-to-combat-button" title="{{localize "crux.add-to-combat"}}">
+                            <i class="fas fa-sword"></i>
+                            <span class="button-text">{{localize "crux.add-to-combat"}}</span>
+                        </a>
+                    </div>
+
+                    <div class="crux__utility-button crux__set-elevation">
+                        <a class="crux__set-elevation-button" title="{{localize "crux.set-elevation"}}">
+                            <i class="fas fa-arrows-alt-v"></i>
+                            <span class="button-text">{{localize "crux.set-elevation"}}</span>
+                        </a>
+                    </div>
+
+                    <div class="crux__utility-button crux__expand-collapse">
+                        <a class="crux__expand-collapse-button" title="Expand/Collapse All">
+                            <i class="fas fa-up-right-and-down-left-from-center"></i>
+                            <span class="button-text">Expand/Collapse All</span>
+                        </a>
+                    </div>
+                </div>
+
+                {{#with sections}}
+                    {{#with favorites}}
+                        {{> item-category}}
+                    {{/with}}
+                    {{#with equipped}}
+                        {{> item-category}}
+                    {{/with}}
+                    {{#with feature}}
+                        {{> item-category}}
+                    {{/with}}
+                    {{#with spell}}
+                        {{> item-category showSpellDots=../../../showSpellDots showSpellFractions=../../../showSpellFractions}}
+                    {{/with}}
+                    {{#with inventory}}
+                        {{> item-category}}
+                    {{/with}}
+                    {{#with passive}}
+                        {{> item-category}}
+                    {{/with}}
+                {{/with}}
+
+                {{#if (eq skillMode "append")}}
+                    {{> skill-container}}
+                {{/if}}
+            </div>
+        {{/each}}
+
+        {{#unless actors.length}}
+            <div class="crux__empty-tray">
+                <i class="fas fa-dice-d20"></i>
+            </div>
+        {{/unless}}
+    </div>
+</div>
+
+<div class="crux__end-turn">{{localize "crux.end-turn"}}</div>
