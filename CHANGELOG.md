@@ -2,6 +2,8 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+
+
 ## [2025-01-27] [1.1.1]
 
 ### Changed
@@ -14,11 +16,8 @@ All notable changes to the CRUX module will be documented in this file.
 - Added State Awareness for UI State when Actor Updates
 
 ### Fixed
-- Improved null error handling:
-  - Added safety checks for token elevation access
-  - Enhanced item uses validation
-  - Better handling of undefined values in system data
-  - More robust event handling for item activation
+- Template there/visible
+  - Resolved issue with Crux hiding Item Templates on use.
 
 
 ## [2025-01-21] [1.1.0]

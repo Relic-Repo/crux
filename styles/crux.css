@@ -153,6 +153,10 @@
     background-color: rgba(255, 255, 255, 0.25);
 }
 
+.crux__utility-button .button-text {
+    display: none !important;
+}
+
 .crux__utility-button:hover i {
     opacity: 1;
 }
@@ -175,22 +179,7 @@
     height: 100%;
 }
 
-.crux__utility-button .button-text {
-    display: none;
-    position: absolute;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 14px;
-    white-space: nowrap;
-    top: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-}
 
-.crux__utility-button:hover .button-text {
-    display: block;
-}
 
 .crux__set-elevation input {
     width: 40px;
@@ -488,6 +477,16 @@
 
 .crux__item .item-name h4 {
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.crux__activity-name {
+    color: #ff6400;
+    font-size: 0.9em;
+    font-style: italic;
+    opacity: 0.8;
 }
 
 .crux__item .item-name .item-image {

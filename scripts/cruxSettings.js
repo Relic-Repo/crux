@@ -229,6 +229,29 @@ export const SETTINGS = {
         default: "manual",
         onChange: () => updateTrayState()
     },
+    "enable-drag-targeting": {
+        name: "Enable Drag Targeting",
+        hint: "Enable drag targeting functionality (requires Midi-QoL with drag targeting enabled)",
+        scope: "client",
+        config: true,
+        type: Boolean,
+        default: false,
+        onChange: (value) => {
+            if (value) {
+                if (!game?.modules?.get("midi-qol")?.active) {
+                    game.settings.set("crux", "enable-drag-targeting", false);
+                    ui.notifications.warn("Cannot enable drag targeting - Midi-QoL module not active");
+                    return;
+                }
+                if (!game.settings.get("midi-qol", "DragDropTarget")) {
+                    ui.notifications.warn("Cannot enable drag targeting - Midi-QoL drag targeting is disabled");
+                    game.settings.set("crux", "enable-drag-targeting", false);
+                    return;
+                }
+            }
+            updateTray();
+        }
+    },
     "toggle-target-mode": {
         name: "Toggle Target Mode",
         hint: "When enabled, the target button becomes a toggle for drag & target mode",
@@ -385,5 +408,13 @@ Hooks.once('init', () => {
             }
         }
     });
+});
 
+Hooks.once('ready', () => {
+    if (game.settings.get("crux", "enable-drag-targeting")) {
+        if (!game?.modules?.get("midi-qol")?.active || 
+            !game.settings.get("midi-qol", "DragDropTarget")) {
+            game.settings.set("crux", "enable-drag-targeting", false);
+        }
+    }
 });

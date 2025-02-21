@@ -96,9 +96,12 @@ Hooks.on("ready", () => {
         
         if (iconSize) container.find('.crux__container').addClass(`icon-${iconSize}`);
         if (traySize) container.addClass(`tray-${traySize}`);
+        setTimeout(() => {
+            updateTrayState();
+        }, 100); 
+    } else {
+      updateTrayState();
     }
-
-    updateTrayState();
 });
 
 Hooks.once('init', () => {

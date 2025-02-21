@@ -1,3 +1,5 @@
+import { DnDv4 } from "./cruxUtils.js";
+
 /**
  * Calculates the number of available uses for a given item based on its type and configuration
  * @param {Item} item - The Foundry VTT Item instance to calculate uses for
@@ -7,9 +9,11 @@
  */
 export const calculateUsesForItem = (item) => {
     const itemData = item.system;
-    const consume = itemData.consume;
-    if (consume && consume.target) {
-        return calculateConsumeUses(item.actor, consume);
+    if (!DnDv4()) {
+        const consume = itemData.consume;
+        if (consume && consume.target) {
+            return calculateConsumeUses(item.actor, consume);
+        }
     }
     const uses = itemData.uses;
     if (uses && (uses.max > 0 || uses.value > 0)) {
@@ -119,26 +123,21 @@ function calculateFeatUses(itemData) {
  */
 function calculateSpellUses(item) {
     const itemData = item.system;
-    const actorData = item.actor.system;
-    let available = null;
-    let maximum = null;
-    const preparationMode = itemData.preparation.mode;
-    if (preparationMode === 'pact') {
-        available = actorData.spells['pact'].value;
-        maximum = actorData.spells['pact'].max;
-    } else if (preparationMode === 'innate' || preparationMode === 'atwill') {
-    } else {
-        let level = itemData.level;
-        if (level > 0) {
-            available = actorData.spells['spell' + level].value;
-            maximum = actorData.spells['spell' + level].max;
-        }
+    
+    // Check for v4+ uses
+    if (DnDv4() && itemData.uses?.max > 0) {
+        return {
+            available: itemData.uses.value - (itemData.uses.spent || 0),
+            maximum: itemData.uses.max
+        };
     }
-    if (available === null) {
-        return null;
-    } else {
-        return { available, maximum };
+    
+    // Check for pre-v4 uses
+    if (!DnDv4() && itemData.uses && (itemData.uses.max > 0 || itemData.uses.value > 0)) {
+        return calculateLimitedUses(itemData);
     }
+    
+    return null;
 }
 
 /**
@@ -156,5 +155,10 @@ function calculateWeaponUses(itemData) {
     if (itemData.properties.thr && !itemData.properties.ret) {
         return { available: itemData.quantity, maximum: null };
     }
+
+    if (DnDv4() && itemData.uses?.max > 0) {
+        return calculateLimitedUses(itemData);
+    }
+    
     return null;
 }

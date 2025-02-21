@@ -1,5 +1,19 @@
 import { resolveActor, fromUuid } from "./cruxHooks.js";
 import CruxEffectsApp from "./cruxEffectsApp.js";
+import { DnDv4, getActivationType, hasRechargeRecovery, hasRemainingUses, getRechargeFormula, isDragTargetingEnabled, getDescription } from "./cruxUtils.js";
+
+let isShiftHeld = false;
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Shift") {
+        isShiftHeld = true;
+    }
+});
+
+document.addEventListener("keyup", (event) => {
+    if (event.key === "Shift") {
+        isShiftHeld = false;
+    }
+});
 
 /**
  * Calculates the health overlay height percentage based on current and max HP
@@ -15,18 +29,6 @@ function calculateHealthOverlay(currentHP, maxHP) {
         return Math.round(percentage / 5) * 5;
     }
     return Math.round(percentage);
-}
-
-/**
- * Checks if the DnD5e system version is 4.0 or higher
- * @returns {boolean} True if system version is 4.0+, false otherwise
- */
-function DnDv4() {
-    const system = game.system;
-    if (system.id !== "dnd5e") return false;
-    const version = system.version;
-    const majorVersion = parseInt(version.split('.')[0]);
-    return majorVersion >= 4;
 }
 
 /**
@@ -106,7 +108,17 @@ async function handleItemRecharge(item) {
         const uiState = captureUIState();
         
         if (DnDv4()) {
-            await item.system.uses.rollRecharge();
+            const recovery = item.system.uses?.recovery;
+            if (recovery?.period === 'recharge' && recovery.formula) {
+                const roll = await new Roll(recovery.formula).evaluate({async: true});
+                if (roll.total >= parseInt(recovery.formula)) {
+                    await item.update({"system.uses.value": item.system.uses.max});
+                }
+                roll.toMessage({
+                    flavor: game.i18n.format('DND5E.ItemRechargeCheck', {name: item.name}),
+                    speaker: ChatMessage.getSpeaker({actor: item.actor})
+                });
+            }
         } else {
             await item.rollRecharge();
         }
@@ -186,7 +198,9 @@ export async function updateTray() {
             sections.favorites.items.push({ item, uses, sort: favoriteEntry.sort });
         }
 
-            if (hasUses && itemData.activation?.type && itemData.activation.type !== "none" && !item.getFlag("crux", "hidden")) {
+            const activationType = getActivationType(item);
+            if (hasUses && !item.getFlag("crux", "hidden") && 
+                (DnDv4() ? item.system.activities?.size > 0 : activationType && activationType !== "none")) {
                 switch (item.type) {
                     case "feat":
                         const featureSection = useTidy5e ? item.flags?.["tidy5e-sheet"]?.section : null;
@@ -399,7 +413,8 @@ export async function updateTray() {
             abilities[abbr] = {
                 ...details,
                 label: CONFIG.DND5E.abilities[abbr]?.label || abbr.toUpperCase(),
-                abbr: abbr
+                abbr: abbr,
+                save: DnDv4() ? details.save?.value : details.save
             };
         }
 
@@ -455,11 +470,18 @@ export async function updateTray() {
         updateScrollPosition({});
     }
 
-    async function activateItem(event, options = {}) {
+async function activateItem(event, options = {}) {
         event.preventDefault();
         const itemUuid = event.currentTarget?.closest(".item")?.dataset.itemUuid || options.itemUuid;
-        const item = fromUuid(itemUuid);
+        const item = await fromUuid(itemUuid);
         if (!item) return false;
+        if (event.currentTarget?.classList.contains('item-image')) {
+            return item.use({
+                legacy: false,
+                event: event
+            });
+        }
+
         if (event.shiftKey && item.system.uses?.max > 0) {
             try {
                 const currentValue = parseInt(item.system.uses.value) || 0;
@@ -489,24 +511,6 @@ export async function updateTray() {
             }
         }
 
-        if (options.eventData?.type === "drop") {
-            return false;
-        }
-
-        if (event.currentTarget?.classList.contains('item-image')) {
-            if (event.type === 'drop' || options.eventData?.type === 'drop') {
-                return false;
-            }
-            
-            await item.use({}, { 
-                createMessage: true,
-                event: { 
-                    type: "click",
-                    showDescription: false
-                }
-            });
-            event.stopPropagation();
-        }
         return false;
     }
 
@@ -551,6 +555,14 @@ export async function updateTray() {
 
     function updateDragMode(enabled) {
         isDragModeEnabled = enabled;
+        if (!isDragTargetingEnabled()) {
+            trayContainer.removeClass('crux-targeting');
+            html.find('.rollable .item-image').each(function() {
+                this.draggable = false;
+                $(this).removeAttr('draggable');
+            });
+            return;
+        }
         
         if (enabled) {
             trayContainer.addClass('crux-targeting');
@@ -604,7 +616,7 @@ export async function updateTray() {
         }
     });
 
-    html.find('.rollable .item-image').on('dragstart', function(event) {
+    html.find('.rollable .item-image').on('dragstart', async function(event) {
         event.stopPropagation();
         
         const dragKey = game.keybindings.get("crux", "item-drag")[0];
@@ -615,8 +627,9 @@ export async function updateTray() {
         }
         
         const itemUuid = event.currentTarget.closest(".item").dataset.itemUuid;
-        const item = fromUuid(itemUuid);
+        const item = await fromUuid(itemUuid);
         if (!item) {
+            console.error("Crux | Invalid drag: Failed to resolve item from UUID", itemUuid);
             event.preventDefault();
             return false;
         }
@@ -634,15 +647,26 @@ export async function updateTray() {
         document.body.appendChild(dragImage);
         
         try {
-            const dragData = {
-                type: "Item",
-                uuid: `crux:${itemUuid}`,
-            };
+        if (!itemUuid) {
+            console.error("Crux | Invalid drag: Missing item UUID");
+            event.preventDefault();
+            return false;
+        }
+
+        if (!isDragTargetingEnabled()) {
+            event.preventDefault();
+            return false;
+        }
+
+        const dragData = {
+            type: "Item",
+            uuid: itemUuid
+        };
             
-            event.originalEvent.dataTransfer.setData("text/plain", JSON.stringify(dragData));
-            event.originalEvent.dataTransfer.effectAllowed = "all";
-            event.originalEvent.dataTransfer.setDragImage(dragImage, 16, 16);
-            event.currentTarget.dragImage = dragImage;
+        event.originalEvent.dataTransfer.setData("text/plain", JSON.stringify(dragData));
+        event.originalEvent.dataTransfer.effectAllowed = "all";
+        event.originalEvent.dataTransfer.setDragImage(dragImage, 16, 16);
+        event.currentTarget.dragImage = dragImage;
             
             return true;
         } catch (error) {
@@ -674,54 +698,6 @@ export async function updateTray() {
         const isToggleMode = game.settings.get("crux", "toggle-target-mode");
         if (isDragModeEnabled || game.keyboard.downKeys.has(dragKey.key) || isToggleMode) {
             event.dataTransfer.dropEffect = 'copy';
-        }
-    });
-
-    let isItemBeingUsed = false;
-    canvas.app.view.addEventListener('drop', async (event) => {
-        const dragKey = game.keybindings.get("crux", "item-drag")[0];
-        const isToggleMode = game.settings.get("crux", "toggle-target-mode");
-        if (!isDragModeEnabled && !game.keyboard.downKeys.has(dragKey.key) && !isToggleMode) {
-            return;
-        }
-
-        try {
-            let dragData;
-            try {
-                dragData = JSON.parse(event.dataTransfer.getData('text/plain'));
-            } catch (e) {
-                return;
-            }
-            
-            if (!dragData || dragData.type !== "Item") return;
-
-            const uuid = dragData.uuid;
-            const isOurDrag = uuid.startsWith("crux:");
-            if (!isOurDrag) return;
-
-            event.preventDefault();
-            event.stopPropagation();
-            event.stopImmediatePropagation();
-
-            const actualUuid = uuid.replace("crux:", "");
-            const item = await fromUuid(actualUuid);
-            if (!item || isItemBeingUsed) return;
-
-            isItemBeingUsed = true;
-            try {
-                await item.use({}, { 
-                    createMessage: true,
-                    event: { 
-                        type: "drop",
-                        originalEvent: event
-                    }
-                });
-            } finally {
-                isItemBeingUsed = false;
-            }
-        } catch (error) {
-            console.error("Drop handling failed:", error);
-            isItemBeingUsed = false;
         }
     });
 
@@ -761,7 +737,7 @@ export async function updateTray() {
 
         if (event.currentTarget.classList.contains('item-image')) {
             if (event.which === 1) {
-                return activateItem(event);
+                return activateItem(event, { shiftKey: event.shiftKey });
             }
         } else if (event.currentTarget.classList.contains('item-name')) {
             const itemUuid = event.currentTarget.closest(".item").dataset.itemUuid;
@@ -804,7 +780,7 @@ export async function updateTray() {
                     let summary = li.children(".item-summary");
                     summary.slideUp(200, () => summary.remove());
                 } else {
-                    let div = $(`<div class="item-summary">${chatData.description.value}</div>`);
+                    let div = $(`<div class="item-summary">${getDescription(item)}</div>`);
                     let props = $('<div class="item-properties"></div>');
                     chatData.properties.forEach(p => props.append(`<span class="tag">${p}</span>`));
                     div.append(props);
@@ -1175,7 +1151,10 @@ export async function updateTray() {
         });
 
         if (matchingItem) {
-            await matchingItem.use({}, event);
+            await matchingItem.use({
+                legacy: false,
+                event: event
+            });
         } else {
             const content = `<p>${actor.name} uses ${actionName}</p>`;
             await ChatMessage.create({
@@ -1212,6 +1191,10 @@ export async function updateTray() {
 }
 
 Handlebars.registerHelper({
+    getActivationType: (item) => getActivationType(item),
+    hasRechargeRecovery: (item) => hasRechargeRecovery(item),
+    hasRemainingUses: (item) => hasRemainingUses(item),
+    getRechargeFormula: (item) => getRechargeFormula(item),
     calculateHealthOverlay: (currentHP, maxHP) => {
         const percentage = ((maxHP - currentHP) / maxHP) * 100;
         if (percentage > 50) {

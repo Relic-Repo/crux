@@ -10,7 +10,7 @@
                             </div>
                             <h4>
                                 {{item.name}}
-                                {{#if (and uses (or (not (eq item.type "spell")) (eq item.system.preparation.mode "innate")))}}
+                                {{#if uses}}
                                     ({{uses.available}}{{#if uses.maximum}}/{{uses.maximum}}{{/if}})
                                 {{/if}}
                             </h4>
@@ -19,13 +19,13 @@
                                 <div class="ritual flag" title="{{localize "crux.flag.ritual-title"}}">{{localize "crux.flag.ritual"}}</div>
                             {{/if}}
 
-                            {{#if (eq item.system.activation.type "bonus")}}
+                            {{#if (eq (getActivationType item) "bonus")}}
                                 <div class="bonus flag" title="{{localize "crux.flag.bonus-title"}}">{{localize "crux.flag.bonus"}}</div>
                             {{/if}}
-                            {{#if (eq item.system.activation.type "reaction")}}
+                            {{#if (eq (getActivationType item) "reaction")}}
                                 <div class="reaction flag" title="{{localize "crux.flag.reaction-title"}}">{{localize "crux.flag.reaction"}}</div>
                             {{/if}}
-                            {{#if (eq item.system.activation.type "legendary")}}
+                            {{#if (eq (getActivationType item) "legendary")}}
                                 <div class="legendary flag" title="{{localize "crux.flag.legendary-title"}}">{{localize "crux.flag.legendary"}}</div>
                             {{/if}}
 
@@ -33,11 +33,11 @@
                                 <div class="concentration flag" title="{{localize "crux.flag.concentration-title"}}">{{localize "crux.flag.concentration"}}</div>
                             {{/if}}
 
-                            {{#if (and item.system.recharge.value item.system.recharge.charged)}}
+                            {{#if (and (hasRechargeRecovery item) (hasRemainingUses item))}}
                                <div class="flag"><i class="fas fa-bolt"></i></div>
                             {{/if}}
-                            {{#if (and item.system.recharge.value (not item.system.recharge.charged))}}
-                               <div class="flag"><a class="rollable item-recharge"><i class="fas fa-dice-six"></i> {{item.system.recharge.value}}+</a></div>
+                            {{#if (and (hasRechargeRecovery item) (not (hasRemainingUses item)))}}
+                               <div class="flag"><a class="rollable item-recharge"><i class="fas fa-dice-six"></i> {{getRechargeFormula item}}+</a></div>
                             {{/if}}
 
                             {{#if (and (eq item.system.preparation.mode "prepared") (not item.system.preparation.prepared) (ne item.system.level 0))}}
@@ -167,7 +167,7 @@
                         <h1><a class="crux__actor-name">{{name}}</a></h1>
                         <div class="crux__abilities">
                             {{#each abilities as |details abbr|}}
-                                <a class="crux__ability" data-ability="{{abbr}}" title="{{details.label}} {{details.value}} ({{numberFormat details.mod decimals=0 sign=true}} / {{numberFormat details.save decimals=0 sign=true}})">
+                                <a class="crux__ability" data-ability="{{abbr}}" title="{{details.label}} {{details.value}} ({{numberFormat details.mod decimals=0 sign=true}} / {{#if details.save}}{{numberFormat details.save decimals=0 sign=true}}{{else}}+0{{/if}})">
                                 {{abbr}}
                                 </a>
                             {{/each}}
