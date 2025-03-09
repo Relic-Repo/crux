@@ -2,6 +2,14 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2025-03-09] [2.0.1]
+
+### Changed
+- Enhanced CSS for improved viewport coverage:
+  - Extended window viewport to cover the whole screen
+  - Added wrapper to prevent external scaling interference
+  - Applied transform: none !important to the wrapper
+
 ## [2025-03-09] [2.0.0]
 
 ### Breaking Changes

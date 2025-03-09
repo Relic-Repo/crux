@@ -15,8 +15,6 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         id: "crux",
         popOut: false,
         classes: ["crux"],
-        width: 260,
-        height: "auto",
         tag: "div",
         headerButtons: [],
         minimizable: false,
