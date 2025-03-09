@@ -1,58 +1,88 @@
-#crux {
-    position: relative;
-    width: 0;
-    transition: width .5s;
+:root {
     --crux-width: 260px;
+    --icon-small-ratio: 0.11;
+    --icon-medium-ratio: 0.14;
+    --icon-large-ratio: 0.16;
+    --text-base-ratio: 0.07;
+    --text-header-ratio: 0.08;
+    --text-small-ratio: 0.042;
+    --flag-ratio: 0.058; 
+    --flag-text-ratio: 0.042;
+    --ritual-flag-ratio: 0.070;
+    --crux-bg-opacity: 0.4; 
+    --crux-blur: 1px; 
+    --crux-font-family: "Modesto Condensed", "Palatino Linotype", serif;
+    --end-turn-button-bg: rgba(255, 255, 255, 0.15);
+    --end-turn-button-color: rgb(255, 255, 255);
+    --end-turn-button-border-radius: 5px;
+    --end-turn-button-padding: 2px 2px;
+    --end-turn-button-font-size: 14px;
+    --end-turn-button-text-align: center;
+    --end-turn-button-font-weight: 200;
+    --end-turn-button-border: 1px solid rgba(255, 255, 255, 0.15);
+    --end-turn-button-box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.15);
+}
+.crux {
+    position: fixed;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh;
+    transition: transform 0.1s ease;
+    transform: translateX(-100%);
+    z-index: 0 !important;
+    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    backdrop-filter: blur(var(--crux-blur)) !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+    
+.crux.active {
+    transform: translateX(0);
+}
+    
+#interface.crux-active {
+    margin-left: var(--crux-width) !important;
+    transition: margin-left 0.1s ease;
 }
 
-#crux.tray-small {
-    --crux-width: 220px;
+
+.crux.active {
+    width: var(--crux-width) !important;
 }
 
-#crux.is-open {
-    width: var(--crux-width);
-}
-
-#crux.always-on {
+.crux.always-on {
     transition: width 0s;
 }
-
+.crux__section-header i, .crux__group-header i {
+    font-size: 18px !important;
+    flex: 0 0 2px !important;
+}
 .crux__container {
     position: absolute;
-    right: 0;
+    left: 0;
     top: 0;
-    bottom: 0;
-    width: var(--crux-width);
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    z-index: 1;
-    padding: 10px;
-    overflow: auto;
-    transition: bottom 0.3s;
-    --crux-icon: 36px;
-    --die-icon-size: 24px;
+    width: var(--crux-width) !important;
+    background: rgba(0, 0, 0, calc(var(--crux-bg-opacity) - 0.3)) !important;
+    backdrop-filter: blur(calc(var(--crux-blur) - 1px)) !important;
+    color: white !important;
+    z-index: 0 !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: 100vh !important;
+    transform: scale(1) !important;
+    transition: bottom 0.3s !important;
+    --crux-icon: calc(var(--crux-width) * var(--icon-medium-ratio));
+    --die-icon-size: calc(var(--crux-icon) * 0.67);
 }
 
 .crux__container.icon-small {
-    --crux-icon: 30px;
-    --die-icon-size: 20px;
+    --crux-icon: calc(var(--crux-width) * var(--icon-small-ratio));
+    --die-icon-size: calc(var(--crux-icon) * 0.67);
 }
 
 .crux__container.icon-large {
-    --crux-icon: 42px;
-    --die-icon-size: 28px;
-}
-
-#crux.tray-small .crux__container {
-    --crux-icon: 30px;
-}
-
-#crux.tray-small .crux__container.icon-small {
-    --crux-icon: 24px;
-}
-
-#crux.tray-small .crux__container.icon-large {
-    --crux-icon: 36px;
+    --crux-icon: calc(var(--crux-width) * var(--icon-large-ratio));
+    --die-icon-size: calc(var(--crux-icon) * 0.67);
 }
 
 
@@ -62,12 +92,13 @@
 
 .crux__container h1 {
     border: 0;
-    font-family: "Modesto Condensed", "Palatino Linotype", serif;
-    margin: 5px 0 0 0;
+    font-family: var(--crux-font-family) !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.2) !important;
+    margin: 5px 0 0 0 !important;
 }
 
 .crux__actions-container {
-    margin: 10px -5px;
+    margin: 10px 2px !important;
 }
 
 .crux__action-buttons {
@@ -122,7 +153,7 @@
     display: flex;
     justify-content: space-between;
     gap: 4px;
-    margin: 10px -5px;
+    margin: 10px 2px !important;
 }
 
 .crux__utility-button {
@@ -138,8 +169,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: "Modesto Condensed", "Palatino Linotype", serif;
-    font-size: 16px;
+    font-family: var(--crux-font-family) !important;
+    font-size: calc(var(--crux-width) * var(--text-base-ratio)) !important;
     position: relative;
 }
 
@@ -167,11 +198,11 @@
 }
 
 .crux__utility-button.crux__toggle-target.toggled-on {
-    background-color: #ff0000;
+    background-color: var(--color-level-success-bg) !important;
 }
 
 .crux__utility-button.crux__toggle-target.toggled-off {
-    background-color: #ff6400;
+    background-color: var(--color-warm-2) !important;
 }
 
 .crux__toggle-target-button {
@@ -179,25 +210,23 @@
     height: 100%;
 }
 
-
-
 .crux__set-elevation input {
     width: 40px;
 }
 
 .crux__section-header {
-    position: relative;
-    background-color: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 1px 6px;
-    margin: 10px -5px 4px -5px;
-    border-radius: 3px;
-    font-family: "Modesto Condensed", "Palatino Linotype", serif;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    position: relative !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    padding: 1px 6px !important;
+    margin: 10px 2px 4px 2px !important;
+    border-radius: 3px !important;
+    font-family: var(--crux-font-family) !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio)) !important;
+    cursor: pointer !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
 }
 
 .crux__section-header i {
@@ -219,42 +248,43 @@
 }
 
 .crux__group-header {
-    position: relative;
-    padding: 1px 6px;
-    margin: 5px 0 3px 0;
-    cursor: pointer;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    width: 100%;
-    box-sizing: border-box;
+    position: relative !important;
+    padding: 1px 6px !important;
+    margin: 5px 0 3px 0 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .crux__group-header h3 {
     display: flex;
     align-items: center;
-    margin: 0;
-    font-size: 15px;
+    margin: 0 !important;
+    font-size: calc(var(--crux-width) * var(--text-base-ratio)) !important;
     font-weight: bold;
     color: rgba(255, 255, 255, 0.7);
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
     min-width: 0;
     flex: 1;
+    font-family: var(--crux-font-family) !important;
 }
 
 .crux__group-header h3 span {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-right: 10px;
+    margin-right: 10px !important;
     flex: 1;
 }
 
 .crux__group-header .group-dots {
     display: flex;
     gap: 2px;
-    margin-left: auto;
-    margin-right: 10px;
+    margin-left: auto !important;
+    margin-right: 10px !important;
     flex: 0 0 auto;
 }
 
@@ -263,7 +293,7 @@
     color: black;
     padding: 3px 6px;
     border-radius: 5px;
-    margin-right: 8px;
+    margin-right: 8px !important;
     flex: 0 0 auto;
     min-width: 32px;
     text-align: center;
@@ -271,8 +301,8 @@
 
 .crux__group-header i {
     transition: transform 0.3s ease;
-    flex: 0 0 14px;
-    text-align: center;
+    flex: 0 0 14px !important;
+    text-align: center !important;
 }
 
 .crux__group.is-collapsed .crux__group-header i {
@@ -290,31 +320,33 @@
 }
 
 .crux__section {
-    margin-bottom: 10px;
+    margin-bottom: 10px !important;
 }
 
 .crux__section-content > div {
-    margin-bottom: 8px;
+    margin-bottom: 8px  !important;
 }
 
 .crux__actor + .crux__actor {
     border-top: 1px solid rgba(255, 255, 255, 0.5);
-    margin-top: 15px;
+    margin-top: 15px !important;
     padding-top: 10px;
 }
 
 .crux__top-section {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-    padding: 5px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
+    display: flex !important;
+    gap: calc(var(--crux-width) * 0.038) !important;
+    margin-bottom: 10px !important;
+    padding: 5px !important;
+    background: rgba(0, 0, 0, 0.2) !important;
+    border-radius: 5px !important;
+    overflow: hidden !important;
+    max-height: calc(var(--crux-width) * 0.7) !important;
 }
 
 .crux__portrait {
-    flex: 0 0 100px;
-    height: 165px;
+    flex: 0 0 calc(var(--crux-width) * 0.38);
+    height: calc(var(--crux-width) * 0.63);
     position: relative;
     perspective: 1000px;
     cursor: pointer;
@@ -355,7 +387,7 @@
     position: absolute;
     left: 0;
     width: 100%;
-    background: rgba(255, 0, 0, 0.3);
+    background: rgba(255, 0, 0, 0.3) !important;
     transition: height 0.3s ease;
     pointer-events: none;
 }
@@ -371,40 +403,105 @@
 .crux__portrait-back {
     background: rgba(0, 0, 0, 0.8);
     transform: rotateY(180deg);
-    padding: 10px;
+    padding: calc(var(--crux-width) * 0.038);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: calc(var(--crux-width) * 0.03);
+}
+
+.crux__rest-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: calc(var(--crux-width) * 0.03 + 15px);
+    margin-bottom: calc(var(--crux-width) * 0.01);
+}
+
+.crux__rest-button {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 5px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.crux__rest-button:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.crux__rest-button i {
+    font-size: 18px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.crux__rest-button:hover i {
+    opacity: 1;
 }
 
 .crux__stat-row {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: calc(var(--crux-width) * 0.015);
     color: white;
-    font-size: 11px;
+    font-size: calc(var(--crux-width) * 0.042) !important;
     line-height: 1.2;
 }
 
 .crux__stat-row img {
-    width: 12px;
-    height: 12px;
+    width: calc(var(--crux-width) * 0.046);
+    height: calc(var(--crux-width) * 0.046);
     filter: invert(1);
 }
 
 .crux__info-section {
-    flex: 1;
+    flex: 1 !important;
+    overflow: hidden !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 100% !important; 
+}
+
+.crux__info-section > * {
+    overflow: hidden !important;
 }
 
 .crux__info-section h1 {
-    margin: 0 0 5px 0;
+    margin: 0 0 5px 0 !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.1) !important;
+    overflow: hidden !important;
+    width: 100% !important;
+    word-wrap: break-word !important;
+    line-height: 1.2 !important;
+    max-height: 3.6em !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3 !important;
+    -webkit-box-orient: vertical !important;
+    text-overflow: ellipsis !important;
+}
+
+.crux__info-section h1.long-name {
+    font-size: calc(var(--crux-width) * var(--text-header-ratio)) !important;
+}
+
+.crux__info-section h1.very-long-name {
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 0.8) !important;
 }
 
 .crux__abilities {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 3px;
-    margin-top: 3px;
+    margin-top: 3px !important;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .crux__ability {
@@ -414,15 +511,15 @@
     text-align: center;
     background: rgba(0, 0, 0, 0.2);
     border-radius: 3px;
+    box-sizing: border-box;
+    font-size: calc(var(--crux-width) * 0.05);
+    overflow: hidden;
 }
 
 .crux__ability:hover {
     background: rgba(255, 255, 255, 0.1);
 }
 
-#crux.tray-small .crux__ability {
-    padding: 0px 1px;
-}
 
 .crux__actor .group-uses {
     flex: 0;
@@ -431,7 +528,7 @@
     color: black;
     padding: 3px 6px;
     border-radius: 5px;
-    margin-right: 8px;
+    margin-right: 8px !important;
 }
 
 .crux__actor .group-dots {
@@ -444,21 +541,21 @@
     height: 10px;
     border-radius: 50%;
     cursor: pointer;
-    background-color: rgba(255,100,0,1);
+    background-color: var(--color-warm-2);
 }
 
 .crux__actor .group-dots .dot.empty {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.2) !important;
 }
 
 .crux__items {
     list-style: none;
-    margin: 0;
-    padding: 0;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .crux__item {
-    margin-bottom: 3px;
+    margin-bottom: 3px !important;
     position: relative;
 }
 
@@ -476,15 +573,18 @@
 }
 
 .crux__item .item-name h4 {
-    margin: 0;
+    margin: 0 !important;
     display: flex;
     align-items: center;
     gap: 5px;
+    font-size: calc(var(--crux-width) * var(--text-base-ratio)) !important;
+    font-family: var(--crux-font-family) !important;
 }
 
 .crux__activity-name {
-    color: #ff6400;
-    font-size: 0.9em;
+    color: var(--color-warm-2);
+    font-family: var(--crux-font-family) !important;
+    font-size: 0.9em !important;
     font-style: italic;
     opacity: 0.8;
 }
@@ -492,50 +592,41 @@
 .crux__item .item-name .item-image {
     flex: 0 0 var(--crux-icon);
     height: var(--crux-icon);
-    margin-right: 5px;
+    margin-right: 5px !important;
     background-repeat: no-repeat;
     background-size: cover;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 5px;
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 .crux__item .item-name .item-image[draggable="true"] {
-    cursor: inherit !important;
-    -webkit-user-drag: element;
-    user-drag: element;
+    cursor: grab !important;
 }
 
-.crux__container.crux-targeting {
+.crux__item .item-name .item-image[draggable="true"]:active {
+    cursor: grabbing !important;
+    opacity: 0.7;
+}
+
+.crux__container.custom-target-cursor,
+.crux__container.custom-target-cursor * {
     cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cstyle%3E.crosshair %7B stroke: red; stroke-width: 2; %7D%3C/style%3E%3Cline class='crosshair' x1='11' y1='0' x2='11' y2='9'/%3E%3Cline class='crosshair' x1='11' y1='15' x2='11' y2='24'/%3E%3Cline class='crosshair' x1='0' y1='11' x2='9' y2='11'/%3E%3Cline class='crosshair' x1='15' y1='11' x2='24' y2='11'/%3E%3C/svg%3E") 11 11, crosshair !important;
 }
 
-.crux__container.crux-targeting * {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cstyle%3E.crosshair %7B stroke: red; stroke-width: 2; %7D%3C/style%3E%3Cline class='crosshair' x1='11' y1='0' x2='11' y2='9'/%3E%3Cline class='crosshair' x1='11' y1='15' x2='11' y2='24'/%3E%3Cline class='crosshair' x1='0' y1='11' x2='9' y2='11'/%3E%3Cline class='crosshair' x1='15' y1='11' x2='24' y2='11'/%3E%3C/svg%3E") 11 11, crosshair !important;
-}
-
-[draggable="true"] {
-    -webkit-user-drag: element;
-    user-drag: element;
-}
-
-.crux__container.active-drag,
-.crux__container.active-drag * {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cstyle%3E.crosshair %7B stroke: red; stroke-width: 2; %7D%3C/style%3E%3Cline class='crosshair' x1='11' y1='0' x2='11' y2='9'/%3E%3Cline class='crosshair' x1='11' y1='15' x2='11' y2='24'/%3E%3Cline class='crosshair' x1='0' y1='11' x2='9' y2='11'/%3E%3Cline class='crosshair' x1='15' y1='11' x2='24' y2='11'/%3E%3C/svg%3E") 11 11, crosshair !important;
-}
-
-.crux-targeting [draggable="true"]:active {
-    opacity: 0.5;
+.crux__container.arrow-target-cursor,
+.crux__container.arrow-target-cursor * {
+    cursor: default !important;
 }
 
 .crux__item .item-name .item-image {
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 .crux__item .item-name .item-image[draggable="true"]:not(.crux-targeting) {
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 .crux__item .item-name:hover .item-image {
@@ -544,7 +635,7 @@
 
 .crux__item .item-name .item-image i {
     display: none;
-    font-size: var(--die-icon-size);
+    font-size: var(--die-icon-size) !important;
     opacity: 0.5;
 }
 
@@ -557,49 +648,44 @@
 }
 
 .crux__item .flag {
-    flex: 0 0 15px;
-    height: 15px;
+    flex: 0 0 calc(var(--crux-width) * var(--flag-ratio));
+    height: calc(var(--crux-width) * var(--flag-ratio));
     border-radius: 50%;
-    line-height: 15px;
+    line-height: calc(var(--crux-width) * var(--flag-ratio));
     text-align: center;
     font-weight: bold;
+    font-size: calc(var(--crux-width) * var(--flag-text-ratio)) !important;
 }
 
-.tray-small .crux__item .flag {
-    flex: 0 0 15px;
-    height: 15px;
-    font-size: 85%;
-    line-height: 15px;
-}
 
 .crux__item .item-recharge {
     white-space: nowrap;
 }
 
 .crux__item .bonus {
-    background: rgba(0, 120, 255, 0.8);
+    background: rgba(0, 120, 255, 0.8) !important;
     color: black;
 }
 
 .crux__item .reaction {
-    background: rgba(255, 0, 0, 0.8);
+    background: rgba(255, 0, 0, 0.8) !important;
     color: black;
 }
 
 .crux__item .concentration {
-    background: rgba(0, 255, 0, 0.8);
+    background: rgba(0, 255, 0, 0.8) !important;
     color: black;
 }
 
 .crux__item .legendary {
-    background: rgba(255, 241, 166, 0.8);
+    background: rgba(255, 241, 166, 0.8) !important;
     color: black;
 }
 
 .crux__item .ritual {
-    background: rgba(255, 255, 0, 0.8);
+    background: rgba(255, 255, 0, 0.8) !important;
     color: black;
-    flex: 0 0 25px;
+    flex: 0 0 calc(var(--crux-width) * var(--ritual-flag-ratio));
     border-radius: 10px;
 }
 
@@ -611,11 +697,11 @@
 .crux__item .item-summary {
     display: none;
     padding: 3px 10px;
-    margin-top: 4px 0 10px 0;
+    margin-top: 4px 0 10px 0 !important;
     background: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    font-size: 12px;
-    line-height: 16px;
+    font-size: calc(var(--crux-width) * var(--text-small-ratio)) !important;
+    line-height: 1.4;
     color: rgba(255, 255, 255, 0.8);
 }
 
@@ -628,7 +714,7 @@
     white-space: nowrap;
     background: rgba(255, 255, 255, 0.7);
     color: black;
-    margin: 0 3px 3px 0;
+    margin: 0 3px 3px 0 !important;
     padding: 3px;
     line-height: 1;
     border-radius: 3px;
@@ -637,25 +723,12 @@
     max-width: 100%;
 }
 
-.crux__end-turn {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    height: 0px;
-    width: var(--crux-width);
-    overflow: hidden;
-    z-index: 2;
-    background: rgba(0, 0, 0, 0.9);
-    color: white;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    text-align: center;
-    line-height: 50px;
-    font-size: 22px;
-    transition: height 0.3s;
+.is-current-combatant .crux__end-turn {
+    height: 5px;
 }
 
-.is-current-combatant .crux__end-turn {
-    height: 50px;
+.crux__combat-actions {
+    margin: 10px 0 !important;
 }
 
 .crux__initiative {
@@ -663,12 +736,61 @@
     padding: 5px 9px;
     gap: 7px;
     background-color: rgba(255, 255, 255, 0.7);
-    margin: 12px 0;
     border: 1px solid black;
     border-radius: 3px;
     color: black;
-    font-size: 14px;
+    font-size: 14px !important;
     box-shadow: 0 0 0 1.7px white;
+    display: flex;
+    width: 100%;
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+.crux__initiative.flexrow, .crux__end-turn-button.flexrow {
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+.crux__end-turn-button {
+    background-color: var(--end-turn-button-bg) !important;
+    color: var(--end-turn-button-color) !important;
+    border-radius: var(--end-turn-button-border-radius) !important;
+    padding: var(--end-turn-button-padding) !important;
+    font-size: var(--end-turn-button-font-size) !important;
+    text-align: var(--end-turn-button-text-align) !important;
+    font-weight: var(--end-turn-button-font-weight) !important;
+    font-family: var(--crux-font-family) !important;
+    border: var(--end-turn-button-border) !important;
+    box-shadow: var(--end-turn-button-box-shadow) !important;
+    justify-content: center !important;
+    align-items: center !important;
+    display: flex !important;
+    gap: 0px !important;
+    width: 100% !important;
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+.crux__initiative i, .crux__end-turn-button i {
+    font-size: 16px !important;
+    margin-right: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    vertical-align: middle !important;
+    flex: 0 0 auto !important;
+}
+
+.crux__initiative div, .crux__end-turn-button div {
+    display: inline-flex !important;
+    align-items: center !important;
+    vertical-align: middle !important;
+    flex: 0 1 auto !important;
+    text-align: center !important;
+}
+
+.crux__initiative .flex0, .crux__end-turn-button .flex0 {
+    flex: 0 0 auto !important;
 }
 
 @keyframes init-jiggle {
@@ -689,19 +811,19 @@
 }
 
 .crux__skill-container.append {
-    margin-top: 15px;
+    margin-top: 15px !important;
 }
 
 .crux__skill-header {
     display: block;
     padding: 1px 6px;
-    margin: 6px -5px 0px -5px;
-    font-family: "Modesto Condensed", "Palatino Linotype", serif;
-    font-size: 18px;
+    margin: 6px 2px 0px 2px !important;
+    font-family: var(--crux-font-family) !important;
+    font-size: calc(var(--crux-width) * var(--text-base-ratio) * 1.1) !important;
 }
 
 .crux__skills {
-    margin: 0 -3px 5px 0;
+    margin: 0 3px 5px 0 !important;
     display: none;
 }
 
@@ -725,11 +847,11 @@
 }
 
 .crux__skill-row i {
-    font-size: 10px;
+    font-size: 10px !important;
 }
 
 .crux__skill-row span {
-    font-size: 12px;
+    font-size: calc(var(--crux-width) * var(--text-small-ratio)) !important;
 }
 
 .crux__skill-row.proficient span {
@@ -751,33 +873,112 @@
 .crux__skill-passive {
     text-align: center;
     color: rgba(255, 255, 255, 0.6);
-    font-size: 12px;
+    font-size: calc(var(--crux-width) * var(--text-small-ratio)) !important;
 }
 
 .crux__empty-tray {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    top: 0 !important;
+    left: 0 !important;
+    height: calc(100vh - 20px);
+    width: var(--crux-width) !important;
     display: flex;
     align-items: center;
     justify-content: center;
+    transform: scale(0.97) !important;
+    overflow: hidden;
 }
 
 .crux__empty-tray i {
-    font-size: 8rem;
-    opacity: 0.2;
+    font-size: 11rem !important;
+    opacity: 0.3;
 }
 
-#crux-effects {
+.crux__activities-menu {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+    border: 1px solid var(--color-cool-3) !important;
+    border-radius: 5px !important;
+    color: white !important;
+    padding: 0 !important;
+    min-width: 200px !important;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
+    z-index: 1000 !important;
+}
+
+.crux__activities-header {
+    background-color: var(--color-cool-3) !important;
+    color: white !important;
+    padding: 5px 10px !important;
+    font-weight: bold !important;
+    font-size: 14px !important;
+    border-top-left-radius: 4px !important;
+    border-top-right-radius: 4px !important;
+    text-align: center !important;
+}
+
+.crux__activities-list {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+}
+
+.crux__activity-item {
+    padding: 8px 10px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.crux__activity-item:last-child {
+    border-bottom: none !important;
+}
+
+.crux__activity-item:hover {
+    background-color: var(--color-dark-6) !important;
+}
+
+.crux__activity-name {
+    flex: 1 !important;
+    font-size: 13px !important;
+    color: var(--color-light-2) !important;
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    padding: 2px 5px !important;
+    border-radius: 3px !important;
+}
+
+.crux__activity-type {
+    font-size: 11px !important;
+    color: var(--color-light-2) !important;
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    padding: 2px 5px !important;
+    border-radius: 3px !important;
+    margin-left: 5px !important;
+    text-transform: capitalize !important;
+}
+
+.crux .window-header {
+    display: none;
+}
+
+.crux-effects {
     background: transparent;
     border: none;
-    padding: 5px;
-    z-index: 100;
+    box-shadow: none;
 }
 
-#crux-effects .status-effects {
+.crux-effects .window-header {
+    display: none;
+}
+
+.crux-effects .window-content {
+    padding: 5px;
+    background: transparent;
+}
+
+.crux-effects .status-effects {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 4px;
@@ -786,26 +987,72 @@
     border-radius: 3px;
 }
 
-#crux-effects .effect-control {
-    width: 36px;
-    height: 36px;
-    padding: 3px;
+.crux-effects .effect-control {
+    width: 36px !important;
+    height: 36px !important;
+    padding: 3px !important;
     border: 1px solid transparent;
     border-radius: 4px;
     cursor: pointer;
 }
 
-#crux-effects .effect-control:hover {
-    border-color: #ff6400;
+.crux-effects .effect-control:hover {
+    border-color: var(--color-warm-2) !important;
 }
 
-#crux-effects .effect-control.active {
-    border-color: #ff6400;
+.crux-effects .effect-control.active {
+    border-color: var(--color-warm-2) !important;
     background: rgba(255, 100, 0, 0.2);
 }
 
-#crux-effects .effect-control img {
+.crux-effects .effect-control img {
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+
+.crux-effects-small .status-effects {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 4px !important;
+    padding: 4px !important;
+}
+
+.crux-effects-small .effect-control {
+    width: 36px !important;
+    height: 36px !important;
+    padding: 3px !important;
+    border-radius: 4px !important;
+}
+
+.crux-effects-small .effect-control:hover {
+    border-color: var(--color-warm-2) !important;
+}
+
+.crux-effects-small .effect-control.active {
+    border-color: var(--color-warm-2) !important;
+    background: rgba(255, 100, 0, 0.2) !important;
+}
+
+.crux-effects-small .effect-control img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+}
+
+[data-action] {
+    cursor: pointer;
+}
+
+[data-action]:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-action="toggleEffect"] {
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+[data-action="toggleSection"],
+[data-action="toggleGroup"],
+[data-action="toggleSkills"] {
+    user-select: none;
 }

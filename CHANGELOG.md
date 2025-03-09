@@ -2,7 +2,34 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2025-03-09] [2.0.0]
 
+### Breaking Changes
+- Complete architectural overhaul to use Foundry V12's ApplicationV2
+- Removed support for Foundry V11, now requires V12
+- Modernized codebase with ES modules and class-based organization
+
+### Added
+- New modular file structure:
+  - Separated UI components into dedicated ApplicationV2 classes
+  - Centralized state management
+  - Unified hooks management
+  - Dedicated utilities for DOM operations and DnD5e compatibility
+  - Improved settings organization
+
+### Changed
+- Migrated from jQuery to native DOM manipulation
+- Enhanced drag-and-drop implementation using modern browser APIs
+- Improved performance through ApplicationV2's partial re-rendering
+- Better state management and UI synchronization
+- More robust error handling and type safety
+
+### Technical Improvements
+- Converted CruxTrayUI to CruxTrayAppV2 using HandlebarsApplicationMixin
+- Converted CruxEffectsApp to CruxEffectsAppV2
+- Implemented proper lifecycle methods for ApplicationV2
+- Enhanced template rendering with PARTS system
+- Improved action handling with ApplicationV2's actions system
 
 ## [2025-01-27] [1.1.1]
 

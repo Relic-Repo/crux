@@ -12,6 +12,8 @@
             "hide": "Hide",
             "shove": "Shove"
         },
+        "short-rest": "Short Rest",
+        "long-rest": "Long Rest",
         "control-icon": "Toggle action tray",
         "end-turn": "End Turn",
         "roll-initiative": "Roll initiative!",
@@ -126,7 +128,9 @@
             "show-spells-section": "Show Spells Section",
             "show-spells-section-hint": "Display the Spells section in the tray",
             "show-inventory-section": "Show Inventory Section",
-            "show-inventory-section-hint": "Display the Inventory section in the tray"
+            "show-inventory-section-hint": "Display the Inventory section in the tray",
+            "show-all-npc-items": "Show All NPC Items",
+            "show-all-npc-items-hint": "Display all items for NPCs in the tray, not just passive ones"
         },
         "item-context": {
             "show": "Show in Crux",

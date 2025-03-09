@@ -1,7 +1,7 @@
 <div class="status-effects">
     {{#each effects}}
-    <div class="effect-control {{cssClass}}" data-status-id="{{id}}" data-tooltip="{{title}}">
-        <img src="{{src}}" />
+    <div class="effect-control {{cssClass}}" data-action="toggleEffect" data-status-id="{{id}}" title="{{title}}">
+        <img src="{{src}}" alt="{{title}}" />
     </div>
     {{/each}}
 </div>
