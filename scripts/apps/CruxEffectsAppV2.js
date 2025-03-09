@@ -134,12 +134,14 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
 
     /**
      * Position the window relative to the anchor element
+     * Ignores scale parameter from uiscaler
      */
-    setPosition({left, top} = {}) {
+    setPosition({left, top, scale, ...otherOptions} = {}) {
         const position = this.anchor.getBoundingClientRect();
         return super.setPosition({
             left: left ?? position.right + 5,
-            top: top ?? position.top
+            top: top ?? position.top,
+            ...otherOptions
         });
     }
 

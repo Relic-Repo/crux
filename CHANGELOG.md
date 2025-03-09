@@ -2,6 +2,14 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2025-03-09] [2.0.2]
+
+### Fixed
+- Improved scaling prevention:
+  - Added setPosition method to CruxTrayAppV2 to ignore scale parameter from UI Scaler
+  - Added setPosition method to CruxEffectsAppV2 to ignore scale parameter from UI Scaler
+  - Ensures proper positioning and prevents external scaling interference
+
 ## [2025-03-09] [2.0.1]
 
 ### Changed

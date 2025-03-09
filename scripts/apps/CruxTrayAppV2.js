@@ -879,6 +879,19 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     }
 
     /**
+     * Override setPosition to ignore scale parameter from uiscaler
+     * @override
+     */
+    setPosition(options={}) {
+        // Remove scale from options to prevent uiscaler from affecting this window
+        if (options.scale !== undefined) {
+            const { scale, ...otherOptions } = options;
+            return super.setPosition(otherOptions);
+        }
+        return super.setPosition(options);
+    }
+
+    /**
      * Toggle the tray visibility
      */
     toggleTray() {
