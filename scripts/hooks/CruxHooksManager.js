@@ -21,26 +21,29 @@ export default class CruxHooksManager {
      * Register all required hooks
      */
     static #registerHooks() {
-        Hooks.once('ready', () => {
+        Hooks.once('ready', async () => {
             if (!game.crux?.app) {
                 game.crux = {
                     app: new CruxTrayAppV2(),
                     state: CruxStateManager.getInstance()
                 };
-                const trayMode = game.settings.get("crux", "tray-mode");
-                game.crux.app.render(true);
-                if (trayMode === "always") {
-                    game.crux.app.element.classList.add("active");
-                    game.crux.app.element.classList.add("always-on");
-                    document.querySelector("#interface").classList.add("crux-active");
-                } else if (trayMode === "auto") {
-                    const hasSelectedTokens = canvas.tokens.controlled.length > 0;                    
-                    if (hasSelectedTokens) {
+                await game.crux.app.render(true);
+                game.crux.app._initializeTraySize();
+                if (game.crux.app.element && document.body.contains(game.crux.app.element)) {
+                    const trayMode = game.settings.get("crux", "tray-mode");
+                    if (trayMode === "always") {
                         game.crux.app.element.classList.add("active");
+                        game.crux.app.element.classList.add("always-on");
                         document.querySelector("#interface").classList.add("crux-active");
-                    } else {
-                        game.crux.app.element.classList.remove("active");
-                        document.querySelector("#interface").classList.remove("crux-active");
+                    } else if (trayMode === "auto") {
+                        const hasSelectedTokens = canvas.tokens.controlled.length > 0;                    
+                        if (hasSelectedTokens) {
+                            game.crux.app.element.classList.add("active");
+                            document.querySelector("#interface").classList.add("crux-active");
+                        } else {
+                            game.crux.app.element.classList.remove("active");
+                            document.querySelector("#interface").classList.remove("crux-active");
+                        }
                     }
                 }
                 game.settings.settings.get("crux.tray-mode").onChange = (value) => {
@@ -49,6 +52,11 @@ export default class CruxHooksManager {
                     }
                 };
             }
+            
+            if (game.modules.get("foundry-taskbar")?.active) {
+                const isCompatEnabled = game.settings.get("crux", "taskbar-compatibility");
+                document.body.classList.toggle("crux-taskbar-compat", isCompatEnabled);
+            }
         });        
 
         Hooks.on("cruxFilterActivities", (activities, item) => {
@@ -56,23 +64,27 @@ export default class CruxHooksManager {
 
         Hooks.on("controlToken", (token, isControlled) => {
             if (!game.crux?.app) return;
-            const trayMode = game.settings.get("crux", "tray-mode");
-            if (trayMode === "auto") {
-                const hasSelectedTokens = canvas.tokens.controlled.length > 0;                
-                if (hasSelectedTokens) {
+            game.crux.app.render();
+            if (game.crux.app.element && document.body.contains(game.crux.app.element)) {
+                const trayMode = game.settings.get("crux", "tray-mode");
+                const interfaceEl = document.querySelector("#interface");
+                
+                if (trayMode === "auto") {
+                    const hasSelectedTokens = canvas.tokens.controlled.length > 0;                
+                    if (hasSelectedTokens) {
+                        game.crux.app.element.classList.add("active");
+                        if (interfaceEl) interfaceEl.classList.add("crux-active");
+                    } else {
+                        game.crux.app.element.classList.remove("active");
+                        if (interfaceEl) interfaceEl.classList.remove("crux-active");
+                    }
+                }
+                else if (trayMode === "always") {
                     game.crux.app.element.classList.add("active");
-                    document.querySelector("#interface").classList.add("crux-active");
-                } else {
-                    game.crux.app.element.classList.remove("active");
-                    document.querySelector("#interface").classList.remove("crux-active");
+                    game.crux.app.element.classList.add("always-on");
+                    if (interfaceEl) interfaceEl.classList.add("crux-active");
                 }
             }
-            else if (trayMode === "always") {
-                game.crux.app.element.classList.add("active");
-                game.crux.app.element.classList.add("always-on");
-                document.querySelector("#interface").classList.add("crux-active");
-            }            
-            game.crux.app.render();
             
             if (isControlled && token.actor) {
                 CruxEffectsAppV2.updateInstance(token.actor, token);

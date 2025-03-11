@@ -2,6 +2,16 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2025-03-11] [2.0.3]
+
+### Fixed
+- Items not showing due to no 'Uses'
+- Error caused by race condition
+- Tray size resetting after refresh
+
+### Added
+- Compatibility for Ripper's Taskbar
+
 ## [2025-03-09] [2.0.2]
 
 ### Fixed

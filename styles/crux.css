@@ -39,7 +39,7 @@
     transition: transform 0.1s ease;
     transform: translateX(-100%);
     z-index: 0 !important;
-    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    background: rgba(0, 0, 6, var(--crux-bg-opacity)) !important;
     backdrop-filter: blur(var(--crux-blur)) !important;
     border: none !important;
     border-radius: 0 !important;
@@ -96,7 +96,7 @@
 }
 
 .crux__empty-tray i {
-    font-size: 11rem !important;
+    font-size: calc(var(--crux-width) * 0.7) !important;
     opacity: 0.3;
 }
 
@@ -1063,4 +1063,66 @@
 [data-action="toggleGroup"],
 [data-action="toggleSkills"] {
     user-select: none;
+}
+
+:root {
+    --ft-height: 50px;
+}
+
+#taskbar .taskbar-item[data-tiappid="crux"] {
+    display: none !important;
+}
+
+.crux {
+    height: 100vh !important;
+    transition: height 0.2s ease-in-out !important;
+}
+
+.crux__container, .crux__empty-tray {
+    height: 100vh !important;
+    transition: height 0.2s ease-in-out !important;
+}
+
+body.crux-taskbar-compat .crux {
+    height: calc(100vh - var(--ft-height)) !important;
+}
+
+body.crux-taskbar-compat .crux__container,
+body.crux-taskbar-compat .crux__empty-tray {
+    height: calc(100vh - var(--ft-height)) !important;
+}
+
+body.crux-taskbar-compat #ui-bottom {
+    margin-bottom: var(--ft-height) !important;
+}
+
+body.crux-taskbar-compat #ui-bottom #hotbar {
+    bottom: var(--ft-height) !important;
+}
+
+body.crux-taskbar-compat #ui-left #players {
+    bottom: var(--ft-height) !important;
+}
+
+body.crux-taskbar-compat .pause {
+    bottom: var(--ft-height) !important;
+}
+
+#ui-bottom {
+    transition: margin-bottom 0.2s ease-in-out !important;
+}
+
+#ui-bottom #hotbar {
+    transition: bottom 0.2s ease-in-out !important;
+}
+
+#ui-left #players {
+    transition: bottom 0.2s ease-in-out !important;
+}
+
+.pause {
+    transition: bottom 0.2s ease-in-out !important;
+}
+.taskbar-docking-container.locked {
+    bottom: var(--ft-height) !important;
 }

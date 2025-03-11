@@ -275,6 +275,17 @@ export default class CruxSettings {
             config: true,
             type: String,
             default: ""
+        },
+        "taskbar-compatibility": {
+            name: "Taskbar Compatibility",
+            hint: "Enable compatibility with the Taskbar module (Requires Refresh)",
+            scope: "client",
+            config: true,
+            type: Boolean,
+            default: true,
+            onChange: value => {
+                document.body.classList.toggle("crux-taskbar-compat", value);
+            }
         }
     };
 
@@ -310,7 +321,7 @@ export default class CruxSettings {
      * @private
      */
     static _handleTrayModeChange(value) {
-        if (!game.crux?.app?.element) return;
+        if (!game.crux?.app?.element || !document.body.contains(game.crux.app.element)) return;
         
         const interfaceEl = document.querySelector("#interface");
         if (value === "always") {

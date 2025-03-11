@@ -18,6 +18,8 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         tag: "div",
         headerButtons: [],
         minimizable: false,
+        isSidebar: true,
+        hasFrame: false,
         form: {
             closeOnSubmit: false
         },
@@ -133,8 +135,24 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                     }
                 } else {
                     const activationType = CruxCompatibility.getActivationType(item);
-                    if (hasUses && !item.getFlag("crux", "hidden") && 
-                        (CruxCompatibility.isDnDv4() ? CruxCompatibility.hasActivities(item, false) : activationType && activationType !== "none")) {
+                    const isDnDv4 = CruxCompatibility.isDnDv4();
+                    
+                    // Determine if the item should be shown
+                    let shouldShow = false;
+                    
+                    if (isDnDv4) {
+                        // For DnDV4: Show if it has no uses, or has max uses with available uses, or setting allows showing with no uses
+                        shouldShow = !item.getFlag("crux", "hidden") && 
+                                    (settingShowNoUses || !uses || !uses.hasMaxUses || uses.available) && 
+                                    CruxCompatibility.hasActivities(item, false);
+                    } else {
+                        // For pre-v4: Keep existing behavior
+                        shouldShow = !item.getFlag("crux", "hidden") && 
+                                    (settingShowNoUses || !uses || uses.available) && 
+                                    (activationType && activationType !== "none");
+                    }
+                    
+                    if (shouldShow) {
                         this._categorizeItem(item, itemData, uses, sections, useTidy5e, canCastUnpreparedRituals, settingShowUnpreparedCantrips);
                     } else if (actor.type === "npc") {
                         if (settingShowAllNpcItems) {
@@ -241,10 +259,20 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     _calculateUsesForItem(item) {
         const uses = CruxCompatibility.getUses(item);
         if (!uses) return null;
-        return {
-            available: uses.value,
-            maximum: uses.max
-        };
+        
+        // For DnDV4, include a flag indicating if the item has max uses
+        if (CruxCompatibility.isDnDv4()) {
+            return {
+                available: uses.value,
+                maximum: uses.max,
+                hasMaxUses: uses.max > 0  // Add this flag for DnDV4 only
+            };
+        } else {
+            return {
+                available: uses.value,
+                maximum: uses.max
+            };
+        }
     }
 
     /**
@@ -498,30 +526,43 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     }
 
     /**
+     * Initialize the tray size from settings
+     * This ensures the tray size is properly set on page load
+     */
+    _initializeTraySize() {
+        this._updateTraySize();
+    }
+
+    /**
      * Handle rendering into the DOM
      */
     async _render(force, options) {
         const html = await super._render(force, options);
         const interfaceEl = document.querySelector("#interface");
-        interfaceEl.insertBefore(this.element, interfaceEl.firstChild);
-        this._updateTraySize();
-        const trayMode = game.settings.get("crux", "tray-mode");
-        if (trayMode === "always") {
-            this.element.classList.add("active");
-            this.element.classList.add("always-on");
-            interfaceEl.classList.add("crux-active");
-        }
-        else if (trayMode === "auto") {
-            const hasSelectedTokens = canvas.tokens.controlled.length > 0;
+        
+        if (this.element && interfaceEl) {
+            interfaceEl.insertBefore(this.element, interfaceEl.firstChild);
+            this._initializeTraySize();
             
-            if (hasSelectedTokens) {
+            const trayMode = game.settings.get("crux", "tray-mode");
+            if (trayMode === "always") {
                 this.element.classList.add("active");
+                this.element.classList.add("always-on");
                 interfaceEl.classList.add("crux-active");
-            } else {
-                this.element.classList.remove("active");
-                interfaceEl.classList.remove("crux-active");
+            }
+            else if (trayMode === "auto") {
+                const hasSelectedTokens = canvas.tokens.controlled.length > 0;
+                
+                if (hasSelectedTokens) {
+                    this.element.classList.add("active");
+                    interfaceEl.classList.add("crux-active");
+                } else {
+                    this.element.classList.remove("active");
+                    interfaceEl.classList.remove("crux-active");
+                }
             }
         }
+        this._setupTaskbarCompatibility();
         const activeActors = game.crux.state.getActiveActors();
         const currentCombatant = game.combat?.combatant;
         const actorsInCombat = activeActors.filter(actor => 
@@ -883,7 +924,6 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      * @override
      */
     setPosition(options={}) {
-        // Remove scale from options to prevent uiscaler from affecting this window
         if (options.scale !== undefined) {
             const { scale, ...otherOptions } = options;
             return super.setPosition(otherOptions);
@@ -895,12 +935,20 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      * Toggle the tray visibility
      */
     toggleTray() {
+        // Check if the element exists and is in the DOM
+        if (!this.element || !document.body.contains(this.element)) {
+            this.render(true);
+            return;
+        }
+        
         const trayMode = game.settings.get("crux", "tray-mode");
+        const interfaceEl = document.querySelector("#interface");
+        
         if (trayMode === "always") {
             if (!this.element.classList.contains("active")) {
                 this.element.classList.add("active");
                 this.element.classList.add("always-on");
-                document.querySelector("#interface").classList.add("crux-active");
+                if (interfaceEl) interfaceEl.classList.add("crux-active");
             }
             return;
         }
@@ -909,8 +957,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             return;
         }
         this.element.classList.toggle("active");
-        const interfaceEl = document.querySelector("#interface");
-        interfaceEl.classList.toggle("crux-active");
+        if (interfaceEl) interfaceEl.classList.toggle("crux-active");
     }
     
     /**
@@ -920,8 +967,22 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     async close(options={}) {
         document.removeEventListener('keydown', this._onHotkeyDown);
         document.removeEventListener('keyup', this._onHotkeyUp);
+        if (this._taskbarObserver) {
+            this._taskbarObserver.disconnect();
+            this._taskbarObserver = null;
+        }
         
         return super.close(options);
+    }
+    
+    /**
+     * Set up taskbar compatibility if the module is active and compatibility is enabled
+     * @private
+     */
+    _setupTaskbarCompatibility() {
+        if (!game.modules.get("foundry-taskbar")?.active) return;
+        const isCompatEnabled = game.settings.get("crux", "taskbar-compatibility");
+        document.body.classList.toggle("crux-taskbar-compat", isCompatEnabled);
     }
 
     /**
