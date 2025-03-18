@@ -131,6 +131,19 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
         event.stopPropagation();
         this._onToggleEffect(event, {overlay: true});
     }
+    
+    /**
+     * Override close method to prevent ESC key from closing the window
+     * @override
+     */
+    async close(options = {}) {
+        if (options?.closeKey) {
+            // ESC-triggered closure attempt: explicitly ignore
+            console.log("[Crux] ESC-initiated close ignored.");
+            return false;
+        }
+        return super.close(options);
+    }
 
     /**
      * Position the window relative to the anchor element

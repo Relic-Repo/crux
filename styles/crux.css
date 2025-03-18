@@ -5,13 +5,14 @@
     --icon-large-ratio: 0.16;
     --text-base-ratio: 0.07;
     --text-header-ratio: 0.08;
-    --text-small-ratio: 0.042;
+    --text-small-ratio: 0.055;
     --flag-ratio: 0.058; 
     --flag-text-ratio: 0.042;
     --ritual-flag-ratio: 0.070;
     --crux-bg-opacity: 0.4; 
     --crux-blur: 1px; 
     --crux-font-family: "Modesto Condensed", "Palatino Linotype", serif;
+    --crux-font-size-multiplier: 1.0;
     --end-turn-button-bg: rgba(255, 255, 255, 0.15);
     --end-turn-button-color: rgb(255, 255, 255);
     --end-turn-button-border-radius: 5px;
@@ -116,7 +117,7 @@
 }
 
 .crux__container h1 {
-    border: 0;
+    border: 0 !important;
     font-family: var(--crux-font-family) !important;
     font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.2) !important;
     margin: 5px 0 0 0 !important;
@@ -285,47 +286,47 @@
 }
 
 .crux__group-header h3 {
-    display: flex;
-    align-items: center;
+    display: flex !important;
+    align-items: center !important;
     margin: 0 !important;
     font-size: calc(var(--crux-width) * var(--text-base-ratio)) !important;
-    font-weight: bold;
-    color: rgba(255, 255, 255, 0.7);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-    min-width: 0;
-    flex: 1;
+    font-weight: bold !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
+    min-width: 0 !important;
+    flex: 1 !important;
     font-family: var(--crux-font-family) !important;
 }
 
 .crux__group-header h3 span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
     margin-right: 10px !important;
-    flex: 1;
+    flex: 1 !important;
 }
 
 .crux__group-header .group-dots {
-    display: flex;
-    gap: 2px;
+    display: flex !important;
+    gap: 2px !important;
     margin-left: auto !important;
     margin-right: 10px !important;
-    flex: 0 0 auto;
+    flex: 0 0 auto !important;
 }
 
 .crux__group-header .group-uses {
-    background: rgba(255, 255, 255, 0.8);
-    color: black;
-    padding: 3px 6px;
-    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.8) !important;
+    color: black !important;
+    padding: 3px 6px !important;
+    border-radius: 5px !important;
     margin-right: 8px !important;
-    flex: 0 0 auto;
-    min-width: 32px;
-    text-align: center;
+    flex: 0 0 auto !important;
+    min-width: 32px !important;
+    text-align: center !important;
 }
 
 .crux__group-header i {
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease !important;
     flex: 0 0 14px !important;
     text-align: center !important;
 }
@@ -512,6 +513,17 @@
     text-overflow: ellipsis !important;
 }
 
+.crux__actor-name {
+    display: inline-block !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: normal !important;
+    color: inherit !important;
+    text-decoration: none !important;
+    word-break: break-word !important;
+}
+
 .crux__info-section h1.long-name {
     font-size: calc(var(--crux-width) * var(--text-header-ratio)) !important;
 }
@@ -602,7 +614,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    font-size: calc(var(--crux-width) * var(--text-base-ratio)) !important;
+    font-size: calc(var(--crux-width) * var(--text-base-ratio) * var(--crux-font-size-multiplier)) !important;
     font-family: var(--crux-font-family) !important;
 }
 
@@ -725,13 +737,28 @@
     margin-top: 4px 0 10px 0 !important;
     background: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    font-size: calc(var(--crux-width) * var(--text-small-ratio)) !important;
+    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-font-size-multiplier)) !important;
     line-height: 1.4;
     color: rgba(255, 255, 255, 0.8);
 }
 
 .crux__item .item-summary a {
-    color: black;
+    color: var(--color-warm-2);
+}
+
+.crux__item .item-summary .content-link {
+    color: var(--color-warm-2);
+    text-decoration: underline;
+}
+
+/* Style for inline rolls */
+.crux__item .item-summary .inline-roll {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #9ecdff;
+    border-radius: 3px;
+    padding: 0 3px;
+    color: white;
+    font-weight: bold;
 }
 
 .crux__item .item-summary .item-properties .tag {
@@ -876,7 +903,7 @@
 }
 
 .crux__skill-row span {
-    font-size: calc(var(--crux-width) * var(--text-small-ratio)) !important;
+    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-font-size-multiplier)) !important;
 }
 
 .crux__skill-row.proficient span {
@@ -898,7 +925,7 @@
 .crux__skill-passive {
     text-align: center;
     color: rgba(255, 255, 255, 0.6);
-    font-size: calc(var(--crux-width) * var(--text-small-ratio)) !important;
+    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-font-size-multiplier)) !important;
 }
 
 .crux__activities-menu {
@@ -913,7 +940,7 @@
 }
 
 .crux__activities-header {
-    background-color: var(--color-cool-3) !important;
+    background-color: var(--color-secondary-75) !important;
     color: white !important;
     padding: 5px 10px !important;
     font-weight: bold !important;
@@ -1090,39 +1117,4 @@ body.crux-taskbar-compat .crux {
 body.crux-taskbar-compat .crux__container,
 body.crux-taskbar-compat .crux__empty-tray {
     height: calc(100vh - var(--ft-height)) !important;
-}
-
-body.crux-taskbar-compat #ui-bottom {
-    margin-bottom: var(--ft-height) !important;
-}
-
-body.crux-taskbar-compat #ui-bottom #hotbar {
-    bottom: var(--ft-height) !important;
-}
-
-body.crux-taskbar-compat #ui-left #players {
-    bottom: var(--ft-height) !important;
-}
-
-body.crux-taskbar-compat .pause {
-    bottom: var(--ft-height) !important;
-}
-
-#ui-bottom {
-    transition: margin-bottom 0.2s ease-in-out !important;
-}
-
-#ui-bottom #hotbar {
-    transition: bottom 0.2s ease-in-out !important;
-}
-
-#ui-left #players {
-    transition: bottom 0.2s ease-in-out !important;
-}
-
-.pause {
-    transition: bottom 0.2s ease-in-out !important;
-}
-.taskbar-docking-container.locked {
-    bottom: var(--ft-height) !important;
 }

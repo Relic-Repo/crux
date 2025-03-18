@@ -5,13 +5,17 @@
             {{#*inline "item-list"}}
                 <ul class="crux__items">
                     {{#each this}}
-                        <li class="crux__item item" data-item-uuid="{{item.uuid}}">
+                        <li class="crux__item item" data-item-uuid="{{item.uuid}}" {{#if activityId}}data-activity-id="{{activityId}}"{{/if}}>
                             <div class="item-name rollable flexrow">
                                 <div class="item-image" data-action="activateItem" style="background-image: url('{{item.img}}')">
                                     <i class="fa fa-dice-d20"></i>
                                 </div>
                                 <h4 data-action="openSheet">
-                                    {{item.name}}
+                                    {{#if activityName}}
+                                        {{activityName}} ({{item.name}})
+                                    {{else}}
+                                        {{item.name}}
+                                    {{/if}}
                                     {{#if uses}}
                                         {{#if (or (gt uses.available 0) (and uses.maximum (gt uses.maximum 0)))}}
                                             ({{uses.available}}{{#if uses.maximum}}/{{uses.maximum}}{{/if}})

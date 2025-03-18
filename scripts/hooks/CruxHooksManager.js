@@ -25,33 +25,42 @@ export default class CruxHooksManager {
             if (!game.crux?.app) {
                 game.crux = {
                     app: new CruxTrayAppV2(),
-                    state: CruxStateManager.getInstance()
+                    state: CruxStateManager.getInstance(),
+                    lastSelectedTokens: [],
+                    cruxItemActive: false,
+                    lastUsedItem: null
                 };
-                await game.crux.app.render(true);
-                game.crux.app._initializeTraySize();
-                if (game.crux.app.element && document.body.contains(game.crux.app.element)) {
-                    const trayMode = game.settings.get("crux", "tray-mode");
-                    if (trayMode === "always") {
+            } else {
+                if (!game.crux.lastSelectedTokens) game.crux.lastSelectedTokens = [];
+                if (game.crux.cruxItemActive === undefined) game.crux.cruxItemActive = false;
+                if (game.crux.lastUsedItem === undefined) game.crux.lastUsedItem = null;
+            }
+            
+            await game.crux.app.render(true);
+            game.crux.app._initializeTraySize();
+            if (game.crux.app.element && document.body.contains(game.crux.app.element)) {
+                const trayMode = game.settings.get("crux", "tray-mode");
+                if (trayMode === "always") {
+                    game.crux.app.element.classList.add("active");
+                    game.crux.app.element.classList.add("always-on");
+                    document.querySelector("#interface").classList.add("crux-active");
+                } else if (trayMode === "auto") {
+                    const hasSelectedTokens = canvas.tokens.controlled.length > 0;                    
+                    if (hasSelectedTokens) {
                         game.crux.app.element.classList.add("active");
-                        game.crux.app.element.classList.add("always-on");
                         document.querySelector("#interface").classList.add("crux-active");
-                    } else if (trayMode === "auto") {
-                        const hasSelectedTokens = canvas.tokens.controlled.length > 0;                    
-                        if (hasSelectedTokens) {
-                            game.crux.app.element.classList.add("active");
-                            document.querySelector("#interface").classList.add("crux-active");
-                        } else {
-                            game.crux.app.element.classList.remove("active");
-                            document.querySelector("#interface").classList.remove("crux-active");
-                        }
+                    } else {
+                        game.crux.app.element.classList.remove("active");
+                        document.querySelector("#interface").classList.remove("crux-active");
                     }
                 }
-                game.settings.settings.get("crux.tray-mode").onChange = (value) => {
-                    if (game.crux?.app) {
-                        CruxSettings._handleTrayModeChange(value);
-                    }
-                };
             }
+            
+            game.settings.settings.get("crux.tray-mode").onChange = (value) => {
+                if (game.crux?.app) {
+                    CruxSettings._handleTrayModeChange(value);
+                }
+            };
             
             if (game.modules.get("foundry-taskbar")?.active) {
                 const isCompatEnabled = game.settings.get("crux", "taskbar-compatibility");
@@ -132,6 +141,50 @@ export default class CruxHooksManager {
             if (!game.combat) {
                 game.crux.app.render();
             }
+        });
+        Hooks.on("dnd5e.preItemUse", (item, config, options) => {
+            if (game.crux) {
+                game.crux.lastUsedItem = {
+                    uuid: item.uuid,
+                    name: item.name,
+                    hasTemplate: item.hasAreaTarget
+                };
+            }
+        });
+        Hooks.on("dnd5e.itemUse", (item, config, options) => {
+            if (game.crux?.lastUsedItem?.uuid === item.uuid) {
+            }
+        });
+        Hooks.once('ready', () => {
+            const originalCreateScrollFromSpell = CONFIG.Item.documentClass.createScrollFromSpell;
+            CONFIG.Item.documentClass.createScrollFromSpell = function(itemData, options={}) {
+                if (game.crux?.cruxDraggedItem === itemData.uuid) {
+                    return null;
+                }
+                return originalCreateScrollFromSpell.call(this, itemData, options);
+            };
+            
+            console.log("Crux | Monkey patched createScrollFromSpell method");
+        });
+        Hooks.on("dropCanvasData", async (canvas, data) => {
+            if (data.type === "Item") {
+                const item = await fromUuid(data.uuid);
+                if (!item) return;
+                if (game.crux?.cruxDraggedItem === item.uuid) {
+                }
+            }
+        });
+        Hooks.once('ready', () => {
+            if (!game.modules.get("item-piles")?.active) return;
+            
+            console.log("Crux | Setting up Item Piles compatibility");
+            
+            Hooks.on(game.itempiles.hooks.ITEM.PRE_DROP_DETERMINED, (source, target, item) => {
+                if (game.crux?.cruxDraggedItem && item?.uuid === game.crux.cruxDraggedItem) {
+                    return false;
+                }
+                return true;
+            });
         });
     }
 
@@ -224,10 +277,8 @@ export default class CruxHooksManager {
     static currentlyActiveActor() {
         const combat = game.combat;
         if (!combat) return null;
-
         const combatant = combat.combatants.get(combat.current.combatantId);
         if (!combatant) return null;
-
         return this.resolveActor(combatant.token);
     }
 }

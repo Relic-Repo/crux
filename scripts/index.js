@@ -10,6 +10,7 @@ import CruxHooksManager from "./hooks/CruxHooksManager.js";
 import CruxSettings from "./settings/CruxSettings.js";
 import CruxCompatibility from "./utils/CruxCompatibility.js";
 import CruxDomUtils from "./utils/CruxDomUtils.js";
+import CruxUtils from "./utils/CruxUtilityManager.js";
 
 // Initialize Handlebars helpers
 Handlebars.registerHelper({
@@ -54,7 +55,8 @@ Hooks.once('init', () => {
         state: CruxStateManager.getInstance(),
         utils: {
             compatibility: CruxCompatibility,
-            dom: CruxDomUtils
+            dom: CruxDomUtils,
+            cruxUtils: CruxUtils
         }
     };
 });
@@ -67,5 +69,6 @@ export {
     CruxHooksManager,
     CruxSettings,
     CruxCompatibility,
-    CruxDomUtils
+    CruxDomUtils,
+    CruxUtils
 };

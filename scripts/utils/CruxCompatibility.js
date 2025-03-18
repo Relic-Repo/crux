@@ -44,9 +44,7 @@ export default class CruxCompatibility {
             } else {
                 activities = { ...item.system.activities };
             }
-
-            Hooks.callAll("cruxFilterActivities", activities, item);
-            
+            Hooks.callAll("cruxFilterActivities", activities, item);            
             return activities;
         } catch (e) {
             console.warn("Crux | Failed to copy activities:", e);

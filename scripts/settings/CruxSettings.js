@@ -264,6 +264,7 @@ export default class CruxSettings {
                 "modesto": "Modesto Condensed (Default)",
                 "signika": "Signika",
                 "roboto": "Roboto",
+                "carolingian-ui": "Carolingian UI",
                 "custom": "Custom Font"
             },
             default: "modesto"
@@ -275,6 +276,19 @@ export default class CruxSettings {
             config: true,
             type: String,
             default: ""
+        },
+"font-size-multiplier": {
+    name: "Font Size Multiplier",
+    hint: "Adjust the size of all fonts in the interface while maintaining proportions (0.5 = half size, 1.0 = default, 1.5 = 50% larger)",
+    scope: "client",
+    config: true,
+    type: Number,
+    range: {
+        min: 0.5,
+        max: 1.5,
+        step: 0.1
+    },
+    default: 1.0
         },
         "taskbar-compatibility": {
             name: "Taskbar Compatibility",
@@ -298,21 +312,25 @@ export default class CruxSettings {
                 ...setting,
                 onChange: (value) => {
                     if (game.crux?.app) {
-                        if (key === "tray-size") {
-                            game.crux.app._updateTraySize();
-                        }
-                        if (key === "font-family" || key === "custom-font-family") {
-                            this._updateFontFamily();
-                        }
-                        if (key === "tray-mode") {
-                            this._handleTrayModeChange(value);
-                        }
-                        game.crux.app.render();
+                    if (key === "tray-size") {
+                        game.crux.app._updateTraySize();
+                    }
+                    if (key === "font-family" || key === "custom-font-family") {
+                        this._updateFontFamily();
+                    }
+                    if (key === "tray-mode") {
+                        this._handleTrayModeChange(value);
+                    }
+                    if (key === "font-size-multiplier") {
+                        this._updateFontSizeMultiplier();
+                    }
+                        game.crux.app.render(true);
                     }
                 }
             });
         }
         this._updateFontFamily();
+        this._updateFontSizeMultiplier();
     }
     
     /**
@@ -346,13 +364,24 @@ export default class CruxSettings {
     }
     
     /**
-     * Update the font family CSS variable based on settings
-     * @private
+     * Get the Carolingian UI font from CSS variable
+     * @returns {string} The Carolingian UI font family
      */
-    static _updateFontFamily() {
+    static getCarolingianUIFont() {
+        return getComputedStyle(document.body).getPropertyValue("--crlngn-font-family").trim() || "Work Sans, Arial, sans-serif";
+    }
+
+    /**
+     * Get the selected font family based on settings
+     * @returns {string} The selected font family
+     */
+    static getSelectedFontFamily() {
         const fontSetting = this.getSetting("font-family");
-        let fontFamily;
         
+        if (fontSetting === "carolingian-ui") {
+            return this.getCarolingianUIFont();
+        }
+        let fontFamily;
         switch (fontSetting) {
             case "modesto":
                 fontFamily = '"Modesto Condensed", "Palatino Linotype", serif';
@@ -371,7 +400,45 @@ export default class CruxSettings {
                 fontFamily = '"Modesto Condensed", "Palatino Linotype", serif';
         }
         
+        return fontFamily;
+    }
+
+    /**
+     * Update the font family CSS variable based on settings
+     * @private
+     */
+    static _updateFontFamily() {
+        const fontFamily = this.getSelectedFontFamily();
         document.documentElement.style.setProperty('--crux-font-family', fontFamily);
+    }
+    
+    /**
+     * Update the font size multiplier CSS variable based on settings
+     * @private
+     */
+    static _updateFontSizeMultiplier() {
+        const fontSizeMultiplier = this.getSetting("font-size-multiplier");
+        document.documentElement.style.setProperty('--crux-font-size-multiplier', fontSizeMultiplier);
+        if (game.crux?.app?.element) {
+            game.crux.app.element.querySelectorAll('.crux__utility-button a').forEach(el => {
+                el.style.fontSize = `calc(var(--crux-width) * var(--text-base-ratio) * ${fontSizeMultiplier})`;
+            });            
+            game.crux.app.element.querySelectorAll('.crux__item .item-name h4').forEach(el => {
+                el.style.fontSize = `calc(var(--crux-width) * var(--text-base-ratio) * ${fontSizeMultiplier})`;
+            });
+            game.crux.app.element.querySelectorAll('.crux__ability').forEach(el => {
+                el.style.fontSize = `calc(var(--crux-width) * 0.05 * ${fontSizeMultiplier})`;
+            });
+            game.crux.app.element.querySelectorAll('.crux__stat-row').forEach(el => {
+                el.style.fontSize = `calc(var(--crux-width) * 0.042 * ${fontSizeMultiplier})`;
+            });
+            game.crux.app.element.querySelectorAll('.crux__skill-row span, .crux__skill-passive').forEach(el => {
+                el.style.fontSize = `calc(var(--crux-width) * var(--text-small-ratio) * ${fontSizeMultiplier})`;
+            });
+            game.crux.app.element.querySelectorAll('.crux__item .item-summary').forEach(el => {
+                el.style.fontSize = `calc(var(--crux-width) * var(--text-small-ratio) * ${fontSizeMultiplier})`;
+            });
+        }
     }
 
     /**

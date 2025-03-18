@@ -2,6 +2,29 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2025-03-17] [2.0.4]
+
+### Fixed
+- Enrichers in Descriptions
+- Activity Activation in Tray / Menu
+- Activities Close Menu redundancies
+- Activities not showing up when using Tidy 5e Sheets
+
+### Added
+- Added localization support for 9 additional languages:
+  - Spanish (es)
+  - French (fr)
+  - German (de)
+  - Italian (it)
+  - Portuguese (Brazilian) (pt-BR)
+  - Chinese (Simplified) (zh-CN)
+  - Japanese (ja)
+  - Korean (ko)
+  - Russian (ru)
+- Support for Items/Activities with Template Targeting
+- Added Carolingian UI Font option
+- Added Quantity
+
 ## [2025-03-11] [2.0.3]
 
 ### Fixed
