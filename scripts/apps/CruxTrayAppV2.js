@@ -1575,42 +1575,27 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     _onToggleQSpinner(event, target) {
         event.stopPropagation();
         event.preventDefault();
-        
-        // Toggle edit mode
         const isEdit = target.dataset.edit === "true";
         target.dataset.edit = !isEdit;
-        
-        // Show/hide appropriate sections
         const displayMode = target.querySelector('.display-mode');
         const editMode = target.querySelector('.edit-mode');
         displayMode.classList.toggle('hidden', !isEdit);
         editMode.classList.toggle('hidden', isEdit);
-        
-        // If entering edit mode, focus input and add document click handler
         if (!isEdit) {
             const input = editMode.querySelector('input');
             input.focus();
             input.select();
-            
-            // Add keydown handler for Enter key
             const onKeyDown = (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     this._saveQSpinnerChanges(target);
-                    
-                    // Reset display
                     target.dataset.edit = "false";
                     displayMode.classList.remove('hidden');
                     editMode.classList.add('hidden');
-                    
-                    // Remove event listeners
                     input.removeEventListener('keydown', onKeyDown);
                 }
-            };
-            
+            };            
             input.addEventListener('keydown', onKeyDown);
-            
-            // Add document click handler
             this._addSpinnerClickAwayHandler(target);
         }
     }
@@ -1624,42 +1609,28 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     _onToggleUSpinner(event, target) {
         event.stopPropagation();
         event.preventDefault();
-        
-        // Toggle edit mode
         const isEdit = target.dataset.edit === "true";
         target.dataset.edit = !isEdit;
-        
-        // Show/hide appropriate sections
         const displayMode = target.querySelector('.display-mode');
         const editMode = target.querySelector('.edit-mode');
         displayMode.classList.toggle('hidden', !isEdit);
         editMode.classList.toggle('hidden', isEdit);
-        
-        // If entering edit mode, focus input and add document click handler
         if (!isEdit) {
             const input = editMode.querySelector('input');
             input.focus();
             input.select();
-            
-            // Add keydown handler for Enter key
             const onKeyDown = (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     this._saveUSpinnerChanges(target);
-                    
-                    // Reset display
                     target.dataset.edit = "false";
                     displayMode.classList.remove('hidden');
                     editMode.classList.add('hidden');
-                    
-                    // Remove event listeners
                     input.removeEventListener('keydown', onKeyDown);
                 }
             };
             
             input.addEventListener('keydown', onKeyDown);
-            
-            // Add document click handler
             this._addSpinnerClickAwayHandler(target);
         }
     }
