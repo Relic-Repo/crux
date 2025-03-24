@@ -16,12 +16,33 @@
                                     {{else}}
                                         {{item.name}}
                                     {{/if}}
-                                    {{#if uses}}
-                                        {{#if (or (gt uses.available 0) (and uses.maximum (gt uses.maximum 0)))}}
-                                            ({{uses.available}}{{#if uses.maximum}}/{{uses.maximum}}{{/if}})
-                                        {{/if}}
-                                    {{/if}}
                                 </h4>
+                                
+                                {{#if (and item.system.quantity @root.showQuantity)}}
+                                <div class="crux-spinner q-spinner" data-action="toggleQSpinner" data-edit="false" data-item-uuid="{{item.uuid}}">
+                                    <div class="display-mode">
+                                        <span class="letter">Q</span>
+                                        <span class="value">{{item.system.quantity}}</span>
+                                    </div>
+                                    <div class="edit-mode hidden">
+                                        <input type="number" min="0" value="{{item.system.quantity}}">
+                                    </div>
+                                </div>
+                                {{/if}}
+                                
+                                {{#if uses}}
+                                    {{#if (and uses.maximum (gt uses.maximum 0) @root.showUses)}}
+                                    <div class="crux-spinner u-spinner" data-action="toggleUSpinner" data-edit="false" data-item-uuid="{{item.uuid}}">
+                                        <div class="display-mode">
+                                            <span class="letter">U</span>
+                                            <span class="value">{{uses.available}}/{{uses.maximum}}</span>
+                                        </div>
+                                        <div class="edit-mode hidden">
+                                            <input type="number" min="0" max="{{uses.maximum}}" value="{{uses.available}}">
+                                        </div>
+                                    </div>
+                                    {{/if}}
+                                {{/if}}
 
                                 {{#if (and (eq item.type "spell") (has item.system.properties "ritual"))}}
                                     <div class="ritual flag" title="{{localize "crux.flag.ritual-title"}}">{{localize "crux.flag.ritual"}}</div>
@@ -151,33 +172,33 @@
                                         </div>
                                     {{/if}}
                                 </div>
-                    <div class="crux__portrait-back">
-                        <div class="crux__stat-row">
-                            <img src="modules/crux/img/shield.svg" alt="AC">
-                            <span>AC: {{actor.actor.system.attributes.ac.value}}</span>
-                        </div>
-                        <div class="crux__stat-row">
-                            <img src="modules/crux/img/hearts.svg" alt="HP">
-                            <span>HP: {{actor.actor.system.attributes.hp.value}}/{{actor.actor.system.attributes.hp.max}}</span>
-                        </div>
-                        <div class="crux__stat-row">
-                            <img src="modules/crux/img/eye-target.svg" alt="Passive Perception">
-                            <span>P. Perc.: {{add actor.actor.system.skills.prc.total 10}}</span>
-                        </div>
-                        <div class="crux__stat-row">
-                            <img src="modules/crux/img/walk.svg" alt="Walk">
-                            <span>Speed: {{actor.actor.system.attributes.movement.walk}}</span>
-                        </div>
-                        
-                        <!-- Rest buttons -->
-                        <div class="crux__rest-buttons">
-                            <a class="crux__rest-button" data-action="shortRest" title="{{localize "crux.short-rest"}}">
-                                <i class="fas fa-utensils"></i>
-                            </a>
-                            <a class="crux__rest-button" data-action="longRest" title="{{localize "crux.long-rest"}}">
-                                <i class="fas fa-campground"></i>
-                            </a>
-                        </div>
+                                <div class="crux__portrait-back">
+                                    <div class="crux__stat-row">
+                                        <img src="modules/crux/img/shield.svg" alt="AC">
+                                        <span>AC: {{actor.actor.system.attributes.ac.value}}</span>
+                                    </div>
+                                    <div class="crux__stat-row">
+                                        <img src="modules/crux/img/hearts.svg" alt="HP">
+                                        <span>HP: {{actor.actor.system.attributes.hp.value}}/{{actor.actor.system.attributes.hp.max}}</span>
+                                    </div>
+                                    <div class="crux__stat-row">
+                                        <img src="modules/crux/img/eye-target.svg" alt="Passive Perception">
+                                        <span>P. Perc.: {{add actor.actor.system.skills.prc.total 10}}</span>
+                                    </div>
+                                    <div class="crux__stat-row">
+                                        <img src="modules/crux/img/walk.svg" alt="Walk">
+                                        <span>Speed: {{actor.actor.system.attributes.movement.walk}}</span>
+                                    </div>
+                                    
+                                    <!-- Rest buttons -->
+                                    <div class="crux__rest-buttons">
+                                        <a class="crux__rest-button" data-action="shortRest" title="{{localize "crux.short-rest"}}">
+                                            <i class="fas fa-utensils"></i>
+                                        </a>
+                                        <a class="crux__rest-button" data-action="longRest" title="{{localize "crux.long-rest"}}">
+                                            <i class="fas fa-campground"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -243,10 +264,10 @@
                             </a>
                         </div>
 
-                        <div class="crux__utility-button crux__toggle-target {{#if toggleTargetMode}}toggled-off{{/if}}">
-                            <a class="crux__toggle-target-button" data-action="toggleTarget" title="{{localize_by_mode toggleTargetMode 'crux.drag-target' 'crux.toggle-target'}}">
+                        <div class="crux__utility-button crux__toggle-target">
+                            <a class="crux__toggle-target-button" data-action="toggleTarget" title="{{localize 'crux.toggle-target'}}">
                                 <i class="fas fa-bullseye"></i>
-                                <span class="button-text">{{localize_by_mode toggleTargetMode 'crux.drag-target' 'crux.toggle-target'}}</span>
+                                <span class="button-text">{{localize "crux.toggle-target"}}</span>
                             </a>
                         </div>
 
@@ -310,7 +331,7 @@
 
             {{#unless actors.length}}
                 <div class="crux__empty-tray">
-                    <i class="fa-thin fa-dragon" style="color:lightblue;"></i>
+                    <i class="fa-thin fa-dragon" style="color:var(--color-warm-1);"></i>
                 </div>
             {{/unless}}
             </div>

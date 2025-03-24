@@ -30,13 +30,11 @@ export default class CruxStateManager {
         if (controlled.length) {
             this.#activeActors = new Set(controlled.map(token => token.actor));
             return Array.from(this.#activeActors);
-        }
-        
+        }        
         if (game.user.character && game.settings.get("crux", "assume-default-character")) {
             this.#activeActors = new Set([game.user.character]);
             return [game.user.character];
-        }
-        
+        }        
         this.#activeActors.clear();
         return [];
     }
@@ -47,8 +45,7 @@ export default class CruxStateManager {
      * @param {Object} newState New state to merge with existing state
      */
     updateActorStateByUuid(actorUuid, newState) {
-        if (!actorUuid) return;
-        
+        if (!actorUuid) return;        
         const currentState = this.#actorStates.get(actorUuid) || {};
         const updatedState = { ...currentState, ...newState };
         if (newState.sectionStates) {
@@ -56,15 +53,13 @@ export default class CruxStateManager {
                 ...(currentState.sectionStates || {}), 
                 ...newState.sectionStates 
             };
-        }
-        
+        }        
         if (newState.groupStates) {
             updatedState.groupStates = { 
                 ...(currentState.groupStates || {}), 
                 ...newState.groupStates 
             };
-        }
-        
+        }        
         this.#actorStates.set(actorUuid, updatedState);
     }
 

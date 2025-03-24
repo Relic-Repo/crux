@@ -76,8 +76,7 @@ export default class CruxHooksManager {
             game.crux.app.render();
             if (game.crux.app.element && document.body.contains(game.crux.app.element)) {
                 const trayMode = game.settings.get("crux", "tray-mode");
-                const interfaceEl = document.querySelector("#interface");
-                
+                const interfaceEl = document.querySelector("#interface");                
                 if (trayMode === "auto") {
                     const hasSelectedTokens = canvas.tokens.controlled.length > 0;                
                     if (hasSelectedTokens) {
@@ -93,8 +92,7 @@ export default class CruxHooksManager {
                     game.crux.app.element.classList.add("always-on");
                     if (interfaceEl) interfaceEl.classList.add("crux-active");
                 }
-            }
-            
+            }            
             if (isControlled && token.actor) {
                 CruxEffectsAppV2.updateInstance(token.actor, token);
             }
@@ -142,6 +140,7 @@ export default class CruxHooksManager {
                 game.crux.app.render();
             }
         });
+
         Hooks.on("dnd5e.preItemUse", (item, config, options) => {
             if (game.crux) {
                 game.crux.lastUsedItem = {
@@ -151,40 +150,10 @@ export default class CruxHooksManager {
                 };
             }
         });
+
         Hooks.on("dnd5e.itemUse", (item, config, options) => {
             if (game.crux?.lastUsedItem?.uuid === item.uuid) {
             }
-        });
-        Hooks.once('ready', () => {
-            const originalCreateScrollFromSpell = CONFIG.Item.documentClass.createScrollFromSpell;
-            CONFIG.Item.documentClass.createScrollFromSpell = function(itemData, options={}) {
-                if (game.crux?.cruxDraggedItem === itemData.uuid) {
-                    return null;
-                }
-                return originalCreateScrollFromSpell.call(this, itemData, options);
-            };
-            
-            console.log("Crux | Monkey patched createScrollFromSpell method");
-        });
-        Hooks.on("dropCanvasData", async (canvas, data) => {
-            if (data.type === "Item") {
-                const item = await fromUuid(data.uuid);
-                if (!item) return;
-                if (game.crux?.cruxDraggedItem === item.uuid) {
-                }
-            }
-        });
-        Hooks.once('ready', () => {
-            if (!game.modules.get("item-piles")?.active) return;
-            
-            console.log("Crux | Setting up Item Piles compatibility");
-            
-            Hooks.on(game.itempiles.hooks.ITEM.PRE_DROP_DETERMINED, (source, target, item) => {
-                if (game.crux?.cruxDraggedItem && item?.uuid === game.crux.cruxDraggedItem) {
-                    return false;
-                }
-                return true;
-            });
         });
     }
 
@@ -211,17 +180,6 @@ export default class CruxHooksManager {
                 }
             }
         });
-
-        game.keybindings.register("crux", "item-drag", {
-            name: "Item Drag Key",
-            hint: "Hold this key to drag items onto target tokens",
-            editable: [
-                { key: "KeyX", modifiers: []}
-            ],
-            restricted: false,
-            precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL
-        });
-
         game.keybindings.register("crux", "toggle-skills", {
             name: "Toggle Skills",
             hint: "Toggle the skills list visibility",
@@ -241,6 +199,8 @@ export default class CruxHooksManager {
                 }
             }
         });
+
+        // Remove item-drag keybinding as drag targeting functionality has been removed
     }
 
     /**

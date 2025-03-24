@@ -2,6 +2,14 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2025-03-24] [2.0.5]
+
+### Fixed
+- Removed Drag Targeting due to errors
+
+### Added
+- Quantity & Uses Adjustment Fields
+
 ## [2025-03-17] [2.0.4]
 
 ### Fixed

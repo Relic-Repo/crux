@@ -6,6 +6,7 @@ export default class CruxSettings {
      * Configuration settings for the module
      */
     static SETTINGS = {
+        // Removed drag targeting related settings
         "tray-mode": {
             name: "Tray Display Mode",
             hint: "Toggle - only hide tray when toggled (using hot key) / When token selected - Hide the tray if no tokens are selected, show otherwise / Automatic - Toggle for players, When token selected for the GM",
@@ -74,6 +75,22 @@ export default class CruxSettings {
             config: true,
             type: Boolean,
             default: false
+        },
+        "show-quantity": {
+            name: "Show Quantity (Q)",
+            hint: "Display the quantity indicator for items in the tray.",
+            scope: "client",
+            config: true,
+            type: Boolean,
+            default: true
+        },
+        "show-uses": {
+            name: "Show Uses (U)",
+            hint: "Display the uses indicator for items in the tray.",
+            scope: "client",
+            config: true,
+            type: Boolean,
+            default: true
         },        
         "show-no-uses": {
             name: "Show Items With No Uses Left",
@@ -217,42 +234,6 @@ export default class CruxSettings {
                 "down": "Fill Down"
             },
             default: "up"
-        },
-        "enable-drag-targeting": {
-            name: "Enable Drag Targeting",
-            hint: "Enable drag targeting functionality (requires Midi-QoL with drag targeting enabled)",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: false
-        },
-        "toggle-target-mode": {
-            name: "Toggle Target Mode",
-            hint: "When enabled, the target button becomes a toggle for drag & target mode",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: false
-        },
-        "drag-target-state": {
-            name: "Drag Target State",
-            hint: "Stores whether drag targeting is enabled",
-            scope: "client",
-            config: false,
-            type: Boolean,
-            default: false
-        },
-        "target-cursor": {
-            name: "Drag Targeting Cursor",
-            hint: "Select the cursor style for drag targeting.",
-            scope: "client",
-            config: true,
-            type: String,
-            choices: {
-                "crosshair": "Custom Crosshair",
-                "arrow": "White Arrow"
-            },
-            default: "crosshair"
         },
         "font-family": {
             name: "Font Family",

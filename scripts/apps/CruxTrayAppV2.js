@@ -45,7 +45,9 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             openToken: function(event, target) { this._onOpenToken(event, target); },
             rollInitiative: function(event, target) { this._onRollInitiative(event, target); },
             shortRest: function(event, target) { this._onShortRest(event, target); },
-            longRest: function(event, target) { this._onLongRest(event, target); }
+            longRest: function(event, target) { this._onLongRest(event, target); },
+            toggleQSpinner: function(event, target) { this._onToggleQSpinner(event, target); },
+            toggleUSpinner: function(event, target) { this._onToggleUSpinner(event, target); }
         }
     };
 
@@ -71,11 +73,9 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         const settingMainSectionsExpanded = game.settings.get("crux", "main-sections-expanded") === "open";
         const settingSubSectionsExpanded = game.settings.get("crux", "sub-sections-expanded") === "open";
         const useTidy5e = game.settings.get("crux", "use-tidy5e-sections");
-
         const actors = game.crux.state.getActiveActors().map(actor => {
             const actorData = actor.system;
             const canCastUnpreparedRituals = !!actor.items.find(i => i.name === "Wizard");
-
             let sections = {
                 favorites: { items: [], title: "crux.category.favorites" },
                 equipped: { items: [], title: "crux.category.equipped" },
@@ -122,11 +122,9 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 if (favoriteEntry && !item.getFlag("crux", "hidden")) {
                     sections.favorites.items.push({ item, uses, sort: favoriteEntry.sort });
                 }
-
                 if (item.type === "spell" && !item.getFlag("crux", "hidden")) {
                     const activationType = CruxCompatibility.getActivationType(item);
-                    const hasActivities = CruxCompatibility.isDnDv4() ? CruxCompatibility.hasActivities(item, false) : activationType && activationType !== "none";
-                    
+                    const hasActivities = CruxCompatibility.isDnDv4() ? CruxCompatibility.hasActivities(item, false) : activationType && activationType !== "none";                    
                     if (actor.type === "npc" && settingShowAllNpcItems) {
                         this._categorizeSpell(item, itemData, sections, useTidy5e, canCastUnpreparedRituals, settingShowUnpreparedCantrips, uses, true);
                     } else if (hasActivities) {
@@ -137,8 +135,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 } else {
                     const activationType = CruxCompatibility.getActivationType(item);
                     const isDnDv4 = CruxCompatibility.isDnDv4();
-                    let shouldShow = false;
-                    
+                    let shouldShow = false;                    
                     if (isDnDv4) {
                         shouldShow = !item.getFlag("crux", "hidden") && 
                                     (settingShowNoUses || !uses || !uses.hasMaxUses || uses.available) && 
@@ -253,14 +250,16 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         const iconSize = this._prefix(game.settings.get("crux", "icon-size"), "icon");
         const showSpellDots = game.settings.get("crux", "show-spell-dots");
         const showSpellFractions = game.settings.get("crux", "show-spell-fractions");
-        const toggleTargetMode = game.settings.get("crux", "toggle-target-mode");
+        const showQuantity = game.settings.get("crux", "show-quantity");
+        const showUses = game.settings.get("crux", "show-uses");
 
         return {
             actors,
             iconSize,
             showSpellDots,
             showSpellFractions,
-            toggleTargetMode,
+            showQuantity,
+            showUses,
             settings: {
                 "health-overlay-enabled": game.settings.get("crux", "health-overlay-enabled"),
                 "health-overlay-direction": game.settings.get("crux", "health-overlay-direction")
@@ -268,21 +267,6 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         };
     }
 
-    /**
-     * Handle global dragstart event to track items dragged from Crux
-     * @private
-     */
-    _handleGlobalDragStart(event) {
-        const draggedElement = event.target.closest(".item");
-        if (!draggedElement) return;
-        const cruxContainer = draggedElement.closest(".crux");
-        const isCruxItem = !!cruxContainer;        
-        if (!isCruxItem) return;
-        const itemUuid = draggedElement.dataset.itemUuid;
-        if (!itemUuid) return;
-        if (!game.crux) game.crux = {};
-        game.crux.cruxDraggedItem = itemUuid;
-    }
     _getSystemFeatureGroups() {
         const groups = Object.entries(CONFIG.DND5E.featureTypes).reduce((prev, cur) => {
             prev[cur[0]] = {
@@ -708,15 +692,11 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      */
     _onRender(context, options) {
         super._onRender(context, options);
-        this._setupDragDrop();
         this._restoreScrollPosition();
         const container = this.element.querySelector('.crux__container');
         if (container) {
             container.addEventListener('scroll', this._onScroll.bind(this));
         }
-        document.removeEventListener("dragstart", this._onGlobalDragStart);
-        this._onGlobalDragStart = this._handleGlobalDragStart.bind(this);
-        document.addEventListener("dragstart", this._onGlobalDragStart);
 
         this.element.querySelectorAll('.crux__info-section h1').forEach(nameElement => {
             const nameLength = nameElement.textContent.length;
@@ -833,120 +813,6 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     }
 
     /**
-     * Setup drag-and-drop functionality
-     * @private
-     */
-    _setupDragDrop() {
-        const isTargetMode = game.settings.get("crux", "toggle-target-mode");
-        const isDragModeEnabled = isTargetMode ? game.settings.get("crux", "drag-target-state") : false;
-        const targetCursorSetting = game.settings.get("crux", "target-cursor");
-        const trayContainer = this.element.querySelector('.crux__container');
-        
-        if (isTargetMode) {
-            const containers = this.element.querySelectorAll('.crux__toggle-target');
-            containers.forEach(container => {
-                if (isDragModeEnabled) {
-                    container.classList.add('toggled-on');
-                    container.classList.remove('toggled-off');
-                } else {
-                    container.classList.add('toggled-off');
-                    container.classList.remove('toggled-on');
-                }
-            });
-
-            if (isDragModeEnabled) {
-                trayContainer.classList.add('crux-targeting');
-                if (targetCursorSetting === "crosshair") {
-                    trayContainer.classList.add('custom-target-cursor');
-                    trayContainer.classList.remove('arrow-target-cursor');
-                } else if (targetCursorSetting === "arrow") {
-                    trayContainer.classList.add('arrow-target-cursor');
-                    trayContainer.classList.remove('custom-target-cursor');
-                }
-                
-                this.element.querySelectorAll('.rollable .item-image').forEach(image => {
-                    CruxDomUtils.setupDraggable(image, {
-                        onDragStart: this._onDragStart.bind(this),
-                        onDragEnd: this._onDragEnd.bind(this)
-                    });
-                });
-            }
-        }
-
-        CruxDomUtils.setupCanvasDropHandler(this._onDrop.bind(this));
-        this._setupHotkeyListeners();
-    }
-
-    /**
-     * Handle drag start
-     * @private
-     */
-    async _onDragStart(event) {
-        const itemUuid = event.currentTarget.closest(".item").dataset.itemUuid;
-        const item = await CruxHooksManager.fromUuid(itemUuid);
-        if (!item) {
-            console.error("Crux | Invalid drag: Failed to resolve item from UUID", itemUuid);
-            event.preventDefault();
-            return false;
-        }
-
-        const dragImage = CruxDomUtils.createDragImage(item.img);
-        event.dataTransfer.setDragImage(dragImage, 16, 16);
-        event.currentTarget.dragImage = dragImage;
-
-        const dragData = {
-            type: "Item",
-            uuid: itemUuid
-        };
-        if (!game.crux) game.crux = {};
-        game.crux.cruxDraggedItem = itemUuid;        
-        event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
-        event.dataTransfer.effectAllowed = "all";
-    }
-
-    /**
-     * Handle drag end
-     * @private
-     */
-    _onDragEnd(event) {
-        CruxDomUtils.cleanupDragImage(event.currentTarget.dragImage);
-        event.currentTarget.dragImage = null;
-    }
-
-    /**
-     * Handle drop on canvas
-     * @private
-     */
-    async _onDrop(event) {
-        try {
-            event.preventDefault();
-            event.stopPropagation();
-            event.stopImmediatePropagation();
-            
-            const data = JSON.parse(event.dataTransfer.getData('text/plain'));
-            if (data.type !== "Item") return;
-
-            const itemUuid = data.uuid;
-            const item = fromUuidSync(itemUuid);
-            if (!item) return;
-            const targetToken = game.canvas.tokens.placeables.find(token => {
-                const { x, y } = event;
-                const tokenBounds = token.bounds;
-                return x >= tokenBounds.x && x <= tokenBounds.right && 
-                       y >= tokenBounds.y && y <= tokenBounds.bottom;
-            });
-            const modifiedEvent = targetToken ? { ...event, targetToken } : event;
-            modifiedEvent.fromCrux = true;
-            if (item.type === "spell") {
-                modifiedEvent.createScrollItem = false;
-            }
-            await CruxUtils.activateItem(itemUuid, null, modifiedEvent);
-        } catch (error) {
-            console.error("Drop operation failed:", error);
-        }
-    }
-
-    /**
      * Handle scroll events
      * @private
      */
@@ -1046,83 +912,6 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         if (!game.modules.get("foundry-taskbar")?.active) return;
         const isCompatEnabled = game.settings.get("crux", "taskbar-compatibility");
         document.body.classList.toggle("crux-taskbar-compat", isCompatEnabled);
-    }
-
-    /**
-     * Setup hotkey listeners for dynamic drag targeting
-     * @private
-     */
-    _setupHotkeyListeners() {
-        document.removeEventListener('keydown', this._onHotkeyDown);
-        document.removeEventListener('keyup', this._onHotkeyUp);
-        this._onHotkeyDown = this._handleHotkeyDown.bind(this);
-        this._onHotkeyUp = this._handleHotkeyUp.bind(this);
-        document.addEventListener('keydown', this._onHotkeyDown);
-        document.addEventListener('keyup', this._onHotkeyUp);
-    }
-    
-    /**
-     * Handle hotkey down event for drag targeting
-     * @private
-     */
-    _handleHotkeyDown(event) {
-        if (game.settings.get("crux", "toggle-target-mode")) return;
-        const dragKey = game.keybindings.get("crux", "item-drag")[0];
-        if (!dragKey) return;
-        if (event.code === dragKey.key) {
-            this._enableDragTargeting(true);
-        }
-    }
-    
-    /**
-     * Handle hotkey up event for drag targeting
-     * @private
-     */
-    _handleHotkeyUp(event) {
-        if (game.settings.get("crux", "toggle-target-mode")) return;
-        const dragKey = game.keybindings.get("crux", "item-drag")[0];
-        if (!dragKey) return;
-        if (event.code === dragKey.key) {
-            this._enableDragTargeting(false);
-        }
-    }
-    
-    /**
-     * Enable or disable drag targeting
-     * @param {boolean} enable - Whether to enable or disable drag targeting
-     * @private
-     */
-    _enableDragTargeting(enable) {
-        const trayContainer = this.element.querySelector('.crux__container');
-        if (!trayContainer) return;        
-        const itemImages = this.element.querySelectorAll('.rollable .item-image');
-        const targetCursorSetting = game.settings.get("crux", "target-cursor");        
-        if (enable) {
-            trayContainer.classList.add('crux-targeting');
-            if (targetCursorSetting === "crosshair") {
-                trayContainer.classList.add('custom-target-cursor');
-                trayContainer.classList.remove('arrow-target-cursor');
-            } else if (targetCursorSetting === "arrow") {
-                trayContainer.classList.add('arrow-target-cursor');
-                trayContainer.classList.remove('custom-target-cursor');
-            }
-            
-            itemImages.forEach(image => {
-                CruxDomUtils.setupDraggable(image, {
-                    onDragStart: this._onDragStart.bind(this),
-                    onDragEnd: this._onDragEnd.bind(this)
-                });
-            });
-        } else {
-            trayContainer.classList.remove('crux-targeting');
-            trayContainer.classList.remove('custom-target-cursor');
-            trayContainer.classList.remove('arrow-target-cursor');
-            
-            itemImages.forEach(image => {
-                image.draggable = false;
-                image.removeAttribute('draggable');
-            });
-        }
     }
 
     _onToggleSkills(event, target) {
@@ -1311,6 +1100,9 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             }
             return;
         }
+        // Mark the event as coming from Crux
+        event.fromCrux = true;
+        
         const itemEntry = target.closest('.crux__item');
         const activityId = itemEntry?.dataset?.activityId;
         return CruxUtils.activateItem(itemUuid, activityId, event);
@@ -1393,7 +1185,13 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         }
     }
 
-    async _onToggleTarget(event, target) {
+    /**
+     * Toggle targeting for the actor's token
+     * @param {Event} event - The triggering event
+     * @param {HTMLElement} target - The target element
+     * @private
+     */
+    _onToggleTarget(event, target) {
         let actorElement = target.closest('.crux__actor');
         let actorUuid;
         if (!actorElement) {
@@ -1413,40 +1211,9 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (!actor) return;
 
-        if (game.settings.get("crux", "toggle-target-mode")) {
-            const isDragModeEnabled = !game.settings.get("crux", "drag-target-state");
-            await game.settings.set("crux", "drag-target-state", isDragModeEnabled);
-            const container = event.currentTarget.closest('.crux__toggle-target') || 
-                              this.element.querySelector('.crux__toggle-target');            
-            if (container) {
-                CruxDomUtils.toggleClasses(container, {
-                    'toggled-on': isDragModeEnabled,
-                    'toggled-off': !isDragModeEnabled
-                });
-            }
-            
-            const trayContainer = this.element.querySelector('.crux__container');
-            const itemImages = trayContainer.querySelectorAll('.rollable .item-image');
-            const targetCursorSetting = game.settings.get("crux", "target-cursor");
-            if (isDragModeEnabled) {
-                if (targetCursorSetting === "crosshair") {
-                    trayContainer.classList.add('custom-target-cursor');
-                    trayContainer.classList.remove('arrow-target-cursor');
-                } else if (targetCursorSetting === "arrow") {
-                    trayContainer.classList.add('arrow-target-cursor');
-                    trayContainer.classList.remove('custom-target-cursor');
-                }
-            } else {
-                trayContainer.classList.remove('custom-target-cursor');
-                trayContainer.classList.remove('arrow-target-cursor');
-            }
-            
-            CruxDomUtils.updateDragMode(trayContainer, itemImages, isDragModeEnabled);
-        } else {
-            const token = actor.getActiveTokens()[0];
-            if (token) {
-                token.setTarget(!token.isTargeted, { releaseOthers: false });
-            }
+        const token = actor.getActiveTokens()[0];
+        if (token) {
+            token.setTarget(!token.isTargeted, { releaseOthers: false });
         }
     }
 
@@ -1691,8 +1458,6 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             li.addEventListener('click', async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
-                // Ensure the menu is removed from the DOM
                 if (document.body.contains(menu)) {
                     document.body.removeChild(menu);
                 }
@@ -1801,16 +1566,185 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      * Handle mousedown events on item images and names
      * @private
      */
+    /**
+     * Handle Q spinner toggle
+     * @param {Event} event - The triggering event
+     * @param {HTMLElement} target - The target element
+     * @private
+     */
+    _onToggleQSpinner(event, target) {
+        event.stopPropagation();
+        event.preventDefault();
+        
+        // Toggle edit mode
+        const isEdit = target.dataset.edit === "true";
+        target.dataset.edit = !isEdit;
+        
+        // Show/hide appropriate sections
+        const displayMode = target.querySelector('.display-mode');
+        const editMode = target.querySelector('.edit-mode');
+        displayMode.classList.toggle('hidden', !isEdit);
+        editMode.classList.toggle('hidden', isEdit);
+        
+        // If entering edit mode, focus input and add document click handler
+        if (!isEdit) {
+            const input = editMode.querySelector('input');
+            input.focus();
+            input.select();
+            
+            // Add keydown handler for Enter key
+            const onKeyDown = (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this._saveQSpinnerChanges(target);
+                    
+                    // Reset display
+                    target.dataset.edit = "false";
+                    displayMode.classList.remove('hidden');
+                    editMode.classList.add('hidden');
+                    
+                    // Remove event listeners
+                    input.removeEventListener('keydown', onKeyDown);
+                }
+            };
+            
+            input.addEventListener('keydown', onKeyDown);
+            
+            // Add document click handler
+            this._addSpinnerClickAwayHandler(target);
+        }
+    }
+    
+    /**
+     * Handle U spinner toggle
+     * @param {Event} event - The triggering event
+     * @param {HTMLElement} target - The target element
+     * @private
+     */
+    _onToggleUSpinner(event, target) {
+        event.stopPropagation();
+        event.preventDefault();
+        
+        // Toggle edit mode
+        const isEdit = target.dataset.edit === "true";
+        target.dataset.edit = !isEdit;
+        
+        // Show/hide appropriate sections
+        const displayMode = target.querySelector('.display-mode');
+        const editMode = target.querySelector('.edit-mode');
+        displayMode.classList.toggle('hidden', !isEdit);
+        editMode.classList.toggle('hidden', isEdit);
+        
+        // If entering edit mode, focus input and add document click handler
+        if (!isEdit) {
+            const input = editMode.querySelector('input');
+            input.focus();
+            input.select();
+            
+            // Add keydown handler for Enter key
+            const onKeyDown = (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this._saveUSpinnerChanges(target);
+                    
+                    // Reset display
+                    target.dataset.edit = "false";
+                    displayMode.classList.remove('hidden');
+                    editMode.classList.add('hidden');
+                    
+                    // Remove event listeners
+                    input.removeEventListener('keydown', onKeyDown);
+                }
+            };
+            
+            input.addEventListener('keydown', onKeyDown);
+            
+            // Add document click handler
+            this._addSpinnerClickAwayHandler(target);
+        }
+    }
+    
+    /**
+     * Add a document click handler to detect clicks outside the spinner
+     * @param {HTMLElement} spinner - The spinner element
+     * @private
+     */
+    _addSpinnerClickAwayHandler(spinner) {
+        // Create a one-time document click handler to detect clicks outside
+        const onDocumentClick = (e) => {
+            if (!spinner.contains(e.target)) {
+                // Save changes
+                if (spinner.classList.contains('q-spinner')) {
+                    this._saveQSpinnerChanges(spinner);
+                } else if (spinner.classList.contains('u-spinner')) {
+                    this._saveUSpinnerChanges(spinner);
+                }
+                
+                // Reset display
+                spinner.dataset.edit = "false";
+                spinner.querySelector('.display-mode').classList.remove('hidden');
+                spinner.querySelector('.edit-mode').classList.add('hidden');
+                
+                // Remove this event listener
+                document.removeEventListener('click', onDocumentClick);
+            }
+        };
+        
+        // Add after a short delay to prevent immediate triggering
+        setTimeout(() => {
+            document.addEventListener('click', onDocumentClick);
+        }, 10);
+    }
+    
+    /**
+     * Save changes from Q spinner
+     * @param {HTMLElement} spinner - The spinner element
+     * @private
+     */
+    async _saveQSpinnerChanges(spinner) {
+        const itemUuid = spinner.dataset.itemUuid;
+        if (!itemUuid) return;
+        
+        const item = fromUuidSync(itemUuid);
+        if (!item) return;
+        
+        const input = spinner.querySelector('input');
+        const value = Math.max(0, parseInt(input.value) || 0);
+        
+        // Update the actor's item
+        await item.update({"system.quantity": value});
+        
+        // Update display
+        spinner.querySelector('.value').textContent = value;
+    }
+    
+    /**
+     * Save changes from U spinner
+     * @param {HTMLElement} spinner - The spinner element
+     * @private
+     */
+    async _saveUSpinnerChanges(spinner) {
+        const itemUuid = spinner.dataset.itemUuid;
+        if (!itemUuid) return;
+        
+        const item = fromUuidSync(itemUuid);
+        if (!item) return;
+        
+        const input = spinner.querySelector('input');
+        const max = parseInt(input.max) || 0;
+        const value = Math.min(max, Math.max(0, parseInt(input.value) || 0));
+        
+        // Update the actor's item (only update the remaining uses, not maximum)
+        await item.update({"system.uses.value": value});
+        
+        // Update display
+        spinner.querySelector('.value').textContent = `${value}/${max}`;
+    }
+
     async _onItemMouseDown(event) {
         if (event.target.closest('[data-crux-context-menu="true"]')) {
             return false;
         }        
-        const dragKey = game.keybindings.get("crux", "item-drag")[0];
-        const isToggleMode = game.settings.get("crux", "toggle-target-mode");
-        const isDragModeEnabled = isToggleMode ? game.settings.get("crux", "drag-target-state") : false;        
-        if (game.keyboard.downKeys.has(dragKey?.key) || (isToggleMode && isDragModeEnabled)) {
-            return false;
-        }
         const itemElement = event.currentTarget.closest(".item");
         if (!itemElement) return false;        
         const itemUuid = itemElement.dataset.itemUuid;

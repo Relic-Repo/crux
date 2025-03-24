@@ -33,8 +33,7 @@ export default class CruxCompatibility {
     static getActivities(item, applyHook = true) {
         if (!this.isDnDv4() || !item?.system?.activities) return null;
         if (!applyHook) return item.system.activities;
-        let activities;
-        
+        let activities;        
         try {
             if (item.system.activities instanceof Map) {
                 activities = new Map(item.system.activities);
@@ -64,12 +63,10 @@ export default class CruxCompatibility {
         if (!activities) return false;
         if (activities.contents && Object.keys(activities.contents).length > 0) {
             return true;
-        }
-        
+        }        
         if (typeof activities.size === 'number' && activities.size > 0) {
             return true;
-        }
-        
+        }        
         try {
             return Array.from(activities.entries()).length > 0;
         } catch (e) {
@@ -92,8 +89,7 @@ export default class CruxCompatibility {
             if (activities.contents && Object.keys(activities.contents).length > 0) {
                 const firstKey = Object.keys(activities.contents)[0];
                 return activities.contents[firstKey]?.activation?.type || null;
-            }
-            
+            }            
             try {
                 const entries = Array.from(activities.entries());
                 if (entries.length === 0) return null;

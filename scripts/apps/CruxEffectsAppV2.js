@@ -5,7 +5,6 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
  */
 export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
     static activeInstance = null;
-
     constructor(actor, token, anchor) {
         super();
         this.actor = actor;
@@ -13,7 +12,6 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
         this.anchor = anchor;
         CruxEffectsAppV2.activeInstance = this;
     }
-
     static updateInstance(actor, token) {
         if (CruxEffectsAppV2.activeInstance?.rendered) {
             CruxEffectsAppV2.activeInstance.actor = actor;
@@ -21,7 +19,6 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
             CruxEffectsAppV2.activeInstance.render();
         }
     }
-
     /**
      * Default configuration options
      */
@@ -74,7 +71,6 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
                 isOverlay: false
             };
         }
-
         const activeEffects = this.actor?.effects || [];
         for (const effect of activeEffects) {
             for (const statusId of effect.statuses) {
@@ -90,39 +86,31 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
                 break;
             }
         }
-
         for (const status of Object.values(choices)) {
             status.cssClass = [
                 status.isActive ? "active" : null,
                 status.isOverlay ? "overlay" : null
             ].filterJoin(" ");
         }
-
         const result = {
             effects: Object.values(choices)
         };
-        
-        console.log("Effects data for template:", result.effects);
         return result;
     }
-
     /**
      * Handle effect toggling
      */
     async _onToggleEffect(event, {overlay = false} = {}) {
         event.preventDefault();
-        event.stopPropagation();
-        
+        event.stopPropagation();        
         if (!this.actor) {
             ui.notifications.warn("No actor available");
             return;
-        }
-        
+        }        
         const statusId = event.currentTarget.dataset.statusId;
         await this.actor.toggleStatusEffect(statusId, {overlay});
         this.render();
     }
-
     /**
      * Handle right-click on effects
      */
@@ -130,8 +118,7 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
         event.preventDefault();
         event.stopPropagation();
         this._onToggleEffect(event, {overlay: true});
-    }
-    
+    }    
     /**
      * Override close method to prevent ESC key from closing the window
      * @override
@@ -144,7 +131,6 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
         }
         return super.close(options);
     }
-
     /**
      * Position the window relative to the anchor element
      * Ignores scale parameter from uiscaler
@@ -157,7 +143,6 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
             ...otherOptions
         });
     }
-
     /**
      * Handle post-render setup
      */
