@@ -2,6 +2,13 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2025-03-25] [2.0.6]
+
+### Fixed
+- Lag due to multiple selection data building in panel. Will only show one now if multiple are selected. First in array
+- Global changes to button highlight behavior
+- Error caused by unknown category
+
 ## [2025-03-24] [2.0.5]
 
 ### Fixed

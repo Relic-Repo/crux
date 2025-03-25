@@ -350,10 +350,29 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             const type = item.system.type.value;
             const subtype = item.system.type.subtype;
 
-            if (subtype) {
-                sections.feature.groups[subtype].items.push({ item, uses });
-            } else if (type) {
-                sections.feature.groups[type].items.push({ item, uses });
+        // Helper function to capitalize each word in a string
+        const capitalize = (str) => {
+            return str.split(/[\s-_]+/).map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            ).join(' ');
+        };
+
+        if (subtype) {
+            if (!sections.feature.groups[subtype]) {
+                sections.feature.groups[subtype] = {
+                    items: [],
+                    title: capitalize(subtype)
+                };
+            }
+            sections.feature.groups[subtype].items.push({ item, uses });
+        } else if (type) {
+            if (!sections.feature.groups[type]) {
+                sections.feature.groups[type] = {
+                    items: [],
+                    title: capitalize(type)
+                };
+            }
+            sections.feature.groups[type].items.push({ item, uses });
             } else {
                 sections.feature.groups.general.items.push({ item, uses });
             }

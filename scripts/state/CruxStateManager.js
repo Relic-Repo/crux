@@ -28,6 +28,13 @@ export default class CruxStateManager {
         );
         
         if (controlled.length) {
+            // Only use the first controlled token's actor if multiple are selected
+            if (controlled.length > 1) {
+                this.#activeActors = new Set([controlled[0].actor]);
+                return [controlled[0].actor];
+            }
+            
+            // Original behavior for single token selection
             this.#activeActors = new Set(controlled.map(token => token.actor));
             return Array.from(this.#activeActors);
         }        

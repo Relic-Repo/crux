@@ -1105,21 +1105,21 @@
     object-fit: contain !important;
 }
 
-[data-action] {
+.crux [data-action] {
     cursor: pointer;
 }
 
-[data-action]:hover {
+.crux [data-action]:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-[data-action="toggleEffect"] {
+.crux [data-action="toggleEffect"] {
     transition: border-color 0.2s, background-color 0.2s;
 }
 
-[data-action="toggleSection"],
-[data-action="toggleGroup"],
-[data-action="toggleSkills"] {
+.crux [data-action="toggleSection"],
+.crux [data-action="toggleGroup"],
+.crux [data-action="toggleSkills"] {
     user-select: none;
 }
 
