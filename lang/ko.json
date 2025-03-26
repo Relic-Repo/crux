@@ -60,6 +60,7 @@
             "weapon": "무기",
             "equipment": "장비",
             "consumable": "소모품",
+            "ammunition": "탄약",
             "other": "기타",
             "innate": "타고난 능력",
             "atwill": "자유 사용",

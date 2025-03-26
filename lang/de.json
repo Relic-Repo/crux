@@ -60,6 +60,7 @@
             "weapon": "Waffe",
             "equipment": "Ausrüstung",
             "consumable": "Verbrauchsgegenstand",
+            "ammunition": "Munition",
             "other": "Sonstiges",
             "innate": "Angeborene Fähigkeit",
             "atwill": "Nach Belieben",

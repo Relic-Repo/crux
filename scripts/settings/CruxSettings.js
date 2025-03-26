@@ -6,7 +6,6 @@ export default class CruxSettings {
      * Configuration settings for the module
      */
     static SETTINGS = {
-        // Removed drag targeting related settings
         "tray-mode": {
             name: "Tray Display Mode",
             hint: "Toggle - only hide tray when toggled (using hot key) / When token selected - Hide the tray if no tokens are selected, show otherwise / Automatic - Toggle for players, When token selected for the GM",
@@ -281,6 +280,36 @@ export default class CruxSettings {
             onChange: value => {
                 document.body.classList.toggle("crux-taskbar-compat", value);
             }
+        },
+        "empty-tray-icon": {
+            name: "Empty Tray Icon",
+            hint: "Choose the icon to display when the tray is empty",
+            scope: "client",
+            config: true,
+            type: String,
+            choices: {
+                "fa-thin fa-dragon": "Dragon",
+                "fa-brands fa-d-and-d": "D&D",
+                "fa-thin fa-helmet-battle": "Helm",
+                "fa-thin fa-swords": "Swords",
+                "fa-thin fa-staff": "Staff",
+                "fa-thin fa-wand": "Wand",
+                "fa-thin fa-paw-claws": "Paw",
+                "fa-thin fa-mandolin": "Mandolin",
+                "fa-thin fa-bow-arrow": "Bow",
+                "fa-thin fa-axe-battle": "Battle-Axe",
+                "fa-thin fa-mace": "Mace",
+                "fa-thin fa-hammer-war": "Warhammer",
+                "fa-thin fa-dagger": "Dagger",
+                "fa-thin fa-hand-fist": "Fist",
+                "fa-thin fa-fire-flame": "Pyro",
+                "fa-thin fa-flask-round-potion": "Potion",
+                "fa-thin fa-scroll-old": "Scroll",
+                "fa-thin fa-dungeon": "Dungeon",
+                "fa-thin fa-eye-evil": "The-Eye",
+                "fa-thin fa-dice-d20": "D20"
+            },
+            default: "fa-thin fa-dragon"
         }
     };
 

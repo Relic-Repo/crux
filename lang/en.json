@@ -60,6 +60,7 @@
             "weapon": "Weapon",
             "equipment": "Equipment",
             "consumable": "Consumable",
+            "ammunition": "Ammunition",
             "other": "Other",
             "innate": "Innate Ability",
             "atwill": "At-Will",

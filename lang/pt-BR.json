@@ -60,6 +60,7 @@
             "weapon": "Arma",
             "equipment": "Equipamento",
             "consumable": "Consumível",
+            "ammunition": "Munição",
             "other": "Outro",
             "innate": "Habilidade Inata",
             "atwill": "À Vontade",

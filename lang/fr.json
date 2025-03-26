@@ -60,6 +60,7 @@
             "weapon": "Arme",
             "equipment": "Équipement",
             "consumable": "Consommable",
+            "ammunition": "Munitions",
             "other": "Autre",
             "innate": "Capacité Innée",
             "atwill": "À Volonté",

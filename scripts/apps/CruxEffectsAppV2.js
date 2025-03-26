@@ -125,7 +125,6 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
      */
     async close(options = {}) {
         if (options?.closeKey) {
-            // ESC-triggered closure attempt: explicitly ignore
             console.log("[Crux] ESC-initiated close ignored.");
             return false;
         }

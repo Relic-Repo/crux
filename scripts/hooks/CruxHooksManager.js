@@ -199,8 +199,6 @@ export default class CruxHooksManager {
                 }
             }
         });
-
-        // Remove item-drag keybinding as drag targeting functionality has been removed
     }
 
     /**

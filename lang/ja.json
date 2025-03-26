@@ -60,6 +60,7 @@
             "weapon": "武器",
             "equipment": "装備品",
             "consumable": "消耗品",
+            "ammunition": "弾薬",
             "other": "その他",
             "innate": "生来能力",
             "atwill": "任意",

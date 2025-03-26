@@ -2,6 +2,14 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2025-03-25] [2.0.7]
+
+### Added
+- Ammunition Sub-Category
+- Ammunition Remain Qty Editable
+- Item with Thrown Property Remain Qty Editable
+- Easter Eggs
+
 ## [2025-03-25] [2.0.6]
 
 ### Fixed

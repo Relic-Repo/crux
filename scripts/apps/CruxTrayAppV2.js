@@ -82,6 +82,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 inventory: {
                     title: "crux.category.inventory",
                     groups: {
+                        ammunition: { items: [], title: "crux.category.ammunition" },
                         weapon: { items: [], title: "crux.category.weapon" },
                         equipment: { items: [], title: "crux.category.equipment" },
                         consumable: { items: [], title: "crux.category.consumable" },
@@ -139,11 +140,13 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                     if (isDnDv4) {
                         shouldShow = !item.getFlag("crux", "hidden") && 
                                     (settingShowNoUses || !uses || !uses.hasMaxUses || uses.available) && 
-                                    CruxCompatibility.hasActivities(item, false);
+                                    (CruxCompatibility.hasActivities(item, false) || 
+                                     (item.type === "consumable" && item.system.type?.value === "ammo"));
                     } else {
                         shouldShow = !item.getFlag("crux", "hidden") && 
                                     (settingShowNoUses || !uses || uses.available) && 
-                                    (activationType && activationType !== "none");
+                                    ((activationType && activationType !== "none") || 
+                                     (item.type === "consumable" && item.system.type?.value === "ammo"));
                     }
                     
                     if (shouldShow) {
@@ -253,18 +256,19 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         const showQuantity = game.settings.get("crux", "show-quantity");
         const showUses = game.settings.get("crux", "show-uses");
 
-        return {
-            actors,
-            iconSize,
-            showSpellDots,
-            showSpellFractions,
-            showQuantity,
-            showUses,
-            settings: {
-                "health-overlay-enabled": game.settings.get("crux", "health-overlay-enabled"),
-                "health-overlay-direction": game.settings.get("crux", "health-overlay-direction")
-            }
-        };
+    return {
+        actors,
+        iconSize,
+        showSpellDots,
+        showSpellFractions,
+        showQuantity,
+        showUses,
+        settings: {
+            "health-overlay-enabled": game.settings.get("crux", "health-overlay-enabled"),
+            "health-overlay-direction": game.settings.get("crux", "health-overlay-direction"),
+            "empty-tray-icon": game.settings.get("crux", "empty-tray-icon")
+        }
+    };
     }
 
     _getSystemFeatureGroups() {
@@ -349,8 +353,6 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         } else {
             const type = item.system.type.value;
             const subtype = item.system.type.subtype;
-
-        // Helper function to capitalize each word in a string
         const capitalize = (str) => {
             return str.split(/[\s-_]+/).map(word => 
                 word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
@@ -452,7 +454,9 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                     sections.inventory.groups.equipment.items.push({ item, uses });
                     break;
                 case "consumable":
-                    if (itemData.consumableType !== "ammo") {
+                    if (itemData.consumableType === "ammo" || itemData.type?.value === "ammo") {
+                        sections.inventory.groups.ammunition.items.push({ item, uses });
+                    } else {
                         sections.inventory.groups.consumable.items.push({ item, uses });
                     }
                     break;
@@ -1119,7 +1123,6 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             }
             return;
         }
-        // Mark the event as coming from Crux
         event.fromCrux = true;
         
         const itemEntry = target.closest('.crux__item');
@@ -1660,27 +1663,19 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      * @private
      */
     _addSpinnerClickAwayHandler(spinner) {
-        // Create a one-time document click handler to detect clicks outside
         const onDocumentClick = (e) => {
             if (!spinner.contains(e.target)) {
-                // Save changes
                 if (spinner.classList.contains('q-spinner')) {
                     this._saveQSpinnerChanges(spinner);
                 } else if (spinner.classList.contains('u-spinner')) {
                     this._saveUSpinnerChanges(spinner);
                 }
-                
-                // Reset display
                 spinner.dataset.edit = "false";
                 spinner.querySelector('.display-mode').classList.remove('hidden');
                 spinner.querySelector('.edit-mode').classList.add('hidden');
-                
-                // Remove this event listener
                 document.removeEventListener('click', onDocumentClick);
             }
         };
-        
-        // Add after a short delay to prevent immediate triggering
         setTimeout(() => {
             document.addEventListener('click', onDocumentClick);
         }, 10);
@@ -1693,18 +1688,12 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      */
     async _saveQSpinnerChanges(spinner) {
         const itemUuid = spinner.dataset.itemUuid;
-        if (!itemUuid) return;
-        
+        if (!itemUuid) return;        
         const item = fromUuidSync(itemUuid);
-        if (!item) return;
-        
+        if (!item) return;        
         const input = spinner.querySelector('input');
         const value = Math.max(0, parseInt(input.value) || 0);
-        
-        // Update the actor's item
         await item.update({"system.quantity": value});
-        
-        // Update display
         spinner.querySelector('.value').textContent = value;
     }
     
@@ -1723,11 +1712,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         const input = spinner.querySelector('input');
         const max = parseInt(input.max) || 0;
         const value = Math.min(max, Math.max(0, parseInt(input.value) || 0));
-        
-        // Update the actor's item (only update the remaining uses, not maximum)
         await item.update({"system.uses.value": value});
-        
-        // Update display
         spinner.querySelector('.value').textContent = `${value}/${max}`;
     }
 
