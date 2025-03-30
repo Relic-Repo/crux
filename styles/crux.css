@@ -12,7 +12,8 @@
     --crux-bg-opacity: 0.4; 
     --crux-blur: 1px; 
     --crux-font-family: "Modesto Condensed", "Palatino Linotype", serif;
-    --crux-font-size-multiplier: 1.0;
+    --crux-global-font-size-multiplier: 1.0;
+    --crux-content-text-size-multiplier: 1.0;
     --end-turn-button-bg: rgba(255, 255, 255, 0.15);
     --end-turn-button-color: rgb(255, 255, 255);
     --end-turn-button-border-radius: 5px;
@@ -22,6 +23,58 @@
     --end-turn-button-font-weight: 200;
     --end-turn-button-border: 1px solid rgba(255, 255, 255, 0.15);
     --end-turn-button-box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.15);
+}
+
+/* Global font size multiplier for all text elements */
+.crux {
+    font-size: calc(1em * var(--crux-global-font-size-multiplier)) !important;
+}
+
+/* Apply global multiplier to specific elements */
+.crux__section-header {
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-global-font-size-multiplier)) !important;
+}
+
+.crux__group-header h3 {
+    font-size: calc(var(--crux-width) * var(--text-base-ratio) * var(--crux-global-font-size-multiplier)) !important;
+}
+
+.crux__info-section h1 {
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.1 * var(--crux-global-font-size-multiplier)) !important;
+}
+
+.crux__container h1 {
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.2 * var(--crux-global-font-size-multiplier)) !important;
+}
+
+.crux__skill-header {
+    font-size: calc(var(--crux-width) * var(--text-base-ratio) * 1.1 * var(--crux-global-font-size-multiplier)) !important;
+}
+
+.crux__ability {
+    font-size: calc(var(--crux-width) * 0.06 * var(--crux-global-font-size-multiplier)) !important;
+}
+
+/* Apply content multiplier to specific elements */
+.crux__utility-button a {
+    font-size: calc(var(--crux-width) * var(--text-base-ratio) *1.4* var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+}
+
+.crux__item .item-name h4 {
+    font-size: calc(var(--crux-width) * var(--text-base-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+}
+
+.crux__stat-row {
+    font-size: calc(var(--crux-width) * 0.042 * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+}
+
+.crux__skill-row span, 
+.crux__skill-passive {
+    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+}
+
+.crux__item .item-summary {
+    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-content-text-size-multiplier)) !important;
 }
 .crux__wrapper {
     transform: none !important;
@@ -92,12 +145,12 @@
     transition: width 0s;
 }
 .crux__section-header i, .crux__group-header i {
-    font-size: 18px !important;
+    font-size: calc(18px * var(--crux-global-font-size-multiplier)) !important;
     flex: 0 0 2px !important;
 }
 
 .crux__empty-tray i {
-    font-size: calc(var(--crux-width) * 0.7) !important;
+    font-size: calc(var(--crux-width) * 0.7 * var(--crux-global-font-size-multiplier)) !important;
     opacity: 0.3;
 }
 
@@ -119,7 +172,7 @@
 .crux__container h1 {
     border: 0 !important;
     font-family: var(--crux-font-family) !important;
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.2) !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.2 * var(--crux-global-font-size-multiplier)) !important;
     margin: 5px 0 0 0 !important;
 }
 
@@ -240,7 +293,7 @@
     margin: 10px 2px 4px 2px !important;
     border-radius: 3px !important;
     font-family: var(--crux-font-family) !important;
-    font-size: calc(var(--crux-width) * var(--text-header-ratio)) !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-global-font-size-multiplier)) !important;
     cursor: pointer !important;
     display: flex !important;
     justify-content: space-between !important;
@@ -281,7 +334,7 @@
     display: flex !important;
     align-items: center !important;
     margin: 0 !important;
-    font-size: calc(var(--crux-width) * var(--text-base-ratio)) !important;
+    font-size: calc(var(--crux-width) * var(--text-base-ratio) * var(--crux-global-font-size-multiplier)) !important;
     font-weight: bold !important;
     color: rgba(255, 255, 255, 0.7) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
@@ -516,7 +569,7 @@
     align-items: center;
     gap: calc(var(--crux-width) * 0.015);
     color: white;
-    font-size: calc(var(--crux-width) * 0.042) !important;
+    font-size: calc(var(--crux-width) * 0.042 * var(--crux-global-font-size-multiplier)) !important;
     line-height: 1.2;
 }
 
@@ -545,7 +598,7 @@
 
 .crux__info-section h1 {
     margin: 0 0 5px 0 !important;
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.1) !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.1 * var(--crux-global-font-size-multiplier)) !important;
     overflow: hidden !important;
     width: 100% !important;
     word-wrap: break-word !important;
@@ -566,14 +619,15 @@
     color: inherit !important;
     text-decoration: none !important;
     word-break: break-word !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) *1.4* var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__info-section h1.long-name {
-    font-size: calc(var(--crux-width) * var(--text-header-ratio)) !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__info-section h1.very-long-name {
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 0.8) !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 0.8 * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__abilities {
@@ -658,7 +712,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    font-size: calc(var(--crux-width) * var(--text-base-ratio) * var(--crux-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--text-base-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
     font-family: var(--crux-font-family) !important;
 }
 
@@ -683,12 +737,12 @@
     font-weight: bold !important;
     color: rgba(255, 255, 255, 0.9) !important;
     margin-right: 1px !important;
-    font-size: calc(var(--crux-width) * var(--flag-text-ratio)) !important;
+    font-size: calc(var(--crux-width) * var(--flag-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux-spinner .value {
     color: white !important;
-    font-size: calc(var(--crux-width) * var(--flag-text-ratio)) !important;
+    font-size: calc(var(--crux-width) * var(--flag-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux-spinner .edit-mode {
@@ -705,7 +759,7 @@
     border: 1px solid rgba(255, 255, 255, 0.3) !important;
     border-radius: 2px !important;
     padding: 0 2px !important;
-    font-size: calc(var(--crux-width) * var(--flag-text-ratio)) !important;
+    font-size: calc(var(--crux-width) * var(--flag-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux-spinner .hidden {
@@ -723,7 +777,7 @@
 .crux__activity-name {
     color: var(--color-warm-2);
     font-family: var(--crux-font-family) !important;
-    font-size: 0.9em !important;
+    font-size: calc(0.9em * var(--crux-global-font-size-multiplier)) !important;
     font-style: italic;
     opacity: 0.8;
 }
@@ -751,7 +805,7 @@
 
 .crux__item .item-name .item-image i {
     display: none;
-    font-size: var(--die-icon-size) !important;
+    font-size: calc(var(--die-icon-size) * var(--crux-global-font-size-multiplier)) !important;
     opacity: 0.5;
 }
 
@@ -770,7 +824,7 @@
     line-height: calc(var(--crux-width) * var(--flag-ratio));
     text-align: center;
     font-weight: bold;
-    font-size: calc(var(--crux-width) * var(--flag-text-ratio)) !important;
+    font-size: calc(var(--crux-width) * var(--flag-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 
@@ -816,7 +870,7 @@
     margin-top: 4px 0 10px 0 !important;
     background: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
     line-height: 1.4;
     color: rgba(255, 255, 255, 0.8);
 }
@@ -870,7 +924,7 @@
     border: 1px solid black;
     border-radius: 3px;
     color: black;
-    font-size: 14px !important;
+    font-size: calc(14px * var(--crux-global-font-size-multiplier)) !important;
     box-shadow: 0 0 0 1.7px white;
     display: flex;
     width: 100%;
@@ -888,7 +942,7 @@
     color: var(--end-turn-button-color) !important;
     border-radius: var(--end-turn-button-border-radius) !important;
     padding: var(--end-turn-button-padding) !important;
-    font-size: var(--end-turn-button-font-size) !important;
+    font-size: calc(var(--end-turn-button-font-size) * var(--crux-global-font-size-multiplier)) !important;
     text-align: var(--end-turn-button-text-align) !important;
     font-weight: var(--end-turn-button-font-weight) !important;
     font-family: var(--crux-font-family) !important;
@@ -904,7 +958,7 @@
 }
 
 .crux__initiative i, .crux__end-turn-button i {
-    font-size: 16px !important;
+    font-size: calc(16px * var(--crux-global-font-size-multiplier)) !important;
     margin-right: 8px !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -959,7 +1013,7 @@
     padding: 1px 6px;
     margin: 6px 2px 0px 2px !important;
     font-family: var(--crux-font-family) !important;
-    font-size: calc(var(--crux-width) * var(--text-base-ratio) * 1.1) !important;
+    font-size: calc(var(--crux-width) * var(--text-base-ratio) * 1.1*var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__skills {
@@ -987,11 +1041,11 @@
 }
 
 .crux__skill-row i {
-    font-size: 10px !important;
+    font-size: calc(10px * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__skill-row span {
-    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__skill-row.proficient span {
@@ -1013,7 +1067,7 @@
 .crux__skill-passive {
     text-align: center;
     color: rgba(255, 255, 255, 0.6);
-    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__activities-menu {
@@ -1032,7 +1086,7 @@
     color: white !important;
     padding: 5px 10px !important;
     font-weight: bold !important;
-    font-size: 14px !important;
+    font-size: calc(14px * var(--crux-global-font-size-multiplier)) !important;
     border-top-left-radius: 4px !important;
     border-top-right-radius: 4px !important;
     text-align: center !important;
@@ -1065,7 +1119,7 @@
 
 .crux__activity-name {
     flex: 1 !important;
-    font-size: 13px !important;
+    font-size: calc(13px * var(--crux-global-font-size-multiplier)) !important;
     color: var(--color-light-2) !important;
     background-color: rgba(0, 0, 0, 0.3) !important;
     padding: 2px 5px !important;
@@ -1073,7 +1127,7 @@
 }
 
 .crux__activity-type {
-    font-size: 11px !important;
+    font-size: calc(11px * var(--crux-global-font-size-multiplier)) !important;
     color: var(--color-light-2) !important;
     background-color: rgba(0, 0, 0, 0.3) !important;
     padding: 2px 5px !important;

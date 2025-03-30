@@ -257,9 +257,27 @@ export default class CruxSettings {
             type: String,
             default: ""
         },
-"font-size-multiplier": {
-    name: "Font Size Multiplier",
-    hint: "Adjust the size of all fonts in the interface while maintaining proportions (0.5 = half size, 1.0 = default, 1.5 = 50% larger)",
+"global-font-size-multiplier": {
+    name: "Global Font Size Multiplier",
+    hint: "Adjust the size of all text in the interface (0.5 = half size, 1.0 = default, 1.5 = 50% larger). This affects all text elements throughout the interface.",
+    scope: "client",
+    config: true,
+    type: Number,
+    range: {
+        min: 0.5,
+        max: 1.5,
+        step: 0.1
+    },
+    default: 1.0,
+    onChange: value => {
+        if (game.crux?.app) {
+            this._updateGlobalFontSizeMultiplier();
+        }
+    }
+},
+"content-text-size-multiplier": {
+    name: "Content Text Size Multiplier",
+    hint: "Adjust the size of content text elements like item descriptions, abilities, and skills while maintaining proportions (0.5 = half size, 1.0 = default, 1.5 = 50% larger)",
     scope: "client",
     config: true,
     type: Number,
@@ -269,7 +287,7 @@ export default class CruxSettings {
         step: 0.1
     },
     default: 1.0
-        },
+},
         "taskbar-compatibility": {
             name: "Taskbar Compatibility",
             hint: "Enable compatibility with the Taskbar module (Requires Refresh)",
@@ -347,8 +365,11 @@ export default class CruxSettings {
                     if (key === "tray-mode") {
                         this._handleTrayModeChange(value);
                     }
-                    if (key === "font-size-multiplier") {
-                        this._updateFontSizeMultiplier();
+                    if (key === "content-text-size-multiplier") {
+                        this._updateContentTextSizeMultiplier();
+                    }
+                    if (key === "global-font-size-multiplier") {
+                        this._updateGlobalFontSizeMultiplier();
                     }
                         game.crux.app.render(true);
                     }
@@ -356,7 +377,8 @@ export default class CruxSettings {
             });
         }
         this._updateFontFamily();
-        this._updateFontSizeMultiplier();
+        this._updateContentTextSizeMultiplier();
+        this._updateGlobalFontSizeMultiplier();
     }
     
     /**
@@ -439,32 +461,23 @@ export default class CruxSettings {
     }
     
     /**
-     * Update the font size multiplier CSS variable based on settings
+     * Update the global font size multiplier CSS variable based on settings
      * @private
      */
-    static _updateFontSizeMultiplier() {
-        const fontSizeMultiplier = this.getSetting("font-size-multiplier");
-        document.documentElement.style.setProperty('--crux-font-size-multiplier', fontSizeMultiplier);
-        if (game.crux?.app?.element) {
-            game.crux.app.element.querySelectorAll('.crux__utility-button a').forEach(el => {
-                el.style.fontSize = `calc(var(--crux-width) * var(--text-base-ratio) * ${fontSizeMultiplier})`;
-            });            
-            game.crux.app.element.querySelectorAll('.crux__item .item-name h4').forEach(el => {
-                el.style.fontSize = `calc(var(--crux-width) * var(--text-base-ratio) * ${fontSizeMultiplier})`;
-            });
-            game.crux.app.element.querySelectorAll('.crux__ability').forEach(el => {
-                el.style.fontSize = `calc(var(--crux-width) * 0.05 * ${fontSizeMultiplier})`;
-            });
-            game.crux.app.element.querySelectorAll('.crux__stat-row').forEach(el => {
-                el.style.fontSize = `calc(var(--crux-width) * 0.042 * ${fontSizeMultiplier})`;
-            });
-            game.crux.app.element.querySelectorAll('.crux__skill-row span, .crux__skill-passive').forEach(el => {
-                el.style.fontSize = `calc(var(--crux-width) * var(--text-small-ratio) * ${fontSizeMultiplier})`;
-            });
-            game.crux.app.element.querySelectorAll('.crux__item .item-summary').forEach(el => {
-                el.style.fontSize = `calc(var(--crux-width) * var(--text-small-ratio) * ${fontSizeMultiplier})`;
-            });
-        }
+    static _updateGlobalFontSizeMultiplier() {
+        const globalFontSizeMultiplier = this.getSetting("global-font-size-multiplier");
+        // Just update the CSS variable at the root level
+        document.documentElement.style.setProperty('--crux-global-font-size-multiplier', globalFontSizeMultiplier);
+    }
+    
+    /**
+     * Update the content text size multiplier CSS variable based on settings
+     * @private
+     */
+    static _updateContentTextSizeMultiplier() {
+        const contentTextSizeMultiplier = this.getSetting("content-text-size-multiplier");
+        // Just update the CSS variable at the root level
+        document.documentElement.style.setProperty('--crux-content-text-size-multiplier', contentTextSizeMultiplier);
     }
 
     /**

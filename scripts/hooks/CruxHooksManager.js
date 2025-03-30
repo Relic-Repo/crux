@@ -270,6 +270,23 @@ export default class CruxHooksManager {
     }
 
     /**
+     * Resolve a token, actor, or item into its associated actor
+     * @param {object} candidate - The object to resolve into an actor
+     * @returns {Actor|null} The resolved actor if successful, null otherwise
+     */
+    static resolveActor(candidate) {
+        if (!candidate) return null;
+        if (candidate instanceof CONFIG.Actor.documentClass) {
+            return candidate;
+        } else if (candidate instanceof CONFIG.Token.documentClass) {
+            return candidate.object.actor;
+        } else {
+            console.warn('Expected', candidate, 'to be actor');
+            return null;
+        }
+    }
+
+    /**
      * Ensure an item has the tray visibility flag set
      * @param {Item} item - The item to check and update
      * @param {boolean} [noAwait=false] - Whether to await the flag setting

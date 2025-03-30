@@ -19,6 +19,14 @@ All notable changes to the CRUX module will be documented in this file.
   - System Default - Filter as Crux has it filtered
   - Force Show - Always show the Item in Crux
   - Force Hidden - Never show the Item in Crux
+- New Global Font Setting
+  - New setting to adjust global font sizes
+  - Renamed Font Multiplier to Content Multiplier.
+
+### Fixxed
+- Added back the Resolve Actor method.
+  - oooops.
+
 
 ## [2025-03-25] [2.0.7]
 
