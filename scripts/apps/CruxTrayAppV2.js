@@ -119,11 +119,15 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                     const favoriteId = f.id.startsWith(".") ? f.id.substring(1) : f.id;
                     return favoriteId === `Item.${item.id}` && f.type === "item";
                 });
-
-                if (favoriteEntry && !item.getFlag("crux", "hidden")) {
+                const trayVisibility = item.getFlag("crux", "trayVisibility") || "default";
+                if (trayVisibility === "hide") {
+                    continue;
+                }
+                
+                if (favoriteEntry && (trayVisibility !== "hide")) {
                     sections.favorites.items.push({ item, uses, sort: favoriteEntry.sort });
                 }
-                if (item.type === "spell" && !item.getFlag("crux", "hidden")) {
+                if (item.type === "spell" && (trayVisibility !== "hide")) {
                     const activationType = CruxCompatibility.getActivationType(item);
                     const hasActivities = CruxCompatibility.isDnDv4() ? CruxCompatibility.hasActivities(item, false) : activationType && activationType !== "none";                    
                     if (actor.type === "npc" && settingShowAllNpcItems) {

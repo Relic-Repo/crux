@@ -11,6 +11,7 @@ import CruxSettings from "./settings/CruxSettings.js";
 import CruxCompatibility from "./utils/CruxCompatibility.js";
 import CruxDomUtils from "./utils/CruxDomUtils.js";
 import CruxUtils from "./utils/CruxUtilityManager.js";
+import CruxItemFormInjector from "./utils/CruxItemFormInjector.js";
 
 // Initialize Handlebars helpers
 Handlebars.registerHelper({
@@ -49,6 +50,7 @@ Hooks.once('init', () => {
     console.log("Crux | Initializing Crux module");
     CruxSettings.registerSettings();
     CruxHooksManager.init();
+    CruxItemFormInjector.init(); // Initialize the item form injector
     game.crux = {
         CruxTrayAppV2,
         CruxEffectsAppV2,
@@ -56,7 +58,8 @@ Hooks.once('init', () => {
         utils: {
             compatibility: CruxCompatibility,
             dom: CruxDomUtils,
-            cruxUtils: CruxUtils
+            cruxUtils: CruxUtils,
+            itemFormInjector: CruxItemFormInjector
         }
     };
 });
@@ -70,5 +73,6 @@ export {
     CruxSettings,
     CruxCompatibility,
     CruxDomUtils,
-    CruxUtils
+    CruxUtils,
+    CruxItemFormInjector
 };

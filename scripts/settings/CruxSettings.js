@@ -203,14 +203,14 @@ export default class CruxSettings {
         },
         "tray-size": {
             name: "Tray Size",
-            hint: "Set the overall size of the tray interface (200px–300px).",
+            hint: "Set the overall size of the tray interface.",
             scope: "client",
             config: true,
             type: Number,
             range: {
                 min: 200,
                 max: 300,
-                step: 10
+                step: 1
             },
             default: 260
         },
@@ -310,6 +310,22 @@ export default class CruxSettings {
                 "fa-thin fa-dice-d20": "D20"
             },
             default: "fa-thin fa-dragon"
+        },
+        "auto-select-first-activity": {
+            name: "Auto-select First Activity",
+            hint: "When enabled, Crux will automatically use the first activity without showing the activity selection dialog. When disabled, the system will handle activity selection according to its own rules.",
+            scope: "client",
+            config: true,
+            type: Boolean,
+            default: false
+        },
+        "process-compendium-items": {
+            name: "Process Compendium Items",
+            hint: "When enabled, Crux will process items in unlocked compendiums to set tray visibility flags. Disable this if you experience performance issues during startup.",
+            scope: "client",
+            config: true,
+            type: Boolean,
+            default: false
         }
     };
 

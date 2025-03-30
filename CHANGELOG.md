@@ -2,6 +2,24 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2025-03-30] [2.0.8]
+
+### Added
+- New setting to control automatic activity selection:
+  - When disabled (default), the system's activity selection dialog will be shown
+  - When enabled, Crux will automatically use the first activity without showing the dialog
+- New checkbox in DnD item forms to mark activities as "riders":
+  - Appears in the Identity tab of item sheets
+  - Controls the `flags.dnd5e.riders.activity` flag
+  - Allows filtering activities that should not appear in the item use menu
+- New setting to control compendium item processing:
+  - Allows disabling compendium item processing for better performance
+  - Enabled by default
+- New setting in Items Details panel to change default visibility state of the Item in Crux
+  - System Default - Filter as Crux has it filtered
+  - Force Show - Always show the Item in Crux
+  - Force Hidden - Never show the Item in Crux
+
 ## [2025-03-25] [2.0.7]
 
 ### Added

@@ -2,6 +2,7 @@ import CruxTrayAppV2 from "../apps/CruxTrayAppV2.js";
 import CruxStateManager from "../state/CruxStateManager.js";
 import CruxEffectsAppV2 from "../apps/CruxEffectsAppV2.js";
 import CruxSettings from "../settings/CruxSettings.js";
+import CruxCompatibility from "../utils/CruxCompatibility.js";
 
 /**
  * Manages hook registrations and initialization for Crux
@@ -66,6 +67,38 @@ export default class CruxHooksManager {
                 const isCompatEnabled = game.settings.get("crux", "taskbar-compatibility");
                 document.body.classList.toggle("crux-taskbar-compat", isCompatEnabled);
             }
+            console.log("Crux | Initializing tray visibility flags for all items");
+            for (const item of game.items) {
+                this._ensureItemTrayVisibility(item, true);
+            }
+            for (const actor of game.actors) {
+                for (const item of actor.items) {
+                    this._ensureItemTrayVisibility(item, true);
+                }
+            }
+            const processCompendiums = game.settings.get("crux", "process-compendium-items") !== false;
+            if (processCompendiums) {
+                console.log("Crux | Processing compendium items (this may take a moment)");
+                for (const pack of game.packs) {
+                    if (pack.documentName === "Item" && !pack.locked) {
+                        try {
+                            const items = await pack.getDocuments();
+                            const batchSize = 50;
+                            for (let i = 0; i < items.length; i += batchSize) {
+                                const batch = items.slice(i, i + batchSize);
+                                for (const item of batch) {
+                                    this._ensureItemTrayVisibility(item, true);
+                                }
+                                if (i + batchSize < items.length) {
+                                    await new Promise(resolve => setTimeout(resolve, 0));
+                                }
+                            }
+                        } catch (error) {
+                            console.error(`Crux | Error processing compendium ${pack.metadata.label}:`, error);
+                        }
+                    }
+                }
+            }
         });        
 
         Hooks.on("cruxFilterActivities", (activities, item) => {
@@ -105,7 +138,7 @@ export default class CruxHooksManager {
             }
         });
 
-        const itemHooks = ["updateItem", "deleteItem", "createItem"];
+        const itemHooks = ["updateItem", "deleteItem"];
         itemHooks.forEach(hook => {
             Hooks.on(hook, (item) => {
                 if (!game.crux?.app) return;
@@ -114,6 +147,19 @@ export default class CruxHooksManager {
                 }
             });
         });
+        Hooks.on("createItem", (item) => {
+            this._ensureItemTrayVisibility(item);
+            if (!game.crux?.app) return;
+            if (game.crux.state.isActorActive(item.actor)) {
+                game.crux.app.render();
+            }
+        });
+        if (!CruxCompatibility.isDnDv4()) {
+            Hooks.on("createOwnedItem", (actor, itemData) => {
+                const item = actor.items.find(i => i.id === itemData._id);
+                if (item) this._ensureItemTrayVisibility(item);
+            });
+        }
 
         Hooks.on("updateCombat", () => {
             if (!game.crux?.app) return;
@@ -212,23 +258,6 @@ export default class CruxHooksManager {
     }
 
     /**
-     * Resolve a token, actor, or item into its associated actor
-     * @param {object} candidate - The object to resolve into an actor
-     * @returns {Actor|null} The resolved actor if successful, null otherwise
-     */
-    static resolveActor(candidate) {
-        if (!candidate) return null;
-        if (candidate instanceof CONFIG.Actor.documentClass) {
-            return candidate;
-        } else if (candidate instanceof CONFIG.Token.documentClass) {
-            return candidate.object.actor;
-        } else {
-            console.warn('Expected', candidate, 'to be actor');
-            return null;
-        }
-    }
-
-    /**
      * Get the currently active actor in combat
      * @returns {Actor|null} The active actor if in combat, null otherwise
      */
@@ -238,5 +267,39 @@ export default class CruxHooksManager {
         const combatant = combat.combatants.get(combat.current.combatantId);
         if (!combatant) return null;
         return this.resolveActor(combatant.token);
+    }
+
+    /**
+     * Ensure an item has the tray visibility flag set
+     * @param {Item} item - The item to check and update
+     * @param {boolean} [noAwait=false] - Whether to await the flag setting
+     * @private
+     */
+    static _ensureItemTrayVisibility(item, noAwait = false) {
+        if (!item) return;
+        
+        try {
+            const visibilitySetting = item.getFlag("crux", "trayVisibility");
+            if (visibilitySetting === undefined) {
+                if (item._processingTrayVisibility) return;
+                item._processingTrayVisibility = true;
+                const flagPromise = item.setFlag("crux", "trayVisibility", "default");
+                if (noAwait) {
+                    flagPromise.catch(err => {
+                        console.error("Crux | Error setting tray visibility flag:", err);
+                    }).finally(() => {
+                        delete item._processingTrayVisibility;
+                    });
+                    return;
+                } else {
+                    return flagPromise.finally(() => {
+                        delete item._processingTrayVisibility;
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Crux | Error in _ensureItemTrayVisibility:", error);
+            if (item) delete item._processingTrayVisibility;
+        }
     }
 }

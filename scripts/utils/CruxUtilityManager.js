@@ -60,6 +60,63 @@ export default class CruxUtils {
                 }));
             }
         }
+        if (activityId && item?.system?.activities) {
+            let activity = null;
+            try {
+                if (item.system.activities.contents) {
+                    if (item.system.activities.contents[activityId]) {
+                        activity = item.system.activities.contents[activityId];
+                    } else {
+                        const allActivities = Object.values(item.system.activities.contents)
+                            .filter(a => a !== undefined);
+                        activity = allActivities.find(a => a.id === activityId || a._id === activityId);
+                    }
+                } else if (item.system.activities instanceof Map) {
+                    activity = item.system.activities.get(activityId);
+                }
+            } catch (e) {
+                console.warn("❌ Error finding activity:", e);
+            }
+            if (activity) {
+                const placesTemplate = item.hasAreaTarget || 
+                                      (item.system.target?.type === "template") || 
+                                      (activity.target?.type === "template");
+                
+                if (placesTemplate) {
+                    Hooks.once("updateMeasuredTemplate", (template, updates, options, userId) => {
+                        if (userId !== game.user.id) return;
+                        ui.controls.initialize({ tool: "select", control: "token" });
+                        if (game.crux?.lastSelectedTokens?.length > 0) {
+                            const tokenId = game.crux.lastSelectedTokens[0].tokenId;
+                            const actorId = game.crux.lastSelectedTokens[0].actorId;
+                            let token = canvas.tokens.placeables.find(t => t.id === tokenId);
+                            if (!token && actorId) {
+                                token = canvas.tokens.placeables.find(t => t.actor?.id === actorId);
+                            }                        
+                            if (token) {
+                                token.control();
+                            }
+                        }                    
+                        if (game.crux) {
+                            game.crux.cruxItemActive = false;
+                        }
+                    });
+                } else {
+                    setTimeout(() => {
+                        if (game.crux) {
+                            game.crux.cruxItemActive = false;
+                        }
+                    }, 500);
+                }
+                
+                const result = activity.use({ 
+                    event,
+                    configure: true,
+                    createScrollItem: false 
+                });
+                return result;
+            }
+        }
         const activities = CruxUtils.filterActivities(item);
         if (activityId) {
             const activity = activities.find(a => a.id === activityId);
@@ -105,43 +162,46 @@ export default class CruxUtils {
             return result;
         }        
         if (activities.length > 0 && event?.fromCrux) {
-            const firstActivity = activities[0];
-            const placesTemplate = item.hasAreaTarget || 
-                                  (item.system.target?.type === "template") || 
-                                  (firstActivity.target?.type === "template");            
-            if (placesTemplate) {
-                Hooks.once("updateMeasuredTemplate", (template, updates, options, userId) => {
-                    if (userId !== game.user.id) return;
-                    ui.controls.initialize({ tool: "select", control: "token" });
-                    if (game.crux?.lastSelectedTokens?.length > 0) {
-                        const tokenId = game.crux.lastSelectedTokens[0].tokenId;
-                        const actorId = game.crux.lastSelectedTokens[0].actorId;
-                        let token = canvas.tokens.placeables.find(t => t.id === tokenId);
-                        if (!token && actorId) {
-                            token = canvas.tokens.placeables.find(t => t.actor?.id === actorId);
+            const autoSelectFirstActivity = game.settings.get("crux", "auto-select-first-activity");
+            if (autoSelectFirstActivity) {
+                const firstActivity = activities[0];
+                const placesTemplate = item.hasAreaTarget || 
+                                      (item.system.target?.type === "template") || 
+                                      (firstActivity.target?.type === "template");            
+                if (placesTemplate) {
+                    Hooks.once("updateMeasuredTemplate", (template, updates, options, userId) => {
+                        if (userId !== game.user.id) return;
+                        ui.controls.initialize({ tool: "select", control: "token" });
+                        if (game.crux?.lastSelectedTokens?.length > 0) {
+                            const tokenId = game.crux.lastSelectedTokens[0].tokenId;
+                            const actorId = game.crux.lastSelectedTokens[0].actorId;
+                            let token = canvas.tokens.placeables.find(t => t.id === tokenId);
+                            if (!token && actorId) {
+                                token = canvas.tokens.placeables.find(t => t.actor?.id === actorId);
+                            }
+                            
+                            if (token) {
+                                token.control();
+                            }
+                        }                    
+                        if (game.crux) {
+                            game.crux.cruxItemActive = false;
                         }
-                        
-                        if (token) {
-                            token.control();
+                    });
+                } else {
+                    setTimeout(() => {
+                        if (game.crux) {
+                            game.crux.cruxItemActive = false;
                         }
-                    }                    
-                    if (game.crux) {
-                        game.crux.cruxItemActive = false;
-                    }
+                    }, 500);
+                }            
+                const result = firstActivity.use({ 
+                    event,
+                    configure: true,
+                    createScrollItem: false 
                 });
-            } else {
-                setTimeout(() => {
-                    if (game.crux) {
-                        game.crux.cruxItemActive = false;
-                    }
-                }, 500);
-            }            
-            const result = firstActivity.use({ 
-                event,
-                configure: true,
-                createScrollItem: false 
-            });
-            return result;
+                return result;
+            }
         }        
         let useOptions = {
             legacy: false,
