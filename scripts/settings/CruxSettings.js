@@ -139,6 +139,14 @@ export default class CruxSettings {
             type: Boolean,
             default: false
         },
+        "exclude-container-items": {
+            name: "crux.settings.exclude-container-items.name",
+            hint: "crux.settings.exclude-container-items.hint",
+            scope: "client",
+            config: true,
+            type: Boolean,
+            default: true
+        },
         "skill-mode": {
             name: "Skill List Location",
             hint: "If 'Collapsible at the top' is selected, the skill toggle hot key (in control settings) can be used to toggle the skill list open and closed, opening the panel if needed. If skills are at the bottom of the panel, the hotkey automatically scrolls to reveal them.",
@@ -466,7 +474,6 @@ export default class CruxSettings {
      */
     static _updateGlobalFontSizeMultiplier() {
         const globalFontSizeMultiplier = this.getSetting("global-font-size-multiplier");
-        // Just update the CSS variable at the root level
         document.documentElement.style.setProperty('--crux-global-font-size-multiplier', globalFontSizeMultiplier);
     }
     
@@ -476,7 +483,6 @@ export default class CruxSettings {
      */
     static _updateContentTextSizeMultiplier() {
         const contentTextSizeMultiplier = this.getSetting("content-text-size-multiplier");
-        // Just update the CSS variable at the root level
         document.documentElement.style.setProperty('--crux-content-text-size-multiplier', contentTextSizeMultiplier);
     }
 

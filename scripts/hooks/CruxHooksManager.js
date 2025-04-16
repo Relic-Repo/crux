@@ -36,44 +36,60 @@ export default class CruxHooksManager {
                 if (game.crux.cruxItemActive === undefined) game.crux.cruxItemActive = false;
                 if (game.crux.lastUsedItem === undefined) game.crux.lastUsedItem = null;
             }
-            
             await game.crux.app.render(true);
             game.crux.app._initializeTraySize();
             if (game.crux.app.element && document.body.contains(game.crux.app.element)) {
                 const trayMode = game.settings.get("crux", "tray-mode");
+                const interfaceEl = document.querySelector("#interface");
                 if (trayMode === "always") {
-                    game.crux.app.element.classList.add("active");
-                    game.crux.app.element.classList.add("always-on");
-                    document.querySelector("#interface").classList.add("crux-active");
+                    game.crux.app.element.classList.add("active", "always-on");
+                    if (interfaceEl) interfaceEl.classList.add("crux-active");
                 } else if (trayMode === "auto") {
-                    const hasSelectedTokens = canvas.tokens.controlled.length > 0;                    
+                    const hasSelectedTokens = canvas.tokens.controlled.length > 0;
                     if (hasSelectedTokens) {
                         game.crux.app.element.classList.add("active");
-                        document.querySelector("#interface").classList.add("crux-active");
+                        if (interfaceEl) interfaceEl.classList.add("crux-active");
                     } else {
                         game.crux.app.element.classList.remove("active");
-                        document.querySelector("#interface").classList.remove("crux-active");
+                        if (interfaceEl) interfaceEl.classList.remove("crux-active");
                     }
                 }
             }
-            
             game.settings.settings.get("crux.tray-mode").onChange = (value) => {
                 if (game.crux?.app) {
                     CruxSettings._handleTrayModeChange(value);
                 }
             };
-            
             if (game.modules.get("foundry-taskbar")?.active) {
                 const isCompatEnabled = game.settings.get("crux", "taskbar-compatibility");
                 document.body.classList.toggle("crux-taskbar-compat", isCompatEnabled);
             }
-            console.log("Crux | Initializing tray visibility flags for all items");
+            console.log("Crux | Checking tray visibility flags for all items...");        
+            let needsUpdate = false;
+            let updateCount = 0;
+            const checkAndUpdate = async (item) => {
+                if (!item) return;
+                try {
+                    const visibilitySetting = item.getFlag("crux", "trayVisibility");
+                    if (visibilitySetting === undefined) {
+                        if (!needsUpdate) {
+                            needsUpdate = true;
+                            ui.notifications.info("Crux: Initializing tray visibility flags for items. This may take a moment.");
+                        }
+                        if (await this._ensureItemTrayVisibility(item)) {
+                            updateCount++;
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Crux | Error checking/updating tray visibility for item ${item?.name} (${item?.id}):`, error);
+                }
+            };
             for (const item of game.items) {
-                this._ensureItemTrayVisibility(item, true);
+                await checkAndUpdate(item);
             }
             for (const actor of game.actors) {
                 for (const item of actor.items) {
-                    this._ensureItemTrayVisibility(item, true);
+                    await checkAndUpdate(item);
                 }
             }
             const processCompendiums = game.settings.get("crux", "process-compendium-items") !== false;
@@ -86,9 +102,8 @@ export default class CruxHooksManager {
                             const batchSize = 50;
                             for (let i = 0; i < items.length; i += batchSize) {
                                 const batch = items.slice(i, i + batchSize);
-                                for (const item of batch) {
-                                    this._ensureItemTrayVisibility(item, true);
-                                }
+                                const promises = batch.map(item => checkAndUpdate(item));
+                                await Promise.all(promises);
                                 if (i + batchSize < items.length) {
                                     await new Promise(resolve => setTimeout(resolve, 0));
                                 }
@@ -99,7 +114,12 @@ export default class CruxHooksManager {
                     }
                 }
             }
-        });        
+            if (updateCount > 0) {
+                console.log(`Crux | Initialized tray visibility flags on ${updateCount} item(s).`);
+            } else if (!needsUpdate) {
+                console.log("Crux | All item tray visibility flags are already initialized.");
+            }
+        });
 
         Hooks.on("cruxFilterActivities", (activities, item) => {
         });
@@ -290,33 +310,44 @@ export default class CruxHooksManager {
      * Ensure an item has the tray visibility flag set
      * @param {Item} item - The item to check and update
      * @param {boolean} [noAwait=false] - Whether to await the flag setting
+     * @param {boolean} [noAwait=false] - Whether to await the flag setting (DEPRECATED - use async/await instead)
+     * @returns {Promise<boolean>} True if the flag was set, false otherwise.
      * @private
      */
-    static _ensureItemTrayVisibility(item, noAwait = false) {
-        if (!item) return;
-        
+    static async _ensureItemTrayVisibility(item, noAwait = false) {
+        if (!item) return false;
         try {
             const visibilitySetting = item.getFlag("crux", "trayVisibility");
             if (visibilitySetting === undefined) {
-                if (item._processingTrayVisibility) return;
+                // Skip if user doesn't have permission
+                if (!game.user.isGM && !item.isOwner) {
+                    return false;
+                }
+                
+                if (item._processingTrayVisibility) return false; 
                 item._processingTrayVisibility = true;
-                const flagPromise = item.setFlag("crux", "trayVisibility", "default");
+                const setFlag = async () => {
+                    try {
+                        await item.setFlag("crux", "trayVisibility", "default");
+                        return true;
+                    } catch (err) {
+                        console.error(`Crux | Error setting tray visibility flag for item ${item.name} (${item.id}):`, err);
+                        return false;
+                    } finally {
+                        delete item._processingTrayVisibility;
+                    }
+                };
                 if (noAwait) {
-                    flagPromise.catch(err => {
-                        console.error("Crux | Error setting tray visibility flag:", err);
-                    }).finally(() => {
-                        delete item._processingTrayVisibility;
-                    });
-                    return;
+                    setFlag();
+                    return true;
                 } else {
-                    return flagPromise.finally(() => {
-                        delete item._processingTrayVisibility;
-                    });
+                    return await setFlag();
                 }
             }
         } catch (error) {
-            console.error("Crux | Error in _ensureItemTrayVisibility:", error);
-            if (item) delete item._processingTrayVisibility;
+            console.error(`Crux | Error in _ensureItemTrayVisibility for item ${item?.name} (${item?.id}):`, error);
+            if (item) delete item._processingTrayVisibility; 
         }
+        return false;
     }
 }

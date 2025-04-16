@@ -2,6 +2,13 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2025-04-16] [2.0.9]
+
+### Fixed
+- Alignment issues for Skills section
+- Toggle Skills keybinding
+- Permission Checks when updating Items with Crux Flags
+
 ## [2025-03-30] [2.0.8]
 
 ### Added

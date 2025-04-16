@@ -1017,6 +1017,9 @@
 }
 
 .crux__skills {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 5px;
     margin: 0 3px 5px 0 !important;
     display: none;
 }
@@ -1034,10 +1037,29 @@
     transform: rotate(-180deg);
 }
 
+.crux__skill-container.is-open .crux__skills, 
+.crux__skill-container.append .crux__skills {
+    display: grid;
+}
+
 .crux__skill-row {
-    padding: 2px 3px;
-    gap: 5px;
-    align-items: baseline;
+    display: contents;
+}
+
+.crux__skill-row > div {
+    padding: 0px 1px !important;
+    align-items: center !important;
+    display: flex !important;
+    border: none !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    height: 10px !important;
+    min-height: 0 !important;
+}
+
+.crux__skill-row:nth-child(even) > div {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    height: 18px !important;
 }
 
 .crux__skill-row i {
@@ -1046,26 +1068,36 @@
 
 .crux__skill-row span {
     font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+    line-height: 1 !important;
 }
 
 .crux__skill-row.proficient span {
     font-weight: bold;
 }
 
-.crux__skill-row:nth-child(even) {
-    background-color: rgba(255, 255, 255, 0.1);
+/* Proficiency icon column */
+.crux__skill-row .flex0 {
+    justify-content: center;
+    width: 20px;
 }
 
+/* Skill name column */
 .crux__skill-label {
-    flex: 5;
+    padding-left: 5px;
 }
 
+/* Modifier column */
 .crux__skill-bonus {
     text-align: center;
+    justify-content: center;
+    width: 30px;
 }
 
+/* Passive column */
 .crux__skill-passive {
     text-align: center;
+    justify-content: center;
+    width: 40px;
     color: rgba(255, 255, 255, 0.6);
     font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }

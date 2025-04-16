@@ -131,7 +131,11 @@
             "show-inventory-section": "Show Inventory Section",
             "show-inventory-section-hint": "Display the Inventory section in the tray",
             "show-all-npc-items": "Show All NPC Items",
-            "show-all-npc-items-hint": "Display all items for NPCs in the tray, not just passive ones"
+            "show-all-npc-items-hint": "Display all items for NPCs in the tray, not just passive ones",
+            "exclude-container-items": {
+                "name": "Exclude Items Within Containers",
+                "hint": "If enabled, items stored inside container items (like backpacks or pouches) will not be displayed in the Crux tray"
+            }
         },
         "item-context": {
             "show": "Show in Crux",

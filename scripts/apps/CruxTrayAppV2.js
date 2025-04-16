@@ -69,6 +69,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         const settingSkillMode = game.settings.get("crux", "skill-mode");
         const settingSortAlphabetically = game.settings.get("crux", "sort-alphabetic");
         const settingShowAllNpcItems = game.settings.get("crux", "show-all-npc-items");
+        const settingExcludeContainerItems = game.settings.get("crux", "exclude-container-items");
         const settingSkillsExpanded = game.settings.get("crux", "skills-expanded") === "open";
         const settingMainSectionsExpanded = game.settings.get("crux", "main-sections-expanded") === "open";
         const settingSubSectionsExpanded = game.settings.get("crux", "sub-sections-expanded") === "open";
@@ -111,7 +112,12 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 passive: { items: [], title: "crux.category.passive" }
             };
 
-            for (let item of actor.items) {
+            let itemsToProcess = actor.items;
+            if (settingExcludeContainerItems) {
+                itemsToProcess = itemsToProcess.filter(item => item.container === undefined);
+            }
+            
+            for (let item of itemsToProcess) {
                 const itemData = item.system;
                 const uses = this._calculateUsesForItem(item);
                 const hasUses = settingShowNoUses || !uses || uses.available;
@@ -942,6 +948,25 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     }
 
     _onToggleSkills(event, target) {
+        if (!event && !target) {
+            const skillContainers = this.element.querySelectorAll('.crux__skill-container');
+            if (!skillContainers.length) return;
+            
+            skillContainers.forEach(container => {
+                container.classList.toggle("is-open");
+                
+                const actors = game.crux.state.getActiveActors();
+                if (actors.length === 1) {
+                    const actor = actors[0];
+                    game.crux.state.updateActorState(actor, {
+                        scroll: this.element.querySelector('.crux__container')?.scrollTop,
+                        showSkills: container.classList.contains('is-open')
+                    });
+                }
+            });
+            return;
+        }
+        
         const skillContainer = target.closest('.crux__skill-container');
         if (!skillContainer) return;
         skillContainer.classList.toggle("is-open");        
@@ -1611,21 +1636,18 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             const input = editMode.querySelector('input');
             input.focus();
             input.select();
-            const onKeyDown = (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    this._saveQSpinnerChanges(target);
-                    target.dataset.edit = "false";
-                    displayMode.classList.remove('hidden');
-                    editMode.classList.add('hidden');
-                    input.removeEventListener('keydown', onKeyDown);
-                }
-            };            
-            input.addEventListener('keydown', onKeyDown);
-            this._addSpinnerClickAwayHandler(target);
+
+            const onBlur = () => {
+                this._saveQSpinnerChanges(target);
+                target.dataset.edit = "false";
+                displayMode.classList.remove('hidden');
+                editMode.classList.add('hidden');
+                input.removeEventListener('blur', onBlur);
+            };
+            input.addEventListener('blur', onBlur);
         }
     }
-    
+
     /**
      * Handle U spinner toggle
      * @param {Event} event - The triggering event
@@ -1645,46 +1667,18 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             const input = editMode.querySelector('input');
             input.focus();
             input.select();
-            const onKeyDown = (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    this._saveUSpinnerChanges(target);
-                    target.dataset.edit = "false";
-                    displayMode.classList.remove('hidden');
-                    editMode.classList.add('hidden');
-                    input.removeEventListener('keydown', onKeyDown);
-                }
+
+            const onBlur = () => {
+                this._saveUSpinnerChanges(target);
+                target.dataset.edit = "false";
+                displayMode.classList.remove('hidden');
+                editMode.classList.add('hidden');
+                input.removeEventListener('blur', onBlur);
             };
-            
-            input.addEventListener('keydown', onKeyDown);
-            this._addSpinnerClickAwayHandler(target);
+            input.addEventListener('blur', onBlur);
         }
     }
-    
-    /**
-     * Add a document click handler to detect clicks outside the spinner
-     * @param {HTMLElement} spinner - The spinner element
-     * @private
-     */
-    _addSpinnerClickAwayHandler(spinner) {
-        const onDocumentClick = (e) => {
-            if (!spinner.contains(e.target)) {
-                if (spinner.classList.contains('q-spinner')) {
-                    this._saveQSpinnerChanges(spinner);
-                } else if (spinner.classList.contains('u-spinner')) {
-                    this._saveUSpinnerChanges(spinner);
-                }
-                spinner.dataset.edit = "false";
-                spinner.querySelector('.display-mode').classList.remove('hidden');
-                spinner.querySelector('.edit-mode').classList.add('hidden');
-                document.removeEventListener('click', onDocumentClick);
-            }
-        };
-        setTimeout(() => {
-            document.addEventListener('click', onDocumentClick);
-        }, 10);
-    }
-    
+
     /**
      * Save changes from Q spinner
      * @param {HTMLElement} spinner - The spinner element
@@ -1692,15 +1686,21 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      */
     async _saveQSpinnerChanges(spinner) {
         const itemUuid = spinner.dataset.itemUuid;
-        if (!itemUuid) return;        
-        const item = fromUuidSync(itemUuid);
-        if (!item) return;        
+        if (!itemUuid) return;
+        const item = await fromUuid(itemUuid);if (!item || !item.isOwner || !item.parent) return;
         const input = spinner.querySelector('input');
-        const value = Math.max(0, parseInt(input.value) || 0);
-        await item.update({"system.quantity": value});
+        const value = Math.max(0, parseInt(input.value) || 0);        
+        await item.parent.updateEmbeddedDocuments("Item", [{
+            _id: item.id,
+            "system.quantity": value
+        }]);        
         spinner.querySelector('.value').textContent = value;
+        input.value = value;
+        if (item.sheet?.rendered) {
+            item.sheet.render(false);
+        }
     }
-    
+
     /**
      * Save changes from U spinner
      * @param {HTMLElement} spinner - The spinner element
@@ -1708,16 +1708,23 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      */
     async _saveUSpinnerChanges(spinner) {
         const itemUuid = spinner.dataset.itemUuid;
-        if (!itemUuid) return;
-        
-        const item = fromUuidSync(itemUuid);
-        if (!item) return;
-        
+        if (!itemUuid) return;    
+        const item = await fromUuid(itemUuid);
+        if (!item || !item.isOwner || !item.parent) return;    
         const input = spinner.querySelector('input');
         const max = parseInt(input.max) || 0;
-        const value = Math.min(max, Math.max(0, parseInt(input.value) || 0));
-        await item.update({"system.uses.value": value});
+        const rawValue = parseInt(input.value);
+        const value = Math.min(max, Math.max(0, isNaN(rawValue) ? 0 : rawValue));
+        const spent = max - value;    
+        await item.parent.updateEmbeddedDocuments("Item", [{
+            _id: item.id,
+            "system.uses.spent": spent
+        }]);    
         spinner.querySelector('.value').textContent = `${value}/${max}`;
+        input.value = value;    
+        if (item.sheet?.rendered) {
+            item.sheet.render(false);
+        }
     }
 
     async _onItemMouseDown(event) {
