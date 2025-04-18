@@ -5,9 +5,9 @@
     "crux.error.useItemFailed": "Erro ao usar o item no alvo",
     "crux": {
         "action": {
-            "dash": "Disparada",
+            "dash": "Disparar",
             "disengage": "Desengajar",
-            "dodge": "Esquiva",
+            "dodge": "Esquivar",
             "grapple": "Agarrar",
             "hide": "Esconder",
             "shove": "Empurrar"
@@ -15,7 +15,7 @@
         "short-rest": "Descanso Curto",
         "long-rest": "Descanso Longo",
         "control-icon": "Alternar bandeja de ações",
-        "end-turn": "Finalizar Turno",
+        "end-turn": "Encerrar Turno",
         "roll-initiative": "Rolar iniciativa!",
         "add-to-combat": "Adicionar ao Combate",
         "set-elevation": "Definir Elevação",
@@ -66,15 +66,15 @@
             "atwill": "À Vontade",
             "pact": "Magia de Pacto",
             "spell0": "Truque",
-            "spell1": "Nível 1",
-            "spell2": "Nível 2",
-            "spell3": "Nível 3",
-            "spell4": "Nível 4",
-            "spell5": "Nível 5",
-            "spell6": "Nível 6",
-            "spell7": "Nível 7",
-            "spell8": "Nível 8",
-            "spell9": "Nível 9",
+            "spell1": "1º Nível",
+            "spell2": "2º Nível",
+            "spell3": "3º Nível",
+            "spell4": "4º Nível",
+            "spell5": "5º Nível",
+            "spell6": "6º Nível",
+            "spell7": "7º Nível",
+            "spell8": "8º Nível",
+            "spell9": "9º Nível",
             "passive": "Passivo",
             "general": "Características Gerais"
         },
@@ -131,7 +131,11 @@
             "show-inventory-section": "Mostrar Seção de Inventário",
             "show-inventory-section-hint": "Exibir a seção de Inventário na bandeja",
             "show-all-npc-items": "Mostrar Todos os Itens de NPCs",
-            "show-all-npc-items-hint": "Exibir todos os itens para NPCs na bandeja, não apenas os passivos"
+            "show-all-npc-items-hint": "Exibir todos os itens para NPCs na bandeja, não apenas os passivos",
+            "exclude-container-items": {
+                "name": "Excluir Itens em Recipientes",
+                "hint": "Se ativado, os itens armazenados dentro de itens de recipientes (como mochilas ou bolsas) não serão exibidos na bandeja do Crux."
+            }
         },
         "item-context": {
             "show": "Mostrar no Crux",
