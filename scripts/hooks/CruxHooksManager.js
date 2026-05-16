@@ -25,11 +25,12 @@ export default class CruxHooksManager {
         Hooks.once('ready', async () => {
             if (!game.crux?.app) {
                 game.crux = {
+                    ...game.crux,
                     app: new CruxTrayAppV2(),
                     state: CruxStateManager.getInstance(),
-                    lastSelectedTokens: [],
-                    cruxItemActive: false,
-                    lastUsedItem: null
+                    lastSelectedTokens: game.crux?.lastSelectedTokens ?? [],
+                    cruxItemActive: game.crux?.cruxItemActive ?? false,
+                    lastUsedItem: game.crux?.lastUsedItem ?? null
                 };
             } else {
                 if (!game.crux.lastSelectedTokens) game.crux.lastSelectedTokens = [];
@@ -60,10 +61,16 @@ export default class CruxHooksManager {
                     CruxSettings._handleTrayModeChange(value);
                 }
             };
-            if (game.modules.get("foundry-taskbar")?.active) {
-                const isCompatEnabled = game.settings.get("crux", "taskbar-compatibility");
-                document.body.classList.toggle("crux-taskbar-compat", isCompatEnabled);
-            }
+            const isTaskbarActive = game.modules.get("foundry-taskbar")?.active;
+            const isCompatEnabled = game.settings.get("crux", "taskbar-compatibility");
+            const taskbar = document.querySelector("#taskbar");
+            const taskbarHeight = taskbar?.getBoundingClientRect().height ?? 0;
+            const shouldOffsetTray = isTaskbarActive && isCompatEnabled && taskbarHeight > 0;
+            const offset = shouldOffsetTray ? `${taskbarHeight}px` : '0px';
+            document.documentElement.style.setProperty('--ft-height', `${taskbarHeight || 50}px`);
+            document.documentElement.style.setProperty('--crux-tray-bottom-offset', offset);
+            document.body.style.setProperty('--crux-tray-bottom-offset', offset);
+            document.body.classList.toggle("crux-taskbar-compat", shouldOffsetTray);
             console.log("Crux | Checking tray visibility flags for all items...");        
             let needsUpdate = false;
             let updateCount = 0;
@@ -319,7 +326,6 @@ export default class CruxHooksManager {
         try {
             const visibilitySetting = item.getFlag("crux", "trayVisibility");
             if (visibilitySetting === undefined) {
-                // Skip if user doesn't have permission
                 if (!game.user.isGM && !item.isOwner) {
                     return false;
                 }

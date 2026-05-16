@@ -11,6 +11,71 @@ export default class CruxCompatibility {
     }
 
     /**
+     * Check if DnD5e system version is 5.1 or higher
+     * @returns {boolean} True if system version is 5.1+
+     */
+    static isDnDv5_1() {
+        const system = game.system;
+        if (system.id !== "dnd5e") return false;
+        const [major, minor] = system.version.split('.').map(n => parseInt(n));
+        return major > 5 || (major === 5 && minor >= 1);
+    }
+
+    /**
+     * Map from new v5.1+ method values to the legacy preparation.mode values
+     * used by the categorization switch statement.
+     * In v5.1+, "spell" replaces "prepared", other values may also differ.
+     */
+    static METHOD_TO_LEGACY = {
+        "spell": "prepared",
+        "always": "always",
+        "atwill": "atwill",
+        "innate": "innate",
+        "pact": "pact",
+        "apothecary": "apothecary"
+    };
+
+    /**
+     * Get the spell preparation mode for an item, handling the v5.1+ deprecation
+     * of preparation.mode in favor of SpellData#method.
+     * Returns legacy-compatible values (e.g. "prepared" instead of "spell")
+     * so existing switch/case logic continues to work.
+     * @param {Item} item - The spell item
+     * @returns {string|null} The preparation mode (legacy-compatible)
+     */
+    static getSpellMethod(item) {
+        if (!item?.system) return null;
+        if (this.isDnDv5_1()) {
+            const method = item.system.method;
+            if (method !== undefined && method !== null) {
+                return this.METHOD_TO_LEGACY[method] ?? method;
+            }
+            return item.system.preparation?.mode ?? null;
+        }
+        return item.system.preparation?.mode ?? null;
+    }
+
+    /**
+     * Get whether a spell is prepared, handling the v5.1+ deprecation
+     * of preparation.prepared in favor of SpellData#prepared.
+     * In v5.1+, prepared is a numeric value (0=not prepared, 1=prepared, 2=always prepared).
+     * This returns a boolean for backward compatibility.
+     * @param {Item} item - The spell item
+     * @returns {boolean} Whether the spell is prepared
+     */
+    static getSpellPrepared(item) {
+        if (!item?.system) return false;
+        if (this.isDnDv5_1()) {
+            const prepared = item.system.prepared;
+            if (prepared !== undefined && prepared !== null) {
+                return prepared >= 1;
+            }
+            return item.system.preparation?.prepared ?? false;
+        }
+        return item.system.preparation?.prepared ?? false;
+    }
+
+    /**
      * Get item description handling both pre-v4 and v4+ property paths
      * @param {Item} item - The item to check
      * @returns {string} The item description

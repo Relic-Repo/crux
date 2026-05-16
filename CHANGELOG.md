@@ -2,6 +2,26 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2026-05-16] [2.1.0]
+
+### Added
+- Foundry VTT v14 compatibility:
+  - Updated the module manifest compatibility target to Foundry VTT v14
+  - Updated item and activity sheet injection for ApplicationV2/native DOM sheets
+- Support for "apothecary" spell category:
+  - Added display of apothecary spells in the spell tray
+  - Added spell slot tracking for apothecary spells
+  - Added localization for the apothecary category
+- New character name font size setting
+
+### Fixed
+- Fixed "force show" option for items not working properly
+- Fixed dnd5e 5.1+ spell preparation display by supporting `system.method` and `system.prepared`
+- Fixed Crux tray height and taskbar offset handling so the tray spans the full viewport when taskbar compatibility is not active
+- Fixed Crux API initialization so `game.crux` utilities are preserved when the tray app is created
+- Fixed module settings registration so per-setting `onChange` handlers are preserved
+- Updated ability and skill roll calls for current dnd5e APIs
+
 ## [2025-04-16] [2.0.9]
 
 ### Fixed

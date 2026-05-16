@@ -251,7 +251,7 @@ export default class CruxSettings {
             choices: {
                 "modesto": "Modesto Condensed (Default)",
                 "signika": "Signika",
-                "roboto": "Roboto",
+                "roboto": "Roboto Slab",
                 "carolingian-ui": "Carolingian UI",
                 "custom": "Custom Font"
             },
@@ -296,6 +296,24 @@ export default class CruxSettings {
     },
     default: 1.0
 },
+"character-name-size-multiplier": {
+    name: "Character Name Size Multiplier",
+    hint: "Adjust the size of character names in the interface (0.5 = half size, 1.0 = default, 1.5 = 50% larger). This setting is independent of other font size settings.",
+    scope: "client",
+    config: true,
+    type: Number,
+    range: {
+        min: 0.5,
+        max: 1.5,
+        step: 0.1
+    },
+    default: 1.0,
+    onChange: value => {
+        if (game.crux?.app) {
+            this._updateCharacterNameSizeMultiplier();
+        }
+    }
+},
         "taskbar-compatibility": {
             name: "Taskbar Compatibility",
             hint: "Enable compatibility with the Taskbar module (Requires Refresh)",
@@ -304,7 +322,15 @@ export default class CruxSettings {
             type: Boolean,
             default: true,
             onChange: value => {
-                document.body.classList.toggle("crux-taskbar-compat", value);
+                const isTaskbarActive = game.modules.get("foundry-taskbar")?.active;
+                const taskbar = document.querySelector("#taskbar");
+                const taskbarHeight = taskbar?.getBoundingClientRect().height ?? 0;
+                const shouldOffsetTray = isTaskbarActive && value && taskbarHeight > 0;
+                const offset = shouldOffsetTray ? `${taskbarHeight}px` : '0px';
+                document.documentElement.style.setProperty('--ft-height', `${taskbarHeight || 50}px`);
+                document.documentElement.style.setProperty('--crux-tray-bottom-offset', offset);
+                document.body.style.setProperty('--crux-tray-bottom-offset', offset);
+                document.body.classList.toggle("crux-taskbar-compat", shouldOffsetTray);
             }
         },
         "empty-tray-icon": {
@@ -360,9 +386,11 @@ export default class CruxSettings {
      */
     static registerSettings() {
         for (const [key, setting] of Object.entries(this.SETTINGS)) {
+            const originalOnChange = setting.onChange;
             game.settings.register("crux", key, {
                 ...setting,
                 onChange: (value) => {
+                    originalOnChange?.(value);
                     if (game.crux?.app) {
                     if (key === "tray-size") {
                         game.crux.app._updateTraySize();
@@ -379,6 +407,9 @@ export default class CruxSettings {
                     if (key === "global-font-size-multiplier") {
                         this._updateGlobalFontSizeMultiplier();
                     }
+                    if (key === "character-name-size-multiplier") {
+                        this._updateCharacterNameSizeMultiplier();
+                    }
                         game.crux.app.render(true);
                     }
                 }
@@ -387,6 +418,7 @@ export default class CruxSettings {
         this._updateFontFamily();
         this._updateContentTextSizeMultiplier();
         this._updateGlobalFontSizeMultiplier();
+        this._updateCharacterNameSizeMultiplier();
     }
     
     /**
@@ -446,7 +478,7 @@ export default class CruxSettings {
                 fontFamily = '"Signika", sans-serif';
                 break;
             case "roboto":
-                fontFamily = '"Roboto", sans-serif';
+                fontFamily = '"Roboto Slab", Arial, sans-serif';
                 break;
             case "custom":
                 const customFont = this.getSetting("custom-font-family");
@@ -484,6 +516,11 @@ export default class CruxSettings {
     static _updateContentTextSizeMultiplier() {
         const contentTextSizeMultiplier = this.getSetting("content-text-size-multiplier");
         document.documentElement.style.setProperty('--crux-content-text-size-multiplier', contentTextSizeMultiplier);
+    }
+
+    static _updateCharacterNameSizeMultiplier() {
+        const characterNameSizeMultiplier = this.getSetting("character-name-size-multiplier");
+        document.documentElement.style.setProperty('--crux-character-name-size-multiplier', characterNameSizeMultiplier);
     }
 
     /**

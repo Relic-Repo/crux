@@ -14,6 +14,8 @@
     --crux-font-family: "Modesto Condensed", "Palatino Linotype", serif;
     --crux-global-font-size-multiplier: 1.0;
     --crux-content-text-size-multiplier: 1.0;
+    --crux-character-name-size-multiplier: 1.0;
+    --crux-tray-bottom-offset: 0px;
     --end-turn-button-bg: rgba(255, 255, 255, 0.15);
     --end-turn-button-color: rgb(255, 255, 255);
     --end-turn-button-border-radius: 5px;
@@ -25,12 +27,10 @@
     --end-turn-button-box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.15);
 }
 
-/* Global font size multiplier for all text elements */
 .crux {
     font-size: calc(1em * var(--crux-global-font-size-multiplier)) !important;
 }
 
-/* Apply global multiplier to specific elements */
 .crux__section-header {
     font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-global-font-size-multiplier)) !important;
 }
@@ -55,7 +55,6 @@
     font-size: calc(var(--crux-width) * 0.06 * var(--crux-global-font-size-multiplier)) !important;
 }
 
-/* Apply content multiplier to specific elements */
 .crux__utility-button a {
     font-size: calc(var(--crux-width) * var(--text-base-ratio) *1.4* var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }
@@ -80,16 +79,46 @@
     transform: none !important;
     position: absolute !important;
     top: 0 !important;
+    bottom: var(--crux-tray-bottom-offset) !important;
     left: 0 !important;
     width: 100vw !important;
-    height: 100vh !important;
+    height: auto !important;
     z-index: 0 !important;
 }
+
+#crux.application.crux,
+#crux.crux {
+    position: fixed !important;
+    top: 0 !important;
+    right: auto !important;
+    bottom: var(--crux-tray-bottom-offset) !important;
+    left: 0 !important;
+    width: var(--crux-width) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+}
+
+#crux .window-content,
+#crux [data-application-part="tray"] {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: transparent !important;
+}
+
 .crux {
     position: absolute !important;
     top: 0 !important;
+    bottom: var(--crux-tray-bottom-offset) !important;
     left: 0 !important;
-    height: 100vh !important;
+    height: auto !important;
     transition: transform 0.1s ease;
     transform: translateX(-100%);
     z-index: 0 !important;
@@ -102,6 +131,7 @@
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
+    bottom: 0 !important;
     width: var(--crux-width) !important;
     background: rgba(0, 0, 0, calc(var(--crux-bg-opacity) - 0.3)) !important;
     backdrop-filter: blur(calc(var(--crux-blur) - 1px)) !important;
@@ -109,7 +139,7 @@
     z-index: 0 !important;
     overflow-y: scroll !important;
     overflow-x: hidden !important;
-    height: 100vh !important;
+    height: auto !important;
     transform: scale(1) !important;
     transition: bottom 0.3s !important;
     --crux-icon: calc(var(--crux-width) * var(--icon-medium-ratio));
@@ -118,8 +148,9 @@
 .crux__empty-tray {
     position: absolute !important;
     top: 0 !important;
+    bottom: 0 !important;
     left: 0 !important;
-    height: 100vh !important;
+    height: auto !important;
     width: var(--crux-width) !important;
     display: flex;
     align-items: center;
@@ -164,10 +195,6 @@
     --die-icon-size: calc(var(--crux-icon) * 0.67);
 }
 
-
-.is-current-combatant .crux__container {
-    bottom: 50px;
-}
 
 .crux__container h1 {
     border: 0 !important;
@@ -619,15 +646,15 @@
     color: inherit !important;
     text-decoration: none !important;
     word-break: break-word !important;
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) *1.4* var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.4 * var(--crux-character-name-size-multiplier)) !important;
 }
 
 .crux__info-section h1.long-name {
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-character-name-size-multiplier)) !important;
 }
 
 .crux__info-section h1.very-long-name {
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 0.8 * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 0.8 * var(--crux-character-name-size-multiplier)) !important;
 }
 
 .crux__abilities {
@@ -716,7 +743,6 @@
     font-family: var(--crux-font-family) !important;
 }
 
-/* Spinner styles for Q and U indicators */
 .crux-spinner {
     display: inline-flex !important;
     align-items: center !important;
@@ -884,7 +910,6 @@
     text-decoration: underline;
 }
 
-/* Style for inline rolls */
 .crux__item .item-summary .inline-roll {
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid #9ecdff;
@@ -1074,26 +1099,18 @@
 .crux__skill-row.proficient span {
     font-weight: bold;
 }
-
-/* Proficiency icon column */
 .crux__skill-row .flex0 {
     justify-content: center;
     width: 20px;
 }
-
-/* Skill name column */
 .crux__skill-label {
     padding-left: 5px;
 }
-
-/* Modifier column */
 .crux__skill-bonus {
     text-align: center;
     justify-content: center;
     width: 30px;
 }
-
-/* Passive column */
 .crux__skill-passive {
     text-align: center;
     justify-content: center;
@@ -1275,20 +1292,9 @@
 }
 
 .crux {
-    height: 100vh !important;
-    transition: height 0.2s ease-in-out !important;
+    transition: transform 0.1s ease, bottom 0.2s ease-in-out !important;
 }
 
 .crux__container, .crux__empty-tray {
-    height: 100vh !important;
-    transition: height 0.2s ease-in-out !important;
-}
-
-body.crux-taskbar-compat .crux {
-    height: calc(100vh - var(--ft-height)) !important;
-}
-
-body.crux-taskbar-compat .crux__container,
-body.crux-taskbar-compat .crux__empty-tray {
-    height: calc(100vh - var(--ft-height)) !important;
+    transition: bottom 0.2s ease-in-out !important;
 }

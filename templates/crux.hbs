@@ -72,7 +72,7 @@
                                 <div class="flag"><a data-action="rechargeItem"><i class="fas fa-dice-six"></i> {{getRechargeFormula item}}+</a></div>
                                 {{/if}}
 
-                                {{#if (and (eq item.system.preparation.mode "prepared") (not item.system.preparation.prepared) (ne item.system.level 0))}}
+                                {{#if (and (eq (getSpellMethod item) "prepared") (not (getSpellPrepared item)) (ne item.system.level 0))}}
                                     <div class="unprepared flag" title="{{localize "crux.flag.unprepared-title"}}">{{localize "crux.flag.unprepared"}}</div>
                                 {{/if}}
                             </div>

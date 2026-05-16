@@ -1,52 +1,57 @@
 /**
  * Handles injection of UI elements into DnD5e activity sheets and item sheets
+ * Updated for ApplicationV2 (Foundry v14 / DnD5e 5.x) — uses native DOM APIs
  */
 export default class CruxItemFormInjector {
     /**
      * Initialize the injector
      */
     static init() {
-        Hooks.on("renderActivitySheet", (app, html, data) => {
-            const $html = html instanceof jQuery ? html : $(html);
-            this._onRenderActivitySheet(app, $html, data);
+        Hooks.on("renderItemSheet5e", (app, options) => {
+            const html = app.element;
+            if (!html) return;
+            this._onRenderItemSheet(app, html);
         });
-        Hooks.on("renderApplication", (app, html, data) => {
-            if (app.element && 
-                ((app.element.hasClass && app.element.hasClass("activity")) || 
-                 (app.element.attr && app.element.attr("id") === "app-3"))) {
-                const $html = html instanceof jQuery ? html : $(html);
-                this._onRenderActivitySheet(app, $html, data);
+
+        Hooks.on("renderActivitySheet", (app, options) => {
+            const html = app.element;
+            if (!html) return;
+            this._onRenderActivitySheet(app, html);
+        });
+        Hooks.on("renderApplication", (app, options) => {
+            const html = app.element;
+            if (!html) return;
+            if (html.classList?.contains("activity") ||
+                html.querySelector?.(".activity")) {
+                this._onRenderActivitySheet(app, html);
             }
-        });
-        Hooks.on("renderItemSheet5e", (app, html, data) => {
-            const $html = html instanceof jQuery ? html : $(html);
-            this._onRenderItemSheet(app, $html, data);
         });
     }
 
     /**
      * Handle rendering of an activity sheet
      * @param {Application} app - The application being rendered
-     * @param {jQuery} html - The rendered HTML as a jQuery object
-     * @param {Object} data - The data used to render the sheet
+     * @param {HTMLElement} html - The rendered HTML element
      * @private
      */
-    static _onRenderActivitySheet(app, html, data) {
+    static _onRenderActivitySheet(app, html) {
         let behaviorFieldset = null;
-        html.find('fieldset').each(function() {
-            const legend = $(this).find('legend').text().trim();
-            if (legend.toLowerCase() === "behavior") {
-                behaviorFieldset = $(this);
-                return false;
+        const fieldsets = html.querySelectorAll('fieldset');
+        for (const fieldset of fieldsets) {
+            const legend = fieldset.querySelector('legend');
+            if (legend && legend.textContent.trim().toLowerCase() === "behavior") {
+                behaviorFieldset = fieldset;
+                break;
             }
-        });
+        }
         
         if (!behaviorFieldset) {
             return;
         }
-        if (behaviorFieldset.find('.rider-activity-toggle').length) {
+        if (behaviorFieldset.querySelector('.rider-activity-toggle')) {
             return;
         }
+
         let activityId = null;
         try {
             if (app.activity && app.activity.id) {
@@ -63,13 +68,16 @@ export default class CruxItemFormInjector {
         if (!activityId) {
             return;
         }
+
         const parentItem = app.item || app.object;
         if (!parentItem) {
             return;
         }
+
         const riderActivities = parentItem.flags?.dnd5e?.riders?.activity || [];
         const isRider = Array.isArray(riderActivities) && riderActivities.includes(activityId);
         const checkedAttr = isRider ? "checked" : "";
+
         const checkboxHtml = `
             <div class="form-group rider-activity-toggle">
                 <label>Rider Activity</label>
@@ -78,50 +86,62 @@ export default class CruxItemFormInjector {
                 </div>
                 <p class="hint">Mark this activity as a "rider" that should not appear in the item use menu.</p>
             </div>`;
-        behaviorFieldset.append(checkboxHtml);
-        behaviorFieldset.find('.rider-activity-toggle dnd5e-checkbox').on('change', async function(event) {
-            const checked = event.target.checked;
-            const currentRiders = foundry.utils.deepClone(parentItem.flags?.dnd5e?.riders?.activity || []);
-            
-            if (checked && !currentRiders.includes(activityId)) {
-                currentRiders.push(activityId);
-            } else if (!checked && currentRiders.includes(activityId)) {
-                const index = currentRiders.indexOf(activityId);
-                if (index > -1) currentRiders.splice(index, 1);
-            }
-            await parentItem.update({
-                "flags.dnd5e.riders.activity": currentRiders
+
+        behaviorFieldset.insertAdjacentHTML('beforeend', checkboxHtml);
+
+        const checkbox = behaviorFieldset.querySelector('.rider-activity-toggle dnd5e-checkbox');
+        if (checkbox) {
+            checkbox.addEventListener('change', async function(event) {
+                const checked = event.target.checked;
+                const currentRiders = foundry.utils.deepClone(parentItem.flags?.dnd5e?.riders?.activity || []);
+
+                if (checked && !currentRiders.includes(activityId)) {
+                    currentRiders.push(activityId);
+                } else if (!checked && currentRiders.includes(activityId)) {
+                    const index = currentRiders.indexOf(activityId);
+                    if (index > -1) currentRiders.splice(index, 1);
+                }
+                await parentItem.update({
+                    "flags.dnd5e.riders.activity": currentRiders
+                });
             });
-        });
+        }
     }
 
     /**
      * Handle rendering of an item sheet
      * @param {Application} app - The application being rendered
-     * @param {jQuery} html - The rendered HTML as a jQuery object
-     * @param {Object} data - The data used to render the sheet
+     * @param {HTMLElement} html - The rendered HTML element
      * @private
      */
-    static _onRenderItemSheet(app, html, data) {
-        const detailsTab = html.find('.tab.details');
-        if (detailsTab.length === 0) {
+    static _onRenderItemSheet(app, html) {
+        const detailsTab = html.querySelector('section.tab[data-tab="details"]')
+                        || html.querySelector('.tab.details')
+                        || html.querySelector('[data-tab="details"]');
+
+        if (!detailsTab) {
             return;
         }
-        if (detailsTab.find('.crux-tray-visibility').length) {
+
+        if (detailsTab.querySelector('.crux-tray-visibility')) {
             return;
         }
-        const item = app.object;
+
+        const item = app.document || app.object;
         if (!item) {
             return;
         }
+
         const validTypes = ["weapon", "equipment", "consumable", "feat", "spell", "tool", "backpack", "loot"];
         if (!validTypes.includes(item.type)) {
             return;
         }
+
         let visibilitySetting = item.getFlag("crux", "trayVisibility");
         if (visibilitySetting === undefined) {
             visibilitySetting = "default";
         }
+
         const fieldsetHtml = `
             <fieldset>
                 <legend>Crux Tray Settings</legend>
@@ -137,11 +157,21 @@ export default class CruxItemFormInjector {
                     <p class="hint">Control how this item appears in the Crux tray.</p>
                 </div>
             </fieldset>`;
-        const tidy5eFieldset = detailsTab.find('fieldset:contains("Tidy 5e Sheets Settings")');
-        if (tidy5eFieldset.length > 0) {
-            tidy5eFieldset.after(fieldsetHtml);
+
+        const allFieldsets = detailsTab.querySelectorAll('fieldset');
+        let tidy5eFieldset = null;
+        for (const fs of allFieldsets) {
+            const legend = fs.querySelector('legend');
+            if (legend && legend.textContent.includes("Tidy 5e")) {
+                tidy5eFieldset = fs;
+                break;
+            }
+        }
+
+        if (tidy5eFieldset) {
+            tidy5eFieldset.insertAdjacentHTML('afterend', fieldsetHtml);
         } else {
-            detailsTab.append(fieldsetHtml);
+            detailsTab.insertAdjacentHTML('beforeend', fieldsetHtml);
         }
     }
 }

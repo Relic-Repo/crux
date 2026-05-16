@@ -103,6 +103,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                         innate: { items: [], title: "crux.category.innate" },
                         atwill: { items: [], title: "crux.category.atwill" },
                         pact: { items: [], title: "crux.category.pact" },
+                        apothecary: { items: [], title: "crux.category.apothecary" },
                         ...[...Array(10).keys()].reduce((prev, cur) => {
                             prev[`spell${cur}`] = { items: [], title: `crux.category.spell${cur}` }
                             return prev;
@@ -133,10 +134,12 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 if (favoriteEntry && (trayVisibility !== "hide")) {
                     sections.favorites.items.push({ item, uses, sort: favoriteEntry.sort });
                 }
+                const forceShow = trayVisibility === "show" || trayVisibility === "force";
+
                 if (item.type === "spell" && (trayVisibility !== "hide")) {
                     const activationType = CruxCompatibility.getActivationType(item);
                     const hasActivities = CruxCompatibility.isDnDv4() ? CruxCompatibility.hasActivities(item, false) : activationType && activationType !== "none";                    
-                    if (actor.type === "npc" && settingShowAllNpcItems) {
+                    if (forceShow || actor.type === "npc" && settingShowAllNpcItems) {
                         this._categorizeSpell(item, itemData, sections, useTidy5e, canCastUnpreparedRituals, settingShowUnpreparedCantrips, uses, true);
                     } else if (hasActivities) {
                         this._categorizeSpell(item, itemData, sections, useTidy5e, canCastUnpreparedRituals, settingShowUnpreparedCantrips, uses);
@@ -149,16 +152,16 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                     let shouldShow = false;                    
                     if (isDnDv4) {
                         shouldShow = !item.getFlag("crux", "hidden") && 
-                                    (settingShowNoUses || !uses || !uses.hasMaxUses || uses.available) && 
+                                    (forceShow || (settingShowNoUses || !uses || !uses.hasMaxUses || uses.available) &&
                                     (CruxCompatibility.hasActivities(item, false) || 
-                                     (item.type === "consumable" && item.system.type?.value === "ammo"));
+                                     (item.type === "consumable" && item.system.type?.value === "ammo")));
                     } else {
                         shouldShow = !item.getFlag("crux", "hidden") && 
-                                    (settingShowNoUses || !uses || uses.available) && 
+                                    (forceShow || (settingShowNoUses || !uses || uses.available) &&
                                     ((activationType && activationType !== "none") || 
-                                     (item.type === "consumable" && item.system.type?.value === "ammo"));
+                                     (item.type === "consumable" && item.system.type?.value === "ammo")));
                     }
-                    
+
                     if (shouldShow) {
                         this._categorizeItem(item, itemData, uses, sections, useTidy5e, canCastUnpreparedRituals, settingShowUnpreparedCantrips);
                     } else if (actor.type === "npc") {
@@ -407,11 +410,12 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             }
             sections.spell.groups[sectionKey].items.push({ item, uses });
         } else {
-            switch (itemData.preparation?.mode) {
+            const spellMethod = CruxCompatibility.getSpellMethod(item);
+            switch (spellMethod) {
                 case "prepared":
                 case "always":
-                    const isAlways = itemData.preparation?.mode !== "prepared";
-                    const isPrepared = itemData.preparation?.prepared;
+                    const isAlways = spellMethod !== "prepared";
+                    const isPrepared = CruxCompatibility.getSpellPrepared(item);
                     const isCastableRitual = (canCastUnpreparedRituals && itemData.components?.ritual);
                     const isDisplayableCantrip = itemData.level == 0 && showUnpreparedCantrips;
                     if (bypassPreparedCheck || isAlways || isPrepared || isCastableRitual || isDisplayableCantrip) {
@@ -426,6 +430,9 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                     break;
                 case "pact":
                     sections.spell.groups.pact.items.push({ item, uses });
+                    break;
+                case "apothecary":
+                    sections.spell.groups.apothecary.items.push({ item, uses });
                     break;
                 default:
                     if (bypassPreparedCheck && itemData.level !== undefined) {
@@ -515,13 +522,21 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      */
     _addSpellLevelUses(sections, actorData) {
         const showSpellsSection = game.settings.get("crux", "show-spells-section");
-        if (!sections.spell && actorData.spells.pact.max && showSpellsSection) {
-            sections.spell = {
-                title: "crux.category.spell",
-                groups: {
-                    pact: { items: [], title: "crux.category.pact" }
+        if (!sections.spell && showSpellsSection) {
+            if (actorData.spells.pact.max || actorData.spells.apothecary?.max) {
+                sections.spell = {
+                    title: "crux.category.spell",
+                    groups: {}
+                };
+
+                if (actorData.spells.pact.max) {
+                    sections.spell.groups.pact = { items: [], title: "crux.category.pact" };
                 }
-            };
+
+                if (actorData.spells.apothecary?.max) {
+                    sections.spell.groups.apothecary = { items: [], title: "crux.category.apothecary" };
+                }
+            }
         }
 
         if (!sections.spell) return sections;
@@ -541,6 +556,16 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             sections.spell.groups.pact.uses = {
                 available: actorData.spells.pact.value,
                 maximum: actorData.spells.pact.max
+            };
+        }
+
+        if (actorData.spells.apothecary?.max) {
+            if (!sections.spell.groups.apothecary) {
+                sections.spell.groups.apothecary = { items: [], title: "crux.category.apothecary" };
+            }
+            sections.spell.groups.apothecary.uses = {
+                available: actorData.spells.apothecary.value,
+                maximum: actorData.spells.apothecary.max
             };
         }
 
@@ -593,6 +618,11 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         document.documentElement.style.setProperty('--crux-width', traySize + 'px');
         if (this.element) {
             this.element.style.width = traySize + 'px';
+            this.element.style.position = 'fixed';
+            this.element.style.top = '0px';
+            this.element.style.left = '0px';
+            this.element.style.bottom = 'var(--crux-tray-bottom-offset)';
+            this.element.style.height = 'auto';
         }
     }
 
@@ -731,14 +761,6 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             container.addEventListener('scroll', this._onScroll.bind(this));
         }
 
-        this.element.querySelectorAll('.crux__info-section h1').forEach(nameElement => {
-            const nameLength = nameElement.textContent.length;
-            if (nameLength > 30) {
-                nameElement.classList.add('very-long-name');
-            } else if (nameLength > 20) {
-                nameElement.classList.add('long-name');
-            }
-        });
 
         this.element.querySelectorAll('.crux__portrait').forEach(portrait => {
             portrait.addEventListener('click', () => portrait.classList.toggle('flipped'));
@@ -883,11 +905,15 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      * @override
      */
     setPosition(options={}) {
+        let result;
         if (options.scale !== undefined) {
             const { scale, ...otherOptions } = options;
-            return super.setPosition(otherOptions);
+            result = super.setPosition(otherOptions);
+        } else {
+            result = super.setPosition(options);
         }
-        return super.setPosition(options);
+        this._updateTraySize();
+        return result;
     }
 
     /**
@@ -942,9 +968,16 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      * @private
      */
     _setupTaskbarCompatibility() {
-        if (!game.modules.get("foundry-taskbar")?.active) return;
+        const isTaskbarActive = game.modules.get("foundry-taskbar")?.active;
         const isCompatEnabled = game.settings.get("crux", "taskbar-compatibility");
-        document.body.classList.toggle("crux-taskbar-compat", isCompatEnabled);
+        const taskbar = document.querySelector("#taskbar");
+        const taskbarHeight = taskbar?.getBoundingClientRect().height ?? 0;
+        const shouldOffsetTray = isTaskbarActive && isCompatEnabled && taskbarHeight > 0;
+        const offset = shouldOffsetTray ? `${taskbarHeight}px` : '0px';
+        document.documentElement.style.setProperty('--ft-height', `${taskbarHeight || 50}px`);
+        document.documentElement.style.setProperty('--crux-tray-bottom-offset', offset);
+        document.body.style.setProperty('--crux-tray-bottom-offset', offset);
+        document.body.classList.toggle("crux-taskbar-compat", shouldOffsetTray);
     }
 
     _onToggleSkills(event, target) {
@@ -1207,7 +1240,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         }        
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (actor) {
-            actor.rollAbility(abl, { event: event });
+            actor.rollAbility({ ability: abl }, {}, {});
         }
     }
 
@@ -1232,7 +1265,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         }        
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (actor) {
-            actor.rollSkill(skill, { event: event });
+            actor.rollSkill({ skill: skill }, {}, {});
         }
     }
 

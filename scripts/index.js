@@ -13,12 +13,13 @@ import CruxDomUtils from "./utils/CruxDomUtils.js";
 import CruxUtils from "./utils/CruxUtilityManager.js";
 import CruxItemFormInjector from "./utils/CruxItemFormInjector.js";
 
-// Initialize Handlebars helpers
 Handlebars.registerHelper({
     getActivationType: (item) => CruxCompatibility.getActivationType(item),
     hasRechargeRecovery: (item) => CruxCompatibility.hasRechargeRecovery(item),
     hasRemainingUses: (item) => CruxCompatibility.hasRemainingUses(item),
     getRechargeFormula: (item) => CruxCompatibility.getRechargeFormula(item),
+    getSpellMethod: (item) => CruxCompatibility.getSpellMethod(item),
+    getSpellPrepared: (item) => CruxCompatibility.getSpellPrepared(item),
     calculateHealthOverlay: (currentHP, maxHP) => CruxDomUtils.calculateHealthOverlay(currentHP, maxHP),
     localize_by_mode: function(toggleMode, key1, key2) {
         return game.i18n.localize(toggleMode ? key1 : key2);
@@ -45,7 +46,6 @@ Handlebars.registerHelper({
     }
 });
 
-// Initialize module
 Hooks.once('init', () => {
     console.log("Crux | Initializing Crux module");
     CruxSettings.registerSettings();
@@ -64,7 +64,6 @@ Hooks.once('init', () => {
     };
 });
 
-// Export classes for external use
 export {
     CruxTrayAppV2,
     CruxEffectsAppV2,
