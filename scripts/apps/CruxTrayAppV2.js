@@ -761,6 +761,15 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             container.addEventListener('scroll', this._onScroll.bind(this));
         }
 
+        this.element.querySelectorAll('.crux__info-section h1').forEach(nameElement => {
+            const nameLength = nameElement.textContent.trim().length;
+            nameElement.classList.remove('long-name', 'very-long-name');
+            if (nameLength > 30) {
+                nameElement.classList.add('very-long-name');
+            } else if (nameLength > 20) {
+                nameElement.classList.add('long-name');
+            }
+        });
 
         this.element.querySelectorAll('.crux__portrait').forEach(portrait => {
             portrait.addEventListener('click', () => portrait.classList.toggle('flipped'));
@@ -1091,17 +1100,14 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             });
 
             if (matchingItem) {
-                await matchingItem.use({
-                    legacy: false,
-                    event: event
-                });
+                event.fromCrux = true;
+                await CruxUtils.activateItem(matchingItem.uuid, null, event);
             } else {
                 const content = `<p>${actor.name} uses ${actionName}</p>`;
                 await ChatMessage.create({
                     user: game.user.id,
                     speaker: ChatMessage.getSpeaker({ actor }),
-                    content,
-                    type: CONST.CHAT_MESSAGE_TYPES.OTHER
+                    content
                 });
             }
             return;

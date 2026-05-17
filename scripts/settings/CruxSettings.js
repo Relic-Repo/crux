@@ -391,12 +391,12 @@ export default class CruxSettings {
                 ...setting,
                 onChange: (value) => {
                     originalOnChange?.(value);
+                    if (key === "font-family" || key === "custom-font-family") {
+                        this._updateFontFamily();
+                    }
                     if (game.crux?.app) {
                     if (key === "tray-size") {
                         game.crux.app._updateTraySize();
-                    }
-                    if (key === "font-family" || key === "custom-font-family") {
-                        this._updateFontFamily();
                     }
                     if (key === "tray-mode") {
                         this._handleTrayModeChange(value);
@@ -498,6 +498,8 @@ export default class CruxSettings {
     static _updateFontFamily() {
         const fontFamily = this.getSelectedFontFamily();
         document.documentElement.style.setProperty('--crux-font-family', fontFamily);
+        document.body?.style.setProperty('--crux-font-family', fontFamily);
+        game.crux?.app?.element?.style.setProperty('--crux-font-family', fontFamily);
     }
     
     /**
@@ -521,6 +523,8 @@ export default class CruxSettings {
     static _updateCharacterNameSizeMultiplier() {
         const characterNameSizeMultiplier = this.getSetting("character-name-size-multiplier");
         document.documentElement.style.setProperty('--crux-character-name-size-multiplier', characterNameSizeMultiplier);
+        document.body?.style.setProperty('--crux-character-name-size-multiplier', characterNameSizeMultiplier);
+        game.crux?.app?.element?.style.setProperty('--crux-character-name-size-multiplier', characterNameSizeMultiplier);
     }
 
     /**

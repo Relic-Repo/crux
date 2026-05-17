@@ -2,6 +2,15 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2026-05-17] [2.1.1]
+
+### Fixed
+- Fixed the Font Family setting so client font choices are applied reliably in Foundry VTT v14/ApplicationV2.
+- Restored long character name handling so oversized fantasy names are resized correctly in the tray header.
+- Fixed basic action buttons so fallback chat cards are created correctly in Foundry VTT v14.
+- Updated basic action item activation to use Crux's normal activation path when actor-owned action items are present.
+- Preserved dnd5e skip-dialog and advantage/disadvantage modifier key behavior when activating items through Crux, including MidiQOL-friendly item/activity use flows.
+
 ## [2026-05-16] [2.1.0]
 
 ### Added

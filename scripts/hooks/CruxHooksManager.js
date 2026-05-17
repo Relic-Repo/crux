@@ -38,6 +38,8 @@ export default class CruxHooksManager {
                 if (game.crux.lastUsedItem === undefined) game.crux.lastUsedItem = null;
             }
             await game.crux.app.render(true);
+            CruxSettings._updateFontFamily();
+            CruxSettings._updateCharacterNameSizeMultiplier();
             game.crux.app._initializeTraySize();
             if (game.crux.app.element && document.body.contains(game.crux.app.element)) {
                 const trayMode = game.settings.get("crux", "tray-mode");

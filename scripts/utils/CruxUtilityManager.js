@@ -3,6 +3,46 @@
  */
 export default class CruxUtils {
     /**
+     * Check whether a dnd5e skip-dialog keybinding is active for this event.
+     * @param {Event} event - The triggering event
+     * @returns {boolean} True if a dnd5e skip-dialog binding is active
+     */
+    static isDnd5eSkipDialogEvent(event) {
+        if (!event || game.system.id !== "dnd5e") return false;
+        const downKeys = game.keyboard?.downKeys ?? new Set();
+        const activeModifiers = new Set();
+        if (event.altKey) {
+            activeModifiers.add("Alt");
+            activeModifiers.add("AltLeft");
+            activeModifiers.add("AltRight");
+        }
+        if (event.ctrlKey) {
+            activeModifiers.add("Control");
+            activeModifiers.add("ControlLeft");
+            activeModifiers.add("ControlRight");
+        }
+        if (event.metaKey) {
+            activeModifiers.add("Meta");
+            activeModifiers.add("OsLeft");
+            activeModifiers.add("OsRight");
+        }
+        if (event.shiftKey) {
+            activeModifiers.add("Shift");
+            activeModifiers.add("ShiftLeft");
+            activeModifiers.add("ShiftRight");
+        }
+
+        const isPressed = key => downKeys.has(key) || activeModifiers.has(key);
+        const bindings = ["skipDialogNormal", "skipDialogAdvantage", "skipDialogDisadvantage"];
+        return bindings.some(action => game.keybindings.get("dnd5e", action)?.some(binding => {
+            const modifiers = binding.modifiers ?? [];
+            if (isPressed(binding.key) && modifiers.every(isPressed)) return true;
+            if (modifiers.length) return false;
+            return activeModifiers.has(binding.key);
+        }));
+    }
+
+    /**
      * Filters activities for an item, ensuring only valid ones are considered.
      * @param {Item5e} item - The item to filter activities from.
      * @returns {Array} - Filtered list of activities.
@@ -60,6 +100,7 @@ export default class CruxUtils {
                 }));
             }
         }
+        const configure = !CruxUtils.isDnd5eSkipDialogEvent(event);
         if (activityId && item?.system?.activities) {
             let activity = null;
             try {
@@ -111,7 +152,7 @@ export default class CruxUtils {
                 
                 const result = activity.use({ 
                     event,
-                    configure: true,
+                    configure,
                     createScrollItem: false 
                 });
                 return result;
@@ -156,7 +197,7 @@ export default class CruxUtils {
             }
             const result = activity.use({ 
                 event,
-                configure: true,
+                configure,
                 createScrollItem: false 
             });
             return result;
@@ -197,7 +238,7 @@ export default class CruxUtils {
                 }            
                 const result = firstActivity.use({ 
                     event,
-                    configure: true,
+                    configure,
                     createScrollItem: false 
                 });
                 return result;
@@ -207,7 +248,7 @@ export default class CruxUtils {
             legacy: false,
             event: event,
             chooseActivity: false,
-            configure: true,
+            configure,
         };
         if (event?.createScrollItem !== undefined) {
             useOptions.createScrollItem = event.createScrollItem;

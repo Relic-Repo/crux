@@ -28,7 +28,21 @@
 }
 
 .crux {
+    font-family: var(--crux-font-family) !important;
     font-size: calc(1em * var(--crux-global-font-size-multiplier)) !important;
+}
+
+.crux :where(a, button, div, h1, h2, h3, h4, input, label, li, p, span) {
+    font-family: inherit !important;
+}
+
+.crux .crux__section-header,
+.crux .crux__section-header span,
+.crux .crux__group-header h3,
+.crux .crux__group-header h3 span,
+.crux .crux__skill-header,
+.crux .crux__actor-name {
+    font-family: var(--crux-font-family) !important;
 }
 
 .crux__section-header {
@@ -653,7 +667,15 @@
     font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-character-name-size-multiplier)) !important;
 }
 
+.crux__info-section h1.long-name .crux__actor-name {
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-character-name-size-multiplier)) !important;
+}
+
 .crux__info-section h1.very-long-name {
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 0.8 * var(--crux-character-name-size-multiplier)) !important;
+}
+
+.crux__info-section h1.very-long-name .crux__actor-name {
     font-size: calc(var(--crux-width) * var(--text-header-ratio) * 0.8 * var(--crux-character-name-size-multiplier)) !important;
 }
 
