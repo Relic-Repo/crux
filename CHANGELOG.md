@@ -2,6 +2,11 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2026-05-17] [2.1.2]
+
+### Changed
+- Verified Foundry VTT v13 compatibility and widened the module compatibility minimum to Foundry VTT v13.
+
 ## [2026-05-17] [2.1.1]
 
 ### Fixed
