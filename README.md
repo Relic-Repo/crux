@@ -19,6 +19,17 @@ Designed to complement Foundry's left-side interface, Crux keeps the character's
 - **Optional support:** Tidy 5e Sheet sections
 - **Automation friendly:** dnd5e/MidiQOL-style item and activity activation flow
 
+**At a Glance**
+
+- Sliding left-side tray for fast actor actions
+- Activatable items, spells, features, and basic dnd5e actions
+- Favorites, equipped items, spell groups, inventory, and passive sections
+- Ability and skill rolls without opening the character sheet
+- Spell slot, use, quantity, and action-type indicators
+- Token tools for targeting, effects, combat, elevation, and turns
+- Font, scaling, section, skill list, and tray display customization
+- Optional support for Tidy 5e Sheet sections and Taskbar compatibility
+
 **Install Manifest**
 
 ```text
