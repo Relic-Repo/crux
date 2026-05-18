@@ -8,36 +8,43 @@
 > CRUX is a continuation and enhancement of the "Action Pack" module originally created by Tero Parvinen.
 > Original module: https://github.com/teroparvinen/foundry-action-pack
 
-<table>
-  <tr>
-    <td width="252" valign="top">
-      <img src="docs/images/crux-tray-preview.png" alt="Crux tray preview" width="232">
-    </td>
-    <td valign="top">
-      <p><strong>CRUX</strong> adds a sliding action tray to Foundry VTT for dnd5e, giving players quick access to actions, spells, abilities, token controls, and common combat tools without opening the character sheet.</p>
-      <p>Designed to complement Foundry's left-side interface, Crux keeps the character's most-used options close at hand during play.</p>
-      <ul>
-        <li><strong>Foundry VTT:</strong> minimum v13, verified v14</li>
-        <li><strong>System:</strong> dnd5e</li>
-        <li><strong>Optional support:</strong> Tidy 5e Sheet sections</li>
-        <li><strong>Automation friendly:</strong> dnd5e/MidiQOL-style item and activity activation flow</li>
-      </ul>
-      <p><strong>At a Glance</strong></p>
-      <ul>
-        <li>Sliding left-side tray for fast actor actions</li>
-        <li>Activatable items, spells, features, and basic dnd5e actions</li>
-        <li>Favorites, equipped items, spell groups, inventory, and passive sections</li>
-        <li>Ability and skill rolls without opening the character sheet</li>
-        <li>Spell slot, use, quantity, and action-type indicators</li>
-        <li>Token tools for targeting, effects, combat, elevation, and turns</li>
-        <li>Font, scaling, section, skill list, and tray display customization</li>
-        <li>Optional support for Tidy 5e Sheet sections and Taskbar compatibility</li>
-      </ul>
-      <p><strong>Install Manifest</strong></p>
-      <pre><code>https://github.com/Relic-Repo/crux/releases/latest/download/module.json</code></pre>
-    </td>
-  </tr>
-</table>
+<img src="docs/images/crux-tray-preview.png" alt="Crux tray preview" width="232" align="left" hspace="18">
+
+<p>
+  <img src="https://img.shields.io/badge/Foundry_VTT-v13%2B-orange" alt="Foundry VTT v13+">
+  <img src="https://img.shields.io/badge/Verified-v14-blue" alt="Verified Foundry v14">
+  <img src="https://img.shields.io/badge/dnd5e-3.0%2B-red" alt="dnd5e 3.0+">
+  <img src="https://img.shields.io/badge/Latest-2.1.2-brightgreen" alt="Latest version 2.1.2">
+  <img src="https://img.shields.io/badge/Manifest-module.json-informational" alt="Manifest">
+</p>
+
+**CRUX** adds a sliding action tray to Foundry VTT for dnd5e, giving players quick access to actions, spells, abilities, token controls, and common combat tools without opening the character sheet.
+
+Designed to complement Foundry's left-side interface, Crux keeps the character's most-used options close at hand during play.
+
+- **Foundry VTT:** minimum v13, verified v14
+- **System:** dnd5e
+- **Optional support:** Tidy 5e Sheet sections
+- **Automation friendly:** dnd5e/MidiQOL-style item and activity activation flow
+
+**At a Glance**
+
+- Sliding left-side tray for fast actor actions
+- Activatable items, spells, features, and basic dnd5e actions
+- Favorites, equipped items, spell groups, inventory, and passive sections
+- Ability and skill rolls without opening the character sheet
+- Spell slot, use, quantity, and action-type indicators
+- Token tools for targeting, effects, combat, elevation, and turns
+- Font, scaling, section, skill list, and tray display customization
+- Optional support for Tidy 5e Sheet sections and Taskbar compatibility
+
+**Install Manifest**
+
+```text
+https://github.com/Relic-Repo/crux/releases/latest/download/module.json
+```
+
+<br clear="left">
 
 ## Features
 
