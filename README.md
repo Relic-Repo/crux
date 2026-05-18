@@ -105,3 +105,11 @@ https://github.com/Relic-Repo/crux/releases/latest/download/module.json
 - **Optional modules:** Tidy 5e Sheets, MidiQOL-style item workflows, Foundry Taskbar compatibility
 
 CRUX is designed for the dnd5e system and follows the system item/activity use flow where possible so other automation modules can recognize Crux-triggered item use.
+
+## Support
+
+CRUX is free and will remain free. If it helps at your table and you want to support development, you can buy me a coffee on Ko-fi.
+
+<a href="https://ko-fi.com/B0B5HLJZG">
+  <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support CRUX on Ko-fi">
+</a>
