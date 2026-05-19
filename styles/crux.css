@@ -6,6 +6,7 @@
     --text-base-ratio: 0.07;
     --text-header-ratio: 0.08;
     --text-small-ratio: 0.055;
+    --text-summary-ratio: 0.062;
     --flag-ratio: 0.058; 
     --flag-text-ratio: 0.042;
     --ritual-flag-ratio: 0.070;
@@ -16,6 +17,7 @@
     --crux-content-text-size-multiplier: 1.0;
     --crux-character-name-size-multiplier: 1.0;
     --crux-tray-bottom-offset: 0px;
+    --crux-panel-gutter: 6px;
     --end-turn-button-bg: rgba(255, 255, 255, 0.15);
     --end-turn-button-color: rgb(255, 255, 255);
     --end-turn-button-border-radius: 5px;
@@ -87,7 +89,7 @@
 }
 
 .crux__item .item-summary {
-    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-content-text-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--text-summary-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }
 .crux__wrapper {
     transform: none !important;
@@ -147,10 +149,13 @@
     top: 0 !important;
     bottom: 0 !important;
     width: var(--crux-width) !important;
+    box-sizing: border-box !important;
     background: rgba(0, 0, 0, calc(var(--crux-bg-opacity) - 0.3)) !important;
     backdrop-filter: blur(calc(var(--crux-blur) - 1px)) !important;
     color: white !important;
     z-index: 0 !important;
+    padding-left: var(--crux-panel-gutter) !important;
+    padding-right: 0 !important;
     overflow-y: scroll !important;
     overflow-x: hidden !important;
     height: auto !important;
@@ -914,11 +919,11 @@
 
 .crux__item .item-summary {
     display: none;
-    padding: 3px 10px;
-    margin-top: 4px 0 10px 0 !important;
-    background: rgba(0, 0, 0, 0.5);
-    border-radius: 10px;
-    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+    padding: 4px 8px;
+    margin: 4px 0 10px 0 !important;
+    background: transparent;
+    border-radius: 0;
+    font-size: calc(var(--crux-width) * var(--text-summary-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
     line-height: 1.4;
     color: rgba(255, 255, 255, 0.8);
 }

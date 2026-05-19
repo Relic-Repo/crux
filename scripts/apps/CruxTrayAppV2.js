@@ -601,16 +601,12 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         return sections;
     }
 
-    /**
-     * Prefix utility
-     * @private
-     */
     _prefix(tgt, str) {
         return tgt ? [str, tgt].join("-") : tgt;
     }
 
     /**
-     * Update the tray size based on the setting
+     * Update the tray size.
      * @private
      */
     _updateTraySize() {
@@ -626,17 +622,10 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         }
     }
 
-    /**
-     * Initialize the tray size from settings
-     * This ensures the tray size is properly set on page load
-     */
     _initializeTraySize() {
         this._updateTraySize();
     }
 
-    /**
-     * Handle rendering into the DOM
-     */
     async _render(force, options) {
         const html = await super._render(force, options);
         const interfaceEl = document.querySelector("#interface");
@@ -1141,10 +1130,16 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 }
                 } else {
                     const description = await CruxCompatibility.getDescription(item);
-                    const enrichedDescription = await TextEditor.enrichHTML(description, {
-                        secrets: false,
-                        rollData: item.getRollData ? item.getRollData() : {}
-                    });
+                    let enrichedDescription = description;
+                    try {
+                        enrichedDescription = await TextEditor.enrichHTML(description, {
+                            secrets: item.actor?.isOwner ?? false,
+                            rollData: item.getRollData ? item.getRollData() : {},
+                            relativeTo: item
+                        });
+                    } catch (error) {
+                        console.warn("Crux | Item description enrichment failed", item, error);
+                    }
                     let div = document.createElement('div');
                     div.className = 'item-summary';
                     div.innerHTML = enrichedDescription;
@@ -1590,10 +1585,6 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         return true;
     }
 
-    /**
-     * Handle initiative rolling
-     * @private
-     */
     _onRollInitiative(event, target) {
         let actorElement = target.closest('.crux__actor');
         let actorUuid;
@@ -1624,10 +1615,6 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         });
     }
 
-    /**
-     * Handle short rest button click
-     * @private
-     */
     _onShortRest(event, target) {
         event.stopPropagation();        
         let actorElement = target.closest('.crux__actor');
@@ -1638,10 +1625,6 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         actor.shortRest();
     }
 
-    /**
-     * Handle long rest button click
-     * @private
-     */
     _onLongRest(event, target) {
         event.stopPropagation();        
         let actorElement = target.closest('.crux__actor');
@@ -1653,13 +1636,9 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     }
 
     /**
-     * Handle mousedown events on item images and names
-     * @private
-     */
-    /**
-     * Handle Q spinner toggle
-     * @param {Event} event - The triggering event
-     * @param {HTMLElement} target - The target element
+     * Toggle the quantity spinner.
+     * @param {Event} event
+     * @param {HTMLElement} target
      * @private
      */
     _onToggleQSpinner(event, target) {
@@ -1688,9 +1667,9 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     }
 
     /**
-     * Handle U spinner toggle
-     * @param {Event} event - The triggering event
-     * @param {HTMLElement} target - The target element
+     * Toggle the uses spinner.
+     * @param {Event} event
+     * @param {HTMLElement} target
      * @private
      */
     _onToggleUSpinner(event, target) {
@@ -1828,10 +1807,16 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                     }
                 } else {
                     const description = CruxCompatibility.getDescription(item);
-                    const enrichedDescription = await TextEditor.enrichHTML(description, {
-                        secrets: false,
-                        rollData: item.getRollData ? item.getRollData() : {}
-                    });
+                    let enrichedDescription = description;
+                    try {
+                        enrichedDescription = await TextEditor.enrichHTML(description, {
+                            secrets: item.actor?.isOwner ?? false,
+                            rollData: item.getRollData ? item.getRollData() : {},
+                            relativeTo: item
+                        });
+                    } catch (error) {
+                        console.warn("Crux | Item description enrichment failed", item, error);
+                    }
                     let div = document.createElement('div');
                     div.className = 'item-summary';
                     div.innerHTML = enrichedDescription;

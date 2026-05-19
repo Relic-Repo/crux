@@ -1,11 +1,8 @@
-/**
- * Utility class for Crux module to handle item activities and execution
- */
 export default class CruxUtils {
     /**
-     * Check whether a dnd5e skip-dialog keybinding is active for this event.
-     * @param {Event} event - The triggering event
-     * @returns {boolean} True if a dnd5e skip-dialog binding is active
+     * Check whether a dnd5e skip-dialog keybinding is active.
+     * @param {Event} event
+     * @returns {boolean}
      */
     static isDnd5eSkipDialogEvent(event) {
         if (!event || game.system.id !== "dnd5e") return false;
@@ -43,9 +40,9 @@ export default class CruxUtils {
     }
 
     /**
-     * Filters activities for an item, ensuring only valid ones are considered.
-     * @param {Item5e} item - The item to filter activities from.
-     * @returns {Array} - Filtered list of activities.
+     * Filter rider activities from an item.
+     * @param {Item5e} item
+     * @returns {Array}
      */
     static filterActivities(item) {
         if (!item?.system?.activities) return [];
@@ -53,10 +50,11 @@ export default class CruxUtils {
             activity => !item.getFlag("dnd5e", "riders.activity")?.includes(activity.id)
         );
     }
+
     /**
-     * Prepares execution context for an activity before use.
-     * @param {Object} activity - The activity to prepare execution for.
-     * @returns {Object} - Execution context.
+     * Prepare display data for an activity.
+     * @param {Object} activity
+     * @returns {Object}
      */
     static prepareExecution(activity) {
         const hasRecharge = activity.uses?.max && activity.uses.recovery?.[0]?.period === "recharge";
@@ -79,12 +77,13 @@ export default class CruxUtils {
             toHit: isNaN(parseInt(activity.labels.toHit)) ? null : parseInt(activity.labels.toHit)
         };
     }
+
     /**
-     * Activates an item or activity, ensuring correct filtering and execution.
-     * @param {string} itemUuid - The UUID of the item to activate.
-     * @param {string} [activityId] - Optional activity ID to execute.
-     * @param {Event} [event] - Optional event that triggered the activation.
-     * @returns {Promise} - Promise that resolves when the item is used.
+     * Activate an item or activity.
+     * @param {string} itemUuid
+     * @param {string} [activityId]
+     * @param {Event} [event]
+     * @returns {Promise}
      */
     static activateItem(itemUuid, activityId = null, event = null) {
         if (!itemUuid) return;
@@ -116,7 +115,7 @@ export default class CruxUtils {
                     activity = item.system.activities.get(activityId);
                 }
             } catch (e) {
-                console.warn("❌ Error finding activity:", e);
+                console.warn("Crux | Error finding activity", e);
             }
             if (activity) {
                 const placesTemplate = item.hasAreaTarget || 
@@ -162,7 +161,7 @@ export default class CruxUtils {
         if (activityId) {
             const activity = activities.find(a => a.id === activityId);
             if (!activity) {
-                console.warn("❌ Activity not found in filtered list.");
+                console.warn("Crux | Activity not found in filtered list");
                 if (game.crux) game.crux.cruxItemActive = false;
                 return;
             }

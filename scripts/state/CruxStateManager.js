@@ -1,26 +1,20 @@
-/**
- * Manages state for the Crux module
- */
 export default class CruxStateManager {
     static #instance;
     
-    /** @type {Map<string, Object>} Stores UI state per actor */
+    /** @type {Map<string, Object>} */
     #actorStates = new Map();
     
-    /** @type {Set<Actor>} Set of currently active actors */
+    /** @type {Set<Actor>} */
     #activeActors = new Set();
 
-    /**
-     * Get the singleton instance
-     */
     static getInstance() {
         if (!this.#instance) this.#instance = new CruxStateManager();
         return this.#instance;
     }
 
     /**
-     * Get currently active actors based on token selection or user's default character
-     * @returns {Actor[]} Array of active actors
+     * Get currently active actors.
+     * @returns {Actor[]}
      */
     getActiveActors() {
         const controlled = canvas.tokens.controlled.filter(t => 
@@ -44,9 +38,9 @@ export default class CruxStateManager {
     }
 
     /**
-     * Update the state for a specific actor UUID
-     * @param {string} actorUuid The actor UUID
-     * @param {Object} newState New state to merge with existing state
+     * Update state for an actor UUID.
+     * @param {string} actorUuid
+     * @param {Object} newState
      */
     updateActorStateByUuid(actorUuid, newState) {
         if (!actorUuid) return;        
@@ -68,9 +62,9 @@ export default class CruxStateManager {
     }
 
     /**
-     * Get the state for a specific actor UUID
-     * @param {string} actorUuid The actor UUID
-     * @returns {Object|null} Actor's state or null if not found
+     * Get state for an actor UUID.
+     * @param {string} actorUuid
+     * @returns {Object|null}
      */
     getActorStateByUuid(actorUuid) {
         if (!actorUuid) return null;
@@ -78,26 +72,23 @@ export default class CruxStateManager {
         return state ? { ...state } : null;
     }
 
-    /**
-     * Reset all stored states
-     */
     resetAllStates() {
         this.#actorStates.clear();
     }
 
     /**
-     * Check if an actor is currently active
-     * @param {Actor} actor Actor to check
-     * @returns {boolean} True if actor is active
+     * Check whether an actor is active.
+     * @param {Actor} actor
+     * @returns {boolean}
      */
     isActorActive(actor) {
         return this.#activeActors.has(actor);
     }
 
     /**
-     * Update UI state for a specific actor
-     * @param {Actor} actor The actor to update state for
-     * @param {Object} state State object containing scroll, skills, sections, etc.
+     * Update UI state for an actor.
+     * @param {Actor} actor
+     * @param {Object} state
      */
     updateActorState(actor, state) {
         if (!actor) return;
@@ -105,9 +96,9 @@ export default class CruxStateManager {
     }
 
     /**
-     * Get UI state for a specific actor
-     * @param {Actor} actor The actor to get state for
-     * @returns {Object|null} Actor's UI state or null if not found
+     * Get UI state for an actor.
+     * @param {Actor} actor
+     * @returns {Object|null}
      */
     getActorState(actor) {
         if (!actor) return null;
@@ -115,10 +106,10 @@ export default class CruxStateManager {
     }
 
     /**
-     * Update section collapsed state for the current actor
-     * @param {Actor} actor The actor to update state for
-     * @param {string} sectionTitle Section title
-     * @param {boolean} isCollapsed Whether section is collapsed
+     * Update section state.
+     * @param {Actor} actor
+     * @param {string} sectionTitle
+     * @param {boolean} isCollapsed
      */
     updateSectionState(actor, sectionTitle, isCollapsed) {
         if (!actor) return;
@@ -131,10 +122,10 @@ export default class CruxStateManager {
     }
 
     /**
-     * Update group collapsed state for the current actor
-     * @param {Actor} actor The actor to update state for
-     * @param {string} groupTitle Group title
-     * @param {boolean} isCollapsed Whether group is collapsed
+     * Update group state.
+     * @param {Actor} actor
+     * @param {string} groupTitle
+     * @param {boolean} isCollapsed
      */
     updateGroupState(actor, groupTitle, isCollapsed) {
         if (!actor) return;
@@ -147,10 +138,10 @@ export default class CruxStateManager {
     }
 
     /**
-     * Get section collapsed state for the current actor
-     * @param {Actor} actor The actor to get state for
-     * @param {string} sectionTitle Section title
-     * @returns {boolean} Whether section is expanded
+     * Get section state.
+     * @param {Actor} actor
+     * @param {string} sectionTitle
+     * @returns {boolean}
      */
     getSectionState(actor, sectionTitle) {
         const state = this.getActorState(actor);
@@ -158,10 +149,10 @@ export default class CruxStateManager {
     }
 
     /**
-     * Get group collapsed state for the current actor
-     * @param {Actor} actor The actor to get state for
-     * @param {string} groupTitle Group title
-     * @returns {boolean} Whether group is expanded
+     * Get group state.
+     * @param {Actor} actor
+     * @param {string} groupTitle
+     * @returns {boolean}
      */
     getGroupState(actor, groupTitle) {
         const state = this.getActorState(actor);
@@ -169,8 +160,7 @@ export default class CruxStateManager {
     }
     
     /**
-     * For backward compatibility
-     * @param {Object} newState New state to merge with existing scroll position
+     * @param {Object} newState
      * @deprecated Use updateActorState instead
      */
     updateScrollPosition(newState) {
@@ -180,8 +170,7 @@ export default class CruxStateManager {
     }
 
     /**
-     * For backward compatibility
-     * @returns {Object} Current scroll position state for the last actor
+     * @returns {Object}
      * @deprecated Use getActorState instead
      */
     getScrollPosition() {
@@ -191,10 +180,7 @@ export default class CruxStateManager {
         return {};
     }
 
-    /**
-     * For backward compatibility
-     * @deprecated Use resetAllStates instead
-     */
+    /** @deprecated Use resetAllStates instead */
     resetScrollPosition() {
         this.resetAllStates();
     }
