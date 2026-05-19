@@ -6,11 +6,8 @@ All notable changes to the CRUX module will be documented in this file.
 
 ### Fixed
 - Fixed dnd5e item description enrichers in expanded Crux item summaries by enriching descriptions relative to their source item.
-- Improved expanded item summary readability with transparent backgrounds and better summary text sizing.
+- Improved expanded item summary readability and spacing.
 - Added left-side tray gutter spacing to visually balance the scrollbar gap.
-
-### Changed
-- Trimmed overly verbose internal comments and normalized several Crux log messages.
 
 ## [2026-05-17] [2.1.2]
 
