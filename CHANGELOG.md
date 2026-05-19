@@ -9,6 +9,7 @@ All notable changes to the CRUX module will be documented in this file.
 - Improved expanded item summary readability and spacing.
 - Added left-side tray gutter spacing to visually balance the scrollbar gap.
 
+
 ## [2026-05-17] [2.1.2]
 
 ### Changed
