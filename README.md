@@ -7,8 +7,7 @@
 
 
 <p align="center">
-  <img src="docs/images/crux-tray-preview.png" alt="Crux Actions panel preview" width="246">
-  <img src="docs/images/crux-actor-preview.png" alt="Crux Actor panel preview" width="250">
+  <img src="docs/images/crux-tray-preview-2.png" alt="Crux Actions and Actor panel previews" width="100%">
 </p>
 
 <p>
