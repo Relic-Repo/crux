@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/crux-banner.png" alt="Crux banner" width="100%">
+  <img src="docs/images/crux-banner-2.png" alt="Crux banner" width="100%">
 </p>
 
 # CRUX
