@@ -8,6 +8,7 @@ node_modules/
 .local/
 
 # Foundry VTT specific
+crux.lock
 packs/**/CURRENT
 packs/**/LOG*
 packs/**/MANIFEST*
