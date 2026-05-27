@@ -21,11 +21,6 @@ export default class CruxCompatibility {
         return major > 5 || (major === 5 && minor >= 1);
     }
 
-    /**
-     * Map from new v5.1+ method values to the legacy preparation.mode values
-     * used by the categorization switch statement.
-     * In v5.1+, "spell" replaces "prepared", other values may also differ.
-     */
     static METHOD_TO_LEGACY = {
         "spell": "prepared",
         "always": "always",
@@ -36,10 +31,6 @@ export default class CruxCompatibility {
     };
 
     /**
-     * Get the spell preparation mode for an item, handling the v5.1+ deprecation
-     * of preparation.mode in favor of SpellData#method.
-     * Returns legacy-compatible values (e.g. "prepared" instead of "spell")
-     * so existing switch/case logic continues to work.
      * @param {Item} item - The spell item
      * @returns {string|null} The preparation mode (legacy-compatible)
      */
@@ -56,10 +47,6 @@ export default class CruxCompatibility {
     }
 
     /**
-     * Get whether a spell is prepared, handling the v5.1+ deprecation
-     * of preparation.prepared in favor of SpellData#prepared.
-     * In v5.1+, prepared is a numeric value (0=not prepared, 1=prepared, 2=always prepared).
-     * This returns a boolean for backward compatibility.
      * @param {Item} item - The spell item
      * @returns {boolean} Whether the spell is prepared
      */

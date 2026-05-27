@@ -267,13 +267,13 @@ export default class CruxSettings {
         },
 "global-font-size-multiplier": {
     name: "Global Font Size Multiplier",
-    hint: "Adjust the size of all text in the interface (0.5 = half size, 1.0 = default, 1.5 = 50% larger). This affects all text elements throughout the interface.",
+    hint: "Adjust the size of all text in the interface. 1.0 is the recommended default scale.",
     scope: "client",
     config: true,
     type: Number,
     range: {
-        min: 0.5,
-        max: 1.5,
+        min: 0.7,
+        max: 2.1,
         step: 0.1
     },
     default: 1.0,
@@ -282,6 +282,13 @@ export default class CruxSettings {
             this._updateGlobalFontSizeMultiplier();
         }
     }
+},
+"global-font-scale-rebased": {
+    name: "Global Font Scale Rebased",
+    scope: "client",
+    config: false,
+    type: Boolean,
+    default: false
 },
 "content-text-size-multiplier": {
     name: "Content Text Size Multiplier",
@@ -313,6 +320,19 @@ export default class CruxSettings {
             this._updateCharacterNameSizeMultiplier();
         }
     }
+},
+"panel-opacity": {
+    name: "Panel Opacity",
+    hint: "Adjust the background opacity of the Crux panel and tabs.",
+    scope: "client",
+    config: true,
+    type: Number,
+    range: {
+        min: 0.1,
+        max: 0.9,
+        step: 0.05
+    },
+    default: 0.4
 },
         "taskbar-compatibility": {
             name: "Taskbar Compatibility",
@@ -410,15 +430,20 @@ export default class CruxSettings {
                     if (key === "character-name-size-multiplier") {
                         this._updateCharacterNameSizeMultiplier();
                     }
+                    if (key === "panel-opacity") {
+                        this._updatePanelOpacity();
+                    }
                         game.crux.app.render(true);
                     }
                 }
             });
         }
         this._updateFontFamily();
+        this._normalizeGlobalFontScale();
         this._updateContentTextSizeMultiplier();
         this._updateGlobalFontSizeMultiplier();
         this._updateCharacterNameSizeMultiplier();
+        this._updatePanelOpacity();
     }
     
     /**
@@ -507,8 +532,19 @@ export default class CruxSettings {
      * @private
      */
     static _updateGlobalFontSizeMultiplier() {
-        const globalFontSizeMultiplier = this.getSetting("global-font-size-multiplier");
+        const rawMultiplier = this.getSetting("global-font-size-multiplier");
+        const globalFontSizeMultiplier = rawMultiplier * 0.7;
         document.documentElement.style.setProperty('--crux-global-font-size-multiplier', globalFontSizeMultiplier);
+    }
+
+    static _normalizeGlobalFontScale() {
+        if (this.getSetting("global-font-scale-rebased")) return;
+
+        const currentMultiplier = this.getSetting("global-font-size-multiplier");
+        if (Math.abs(currentMultiplier - 0.7) < 0.001) {
+            game.settings.set("crux", "global-font-size-multiplier", 1.0);
+        }
+        game.settings.set("crux", "global-font-scale-rebased", true);
     }
     
     /**
@@ -525,6 +561,13 @@ export default class CruxSettings {
         document.documentElement.style.setProperty('--crux-character-name-size-multiplier', characterNameSizeMultiplier);
         document.body?.style.setProperty('--crux-character-name-size-multiplier', characterNameSizeMultiplier);
         game.crux?.app?.element?.style.setProperty('--crux-character-name-size-multiplier', characterNameSizeMultiplier);
+    }
+
+    static _updatePanelOpacity() {
+        const panelOpacity = this.getSetting("panel-opacity");
+        document.documentElement.style.setProperty('--crux-bg-opacity', panelOpacity);
+        document.body?.style.setProperty('--crux-bg-opacity', panelOpacity);
+        game.crux?.app?.element?.style.setProperty('--crux-bg-opacity', panelOpacity);
     }
 
     /**

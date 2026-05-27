@@ -30,7 +30,7 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
         resizable: false,
         headerButtons: [],
         position: {
-            width: 260,
+            width: 250,
             height: "auto"
         },
         form: {

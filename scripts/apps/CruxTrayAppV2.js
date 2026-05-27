@@ -36,6 +36,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             activateItem: function(event, target) { this._onActivateItem(event, target); },
             rechargeItem: function(event, target) { this._onRechargeItem(event, target); },
             rollAbility: function(event, target) { this._onRollAbility(event, target); },
+            rollSave: function(event, target) { this._onRollSave(event, target); },
             rollSkill: function(event, target) { this._onRollSkill(event, target); },
             toggleTarget: function(event, target) { this._onToggleTarget(event, target); },
             openEffects: function(event, target) { this._onOpenEffects(event, target); },
@@ -47,9 +48,14 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             shortRest: function(event, target) { this._onShortRest(event, target); },
             longRest: function(event, target) { this._onLongRest(event, target); },
             toggleQSpinner: function(event, target) { this._onToggleQSpinner(event, target); },
-            toggleUSpinner: function(event, target) { this._onToggleUSpinner(event, target); }
+            toggleUSpinner: function(event, target) { this._onToggleUSpinner(event, target); },
+            toggleTab: function(event, target) { this._onToggleTab(event, target); },
+            openIdentityItem: function(event, target) { this._onOpenIdentityItem(event, target); },
+            toggleHpEditor: function(event, target) { this._onToggleHpEditor(event, target); }
         }
     };
+
+    _activeTab = "actions";
 
     /**
      * Template parts used by the application
@@ -252,7 +258,11 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             return {
                 actor: actor,
                 name: actor.name,
+                isNpc: actor.type === "npc",
                 sections,
+                actorStats: this._getActorStats(actorData),
+                actorIdentity: this._getActorIdentity(actor),
+                actorTraits: this._getActorTraits(actor),
                 needsInitiative,
                 isCurrentTurn,
                 skills: CONFIG.DND5E.skills,
@@ -271,6 +281,11 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
 
     return {
         actors,
+        activeTab: this._activeTab,
+        tabs: [
+            { id: "actions", label: "Actions" },
+            { id: "actor", label: "Actor" }
+        ],
         iconSize,
         showSpellDots,
         showSpellFractions,
@@ -307,6 +322,245 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         };
         
         return groups;
+    }
+
+    _getActorStats(actorData) {
+        const hp = actorData.attributes?.hp ?? {};
+        const movement = actorData.attributes?.movement ?? {};
+        const hitDice = actorData.attributes?.hd ?? {};
+        const initiative = actorData.attributes?.init ?? {};
+        const senses = actorData.attributes?.senses ?? {};
+        const death = actorData.attributes?.death ?? {};
+        const exhaustionValue = actorData.attributes?.exhaustion ?? actorData.details?.exhaustion ?? 0;
+        const exhaustion = Number(exhaustionValue?.value ?? exhaustionValue) || 0;
+        const hpValue = Number(hp.value ?? 0) || 0;
+        const hpMax = Number(hp.max ?? 0) || 0;
+        const hdValue = Number(hitDice.value ?? hitDice.available ?? 0) || 0;
+        const hdMax = Number(hitDice.max ?? hitDice.total ?? 0) || 0;
+        const percentage = (value, max) => max > 0 ? Math.min(Math.max((value / max) * 100, 0), 100) : 0;
+
+        return {
+            ac: actorData.attributes?.ac?.value ?? 0,
+            hp: {
+                value: hpValue,
+                max: hpMax,
+                temp: hp.temp ?? 0,
+                pct: percentage(hpValue, hpMax)
+            },
+            hitDice: {
+                value: hdValue,
+                max: hdMax,
+                pct: percentage(hdValue, hdMax)
+            },
+            death: {
+                success: Math.min(Math.max(Number(death.success ?? 0) || 0, 0), 3),
+                failure: Math.min(Math.max(Number(death.failure ?? 0) || 0, 0), 3)
+            },
+            initiative: initiative.total ?? initiative.mod ?? 0,
+            proficiency: actorData.attributes?.prof ?? 0,
+            speed: movement.walk ?? movement.fly ?? movement.swim ?? movement.climb ?? movement.burrow ?? 0,
+            exhaustion: Math.min(Math.max(exhaustion, 0), 6),
+            senses: {
+                darkvision: senses.darkvision ?? 0,
+                blindsight: senses.blindsight ?? 0,
+                tremorsense: senses.tremorsense ?? 0,
+                truesight: senses.truesight ?? 0
+            }
+        };
+    }
+
+    _getActorIdentity(actor) {
+        if (actor.type === "npc") return this._getNpcIdentity(actor);
+
+        const race = actor.system.details?.race;
+        const background = actor.system.details?.background;
+        const raceItem = race?.uuid ? race : actor.items.find(item => item.type === "race");
+        const backgroundItem = background?.uuid ? background : actor.items.find(item => item.type === "background");
+        const type = raceItem?.system?.type ?? actor.system.details?.type;
+        const typeValue = type?.value ?? type;
+        const typeLabel = typeValue === "custom"
+            ? type?.custom
+            : CONFIG.DND5E.creatureTypes?.[typeValue]?.label ?? typeValue;
+        const subtype = type?.subtype ?? "";
+        const speciesSize = raceItem?.system?.size ?? raceItem?.system?.traits?.size ?? actor.system.traits?.size;
+        const sizeLabel = CONFIG.DND5E.actorSizes?.[speciesSize]?.label ?? speciesSize;
+
+        return {
+            creatureType: {
+                label: typeLabel || "Creature Type",
+                subtitle: subtype || raceItem?.name || "",
+                img: CONFIG.DND5E.creatureTypes?.[typeValue]?.icon || raceItem?.img || "icons/svg/mystery-man.svg",
+                uuid: raceItem?.uuid
+            },
+            species: {
+                label: raceItem?.name || "Species",
+                subtitle: sizeLabel || "",
+                img: raceItem?.img || "icons/svg/mystery-man.svg",
+                uuid: raceItem?.uuid
+            },
+            background: {
+                label: backgroundItem?.name || "Background",
+                subtitle: "",
+                img: backgroundItem?.img || "icons/svg/book.svg",
+                uuid: backgroundItem?.uuid
+            }
+        };
+    }
+
+    _getNpcIdentity(actor) {
+        const details = actor.system.details ?? {};
+        const type = details.type ?? {};
+        const typeValue = type.value ?? type;
+        const typeLabel = this._localizeLabel(type.label ?? CONFIG.DND5E.creatureTypes?.[typeValue]?.label ?? typeValue ?? "Creature Type");
+        const subtype = type.subtype ?? "";
+        const size = actor.system.traits?.size;
+        const sizeLabel = this._localizeLabel(CONFIG.DND5E.actorSizes?.[size]?.label ?? size ?? "Size");
+
+        return {
+            creatureType: {
+                label: typeLabel || "Creature Type",
+                subtitle: subtype,
+                img: CONFIG.DND5E.creatureTypes?.[typeValue]?.icon || "icons/svg/mystery-man.svg"
+            },
+            species: {
+                label: sizeLabel || "Size",
+                subtitle: "Size",
+                img: "icons/svg/upgrade.svg"
+            },
+            background: {
+                label: details.alignment || "Alignment",
+                subtitle: "Alignment",
+                img: "icons/svg/aura.svg"
+            }
+        };
+    }
+
+    _getActorTraits(actor) {
+        if (actor.type === "npc") return this._getNpcTraits(actor);
+
+        const actorData = actor.system;
+        const traits = actorData.traits ?? {};
+        const senses = this._getSenseTags(actorData.attributes?.senses ?? {});
+        const categories = [
+            { id: "senses", label: "Senses", icon: "fas fa-eye", tags: senses },
+            { id: "resistances", label: "Resistances", icon: "fas fa-shield-virus", tags: this._getTraitTags(traits.dr, CONFIG.DND5E.damageTypes) },
+            { id: "immunities", label: "Immunities", icon: "fas fa-shield-alt", tags: [
+                ...this._getTraitTags(traits.di, CONFIG.DND5E.damageTypes),
+                ...this._getTraitTags(traits.ci, CONFIG.DND5E.conditionTypes)
+            ] },
+            { id: "vulnerabilities", label: "Vulnerabilities", icon: "fas fa-heart-crack", tags: this._getTraitTags(traits.dv, CONFIG.DND5E.damageTypes) },
+            { id: "armor", label: "Armor", icon: "fas fa-shield", tags: this._getTraitTags(traits.armorProf, CONFIG.DND5E.armorProficiencies) },
+            { id: "weapons", label: "Weapons", icon: "fas fa-swords", tags: this._getTraitTags(traits.weaponProf, CONFIG.DND5E.weaponProficiencies) },
+            { id: "tools", label: "Tools", icon: "fas fa-toolbox", tags: this._getTraitTags(traits.toolProf, CONFIG.DND5E.toolProficiencies) },
+            { id: "languages", label: "Languages", icon: "fas fa-flag", tags: this._getTraitTags(traits.languages, CONFIG.DND5E.languages) }
+        ];
+
+        return categories.filter(category => category.tags.length);
+    }
+
+    _getNpcTraits(actor) {
+        const actorData = actor.system;
+        const traits = actorData.traits ?? {};
+        const categories = [
+            { id: "speed", label: "Speed", icon: "fas fa-shoe-prints", tags: this._getNpcSpeedTags(actorData.attributes?.movement ?? {}) },
+            { id: "skills", label: "Skills", icon: "fas fa-briefcase", tags: this._getNpcSkillTags(actorData.skills ?? {}) },
+            { id: "senses", label: "Senses", icon: "fas fa-eye", tags: this._getSenseTags(actorData.attributes?.senses ?? {}) },
+            { id: "resistances", label: "Resistances", icon: "fas fa-shield-virus", tags: this._getTraitTags(traits.dr, CONFIG.DND5E.damageTypes) },
+            { id: "damage-immunities", label: "Damage Immunities", icon: "fas fa-shield-alt", tags: this._getTraitTags(traits.di, CONFIG.DND5E.damageTypes) },
+            { id: "condition-immunities", label: "Condition Immunities", icon: "fas fa-shield-heart", tags: this._getTraitTags(traits.ci, CONFIG.DND5E.conditionTypes) },
+            { id: "vulnerabilities", label: "Vulnerabilities", icon: "fas fa-heart-crack", tags: this._getTraitTags(traits.dv, CONFIG.DND5E.damageTypes) },
+            { id: "damage-modification", label: "Damage Modification", icon: "fas fa-notes-medical", tags: this._getDamageModificationTags(traits.dm) },
+            { id: "languages", label: "Languages", icon: "fas fa-flag", tags: this._getTraitTags(traits.languages, CONFIG.DND5E.languages) },
+            { id: "habitat", label: "Habitat", icon: "fas fa-mountain", tags: this._getTraitTags(actorData.details?.habitat, CONFIG.DND5E.habitats) },
+            { id: "treasure", label: "Treasure", icon: "fas fa-gem", tags: this._getTraitTags(actorData.details?.treasure, CONFIG.DND5E.treasure) }
+        ];
+
+        return categories.filter(category => category.tags.length);
+    }
+
+    _getNpcSpeedTags(movement) {
+        const speed = movement.speed ?? movement.walk;
+        const tags = [];
+        if (speed) tags.push({ label: "Speed", value: speed });
+
+        for (const key of ["walk", "burrow", "climb", "fly", "swim"]) {
+            const value = Number(movement[key]) || 0;
+            if (!value || value === speed && key === "walk") continue;
+            tags.push({ label: key.titleCase?.() ?? key, value });
+        }
+
+        if (movement.special) tags.push({ label: movement.special });
+        return this._uniqueTags(tags);
+    }
+
+    _getNpcSkillTags(skills) {
+        const tags = [];
+        for (const [key, skill] of Object.entries(skills)) {
+            if (!(Number(skill.value) > 0 || Number(skill.effectValue) > 0)) continue;
+            const label = this._localizeLabel(CONFIG.DND5E.skills?.[key]?.label ?? key.titleCase?.() ?? key);
+            const total = Number(skill.total ?? 0) || 0;
+            tags.push({ label, value: total >= 0 ? `+${total}` : total });
+        }
+        return tags;
+    }
+
+    _getDamageModificationTags(modification) {
+        const amounts = modification?.amount ?? {};
+        return Object.entries(amounts)
+            .map(([label, value]) => ({ label: this._localizeLabel(label), value }))
+            .filter(tag => tag.value !== undefined && tag.value !== null && tag.value !== "");
+    }
+
+    _getTraitTags(trait, config = {}) {
+        if (!trait) return [];
+        const values = this._toArray(trait.value ?? trait);
+        const tags = values.map(value => this._formatTraitValue(value, config)).filter(Boolean);
+        const custom = String(trait.custom ?? "").split(/[;,]/).map(value => value.trim()).filter(Boolean);
+        return this._uniqueTags([...tags, ...custom.map(label => ({ label }))]);
+    }
+
+    _getSenseTags(senses) {
+        const config = CONFIG.DND5E.senses ?? {};
+        const tags = [];
+        for (const [key, value] of Object.entries(senses)) {
+            if (key === "units" || key === "special") continue;
+            const distance = Number(value) || 0;
+            if (distance <= 0) continue;
+            const label = this._localizeLabel(config[key]?.label ?? config[key] ?? key.titleCase?.() ?? key);
+            tags.push({ label, value: distance });
+        }
+        if (senses.special) tags.push({ label: senses.special });
+        return this._uniqueTags(tags);
+    }
+
+    _formatTraitValue(value, config = {}) {
+        if (!value) return null;
+        const label = this._localizeLabel(config[value]?.label ?? config[value] ?? String(value).titleCase?.() ?? String(value));
+        return { label };
+    }
+
+    _localizeLabel(label) {
+        if (typeof label !== "string") return String(label ?? "");
+        return game.i18n?.has?.(label) ? game.i18n.localize(label) : label;
+    }
+
+    _uniqueTags(tags) {
+        const seen = new Set();
+        return tags.filter(tag => {
+            const key = `${tag.label}|${tag.value ?? ""}`.toLowerCase();
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+    }
+
+    _toArray(value) {
+        if (!value) return [];
+        if (value instanceof Set) return Array.from(value);
+        if (Array.isArray(value)) return value;
+        if (typeof value === "string") return value ? [value] : [];
+        if (typeof value.values === "function") return Array.from(value.values());
+        return [];
     }
 
     /**
@@ -613,7 +867,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         const traySize = game.settings.get("crux", "tray-size");
         document.documentElement.style.setProperty('--crux-width', traySize + 'px');
         if (this.element) {
-            this.element.style.width = traySize + 'px';
+            this.element.style.width = 'var(--crux-occupied-width)';
             this.element.style.position = 'fixed';
             this.element.style.top = '0px';
             this.element.style.left = '0px';
@@ -750,18 +1004,29 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             container.addEventListener('scroll', this._onScroll.bind(this));
         }
 
-        this.element.querySelectorAll('.crux__info-section h1').forEach(nameElement => {
+        this.element.querySelectorAll('.crux__info-section h1, .crux__action-actor-name').forEach(nameElement => {
             const nameLength = nameElement.textContent.trim().length;
+            const isActionHeader = nameElement.classList.contains('crux__action-actor-name');
+            const longThreshold = isActionHeader ? 24 : 20;
+            const veryLongThreshold = isActionHeader ? 36 : 30;
             nameElement.classList.remove('long-name', 'very-long-name');
-            if (nameLength > 30) {
+            if (nameLength > veryLongThreshold) {
                 nameElement.classList.add('very-long-name');
-            } else if (nameLength > 20) {
+            } else if (nameLength > longThreshold) {
                 nameElement.classList.add('long-name');
             }
         });
 
         this.element.querySelectorAll('.crux__portrait').forEach(portrait => {
-            portrait.addEventListener('click', () => portrait.classList.toggle('flipped'));
+            portrait.addEventListener('click', (event) => {
+                const actorUuid = event.currentTarget.closest('.crux__actor')?.dataset.actorUuid;
+                const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
+                if (actor?.system?.attributes?.hp?.value <= 0 && typeof actor.rollDeathSave === "function") {
+                    actor.rollDeathSave({ event, legacy: false }, {}, {});
+                    return;
+                }
+                portrait.classList.toggle('flipped');
+            });
         });
 
         this.element.querySelectorAll('.crux__actor-name').forEach(name => {
@@ -898,6 +1163,46 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         }
     }
 
+    _onToggleTab(event, target) {
+        event.preventDefault();
+        const tab = target.dataset.tab;
+        if (!tab || tab === this._activeTab) return;
+
+        this._activeTab = tab;
+        this.render(true);
+    }
+
+    showTab(tab) {
+        if (!["actions", "actor"].includes(tab)) return;
+        const wasActiveTab = this._activeTab === tab;
+        this._activeTab = tab;
+
+        const openTray = () => {
+            const interfaceEl = document.querySelector("#interface");
+            if (this.element) this.element.classList.add("active");
+            if (interfaceEl) interfaceEl.classList.add("crux-active");
+        };
+
+        if (!this.element || !document.body.contains(this.element) || !wasActiveTab) {
+            this.render(true).then(openTray);
+            return;
+        }
+
+        openTray();
+    }
+
+    showActorTab() {
+        this.showTab("actor");
+    }
+
+    _onOpenIdentityItem(event, target) {
+        event.preventDefault();
+        const uuid = target.dataset.itemUuid;
+        if (!uuid) return;
+        const item = CruxHooksManager.fromUuid(uuid);
+        if (item?.sheet) item.sheet.render(true);
+    }
+
     /**
      * Override setPosition to ignore scale parameter from uiscaler
      * @override
@@ -919,6 +1224,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      */
     toggleTray() {
         if (!this.element || !document.body.contains(this.element)) {
+            this._activeTab = "actions";
             this.render(true);
             return;
         }
@@ -936,6 +1242,15 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         }
         if (trayMode === "auto") {
             ui.notifications.info("Tray visibility is set to Automatic mode. It will show when tokens are selected.");
+            return;
+        }
+        if (this.element.classList.contains("active") && this._activeTab !== "actions") {
+            this._activeTab = "actions";
+            this.render(true).then(() => {
+                const interfaceEl = document.querySelector("#interface");
+                this.element?.classList.add("active");
+                if (interfaceEl) interfaceEl.classList.add("crux-active");
+            });
             return;
         }
         this.element.classList.toggle("active");
@@ -1242,6 +1557,31 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (actor) {
             actor.rollAbility({ ability: abl }, {}, {});
+        }
+    }
+
+    _onRollSave(event, target) {
+        const abl = target.dataset.ability;
+        if (!abl) return;
+        let actorElement = target.closest('.crux__actor');
+        let actorUuid;
+        if (!actorElement) {
+            const actors = game.crux.state.getActiveActors();
+            if (actors.length === 1) {
+                actorElement = this.element.querySelector('.crux__actor');
+                if (actorElement) {
+                    actorUuid = actorElement.dataset.actorUuid;
+                } else {
+                    actorUuid = actors[0].uuid;
+                }
+            }
+            if (!actorUuid) return;
+        } else {
+            actorUuid = actorElement.dataset.actorUuid;
+        }
+        const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
+        if (actor) {
+            actor.rollSavingThrow({ ability: abl, event }, {}, {});
         }
     }
 
@@ -1604,15 +1944,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         }        
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (!actor) return;
-        const combatant = game.combat?.combatants.find(c => c.actor?.id === actor.id);
-        if (!combatant) {
-            return;
-        }
-        game.combat.rollInitiative(combatant.id, {
-            messageOptions: {
-                rollMode: CONST.DICE_ROLL_MODES.PUBLIC
-            }
-        });
+        actor.rollInitiative({ createCombatants: true });
     }
 
     _onShortRest(event, target) {
@@ -1743,6 +2075,78 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         if (item.sheet?.rendered) {
             item.sheet.render(false);
         }
+    }
+
+    _onToggleHpEditor(event, target) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (!event.shiftKey) return;
+
+        const actorElement = target.closest('.crux__actor');
+        const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorElement?.dataset.actorUuid));
+        if (!actor?.isOwner) return;
+
+        this._openHpEditor(target, actor);
+    }
+
+    _openHpEditor(target, actor) {
+        const isEdit = target.dataset.edit === "true";
+        if (isEdit) return;
+
+        const displayMode = target.querySelector('.display-mode');
+        const editMode = target.querySelector('.edit-mode');
+        const input = editMode?.querySelector('input');
+        if (!displayMode || !editMode || !input) return;
+
+        target.dataset.edit = "true";
+        displayMode.classList.add('hidden');
+        editMode.classList.remove('hidden');
+        input.dataset.originalValue = input.value;
+        input.focus();
+        input.select();
+
+        let isClosing = false;
+        const close = async (save) => {
+            if (isClosing) return;
+            isClosing = true;
+            input.removeEventListener('blur', onBlur);
+            input.removeEventListener('keydown', onKeyDown);
+            if (save) await this._saveHpEditorChanges(target, actor);
+            target.dataset.edit = "false";
+            displayMode.classList.remove('hidden');
+            editMode.classList.add('hidden');
+        };
+        const onBlur = () => close(true);
+        const onKeyDown = (keyboardEvent) => {
+            if (keyboardEvent.key === "Enter") {
+                keyboardEvent.preventDefault();
+                close(true);
+            } else if (keyboardEvent.key === "Escape") {
+                keyboardEvent.preventDefault();
+                input.value = input.dataset.originalValue ?? input.value;
+                close(false);
+            }
+        };
+
+        input.addEventListener('blur', onBlur);
+        input.addEventListener('keydown', onKeyDown);
+    }
+
+    async _saveHpEditorChanges(target, actor) {
+        const input = target.querySelector('.edit-mode input');
+        if (!input || !actor?.isOwner) return;
+
+        const field = target.dataset.hpField;
+        const currentHp = actor.system.attributes?.hp ?? {};
+        const rawValue = parseInt(input.value);
+        const fallback = field === "temp" ? Number(currentHp.temp ?? 0) || 0 : Number(currentHp.value ?? 0) || 0;
+        const parsedValue = isNaN(rawValue) ? fallback : rawValue;
+        const value = field === "temp"
+            ? Math.max(0, parsedValue)
+            : Math.min(Number(currentHp.max ?? 0) || 0, Math.max(0, parsedValue));
+        const updatePath = field === "temp" ? "system.attributes.hp.temp" : "system.attributes.hp.value";
+
+        await actor.update({ [updatePath]: value });
     }
 
     async _onItemMouseDown(event) {

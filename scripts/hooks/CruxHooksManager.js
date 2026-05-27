@@ -190,6 +190,11 @@ export default class CruxHooksManager {
             });
         }
 
+        const effectHooks = ["createActiveEffect", "updateActiveEffect", "deleteActiveEffect"];
+        effectHooks.forEach(hook => {
+            Hooks.on(hook, (effect) => this._renderForActiveEffect(effect));
+        });
+
         Hooks.on("updateCombat", () => {
             if (!game.crux?.app) return;
             game.crux.app.render();
@@ -240,7 +245,7 @@ export default class CruxHooksManager {
             name: "Toggle Tray",
             hint: "Toggle the visibility of the action tray",
             editable: [
-                { key: "KeyE", modifiers: []}
+                { key: "KeyE", modifiers: ["Shift"]}
             ],
             restricted: false,
             precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL,
@@ -255,11 +260,30 @@ export default class CruxHooksManager {
                 }
             }
         });
+        game.keybindings.register("crux", "open-actor-panel", {
+            name: "Open Actor Panel",
+            hint: "Open the Crux tray with the Actor panel visible",
+            editable: [
+                { key: "KeyC", modifiers: ["Alt"]}
+            ],
+            restricted: false,
+            precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL,
+            onDown: () => {
+                try {
+                    if (!game.ready || !game.crux?.app) return;
+                    game.crux.app.showActorTab();
+                    return true;
+                } catch (error) {
+                    ui.notifications.error("Error opening actor panel");
+                    return false;
+                }
+            }
+        });
         game.keybindings.register("crux", "toggle-skills", {
             name: "Toggle Skills",
             hint: "Toggle the skills list visibility",
             editable: [
-                { key: "KeyK", modifiers: []}
+                { key: "KeyK", modifiers: ["Shift"]}
             ],
             restricted: false,
             precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL,
@@ -309,10 +333,19 @@ export default class CruxHooksManager {
             return candidate;
         } else if (candidate instanceof CONFIG.Token.documentClass) {
             return candidate.object.actor;
+        } else if (candidate.actor instanceof CONFIG.Actor.documentClass) {
+            return candidate.actor;
         } else {
             console.warn("Crux | Expected actor-compatible document", candidate);
             return null;
         }
+    }
+
+    static _renderForActiveEffect(effect) {
+        if (!game.crux?.app) return;
+        const actor = this.resolveActor(effect?.parent);
+        if (!actor || !game.crux.state.isActorActive(actor)) return;
+        setTimeout(() => game.crux.app.render(), 0);
     }
 
     /**

@@ -2,6 +2,27 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2026-05-26] [2.2.0]
+
+### Added
+- Added tabbed panel navigation to Crux.
+  - Actions remains the main play/action panel.
+  - Actor adds a new alternate character sheet view inside the Crux tray.
+- Added the Actor panel.
+  - Displays portrait, AC, HP, Temp HP, Hit Dice, initiative, speed, proficiency, saving throws, identity cards, and trait summaries.
+  - Supports PC and NPC actor displays with actor-appropriate identity and trait information.
+  - Supports death save and exhaustion indicators for player characters.
+  - Supports inline HP and Temp HP editing with Shift-click.
+- Added direct Actor panel access with the Alt+C keybinding.
+
+### Changed
+- Updated Crux's default keybinding flow.
+  - Shift+E now opens or returns to the Actions panel, and closes Crux when already on Actions.
+  - Shift+K now toggles the Skills section.
+- Updated the Actions panel actor card to better match the new Actor panel layout and play flow.
+- Updated the downed actor portrait behavior so clicking the red skull portrait rolls a death saving throw instead of flipping the card.
+- Updated Crux's panel styling to use the newer Actor panel visual language across the tray.
+
 ## [2026-05-18] [2.1.3]
 
 ### Fixed

@@ -1,5 +1,15 @@
 :root {
     --crux-width: 260px;
+    --crux-tab-rail-width: 15px;
+    --crux-occupied-width: calc(var(--crux-width) + var(--crux-tab-rail-width));
+    --crux-interface-push-width: calc(var(--crux-width) + 8px);
+    --crux-accent-color: rgb(153, 25, 79);
+    --crux-accent-glow: rgba(153, 25, 79, 0.8);
+    --crux-accent-bg: rgba(153, 25, 79, 0.25);
+    --crux-actor-text: rgba(220, 222, 226, 0.92);
+    --crux-actor-text-muted: rgba(190, 194, 202, 0.76);
+    --crux-character-text: var(--crux-actor-text);
+    --crux-character-text-muted: var(--crux-actor-text-muted);
     --icon-small-ratio: 0.11;
     --icon-medium-ratio: 0.14;
     --icon-large-ratio: 0.16;
@@ -109,10 +119,13 @@
     right: auto !important;
     bottom: var(--crux-tray-bottom-offset) !important;
     left: 0 !important;
-    width: var(--crux-width) !important;
+    width: var(--crux-occupied-width) !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 #crux .window-content,
@@ -127,22 +140,39 @@
     margin: 0 !important;
     overflow: visible !important;
     background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
-.crux {
+#crux.application.crux,
+#crux.crux {
     position: absolute !important;
     top: 0 !important;
     bottom: var(--crux-tray-bottom-offset) !important;
     left: 0 !important;
+    width: var(--crux-occupied-width) !important;
     height: auto !important;
     transition: transform 0.1s ease;
     transform: translateX(-100%);
     z-index: 0 !important;
-    background: rgba(0, 0, 6, var(--crux-bg-opacity)) !important;
-    backdrop-filter: blur(var(--crux-blur)) !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
     border: none !important;
     border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
+
+.crux__tray {
+    position: absolute !important;
+    inset: 0 !important;
+    width: var(--crux-occupied-width) !important;
+    height: auto !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
 .crux__container {
     position: absolute !important;
     left: 0 !important;
@@ -150,7 +180,7 @@
     bottom: 0 !important;
     width: var(--crux-width) !important;
     box-sizing: border-box !important;
-    background: rgba(0, 0, 0, calc(var(--crux-bg-opacity) - 0.3)) !important;
+    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
     backdrop-filter: blur(calc(var(--crux-blur) - 1px)) !important;
     color: white !important;
     z-index: 0 !important;
@@ -177,21 +207,632 @@
     transform: scale(0.97) !important;
     overflow: hidden;
 }
+
+.crux__tab-rail {
+    position: absolute !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: var(--crux-width) !important;
+    z-index: 3 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    width: var(--crux-tab-rail-width) !important;
+    padding: 5px 0 !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    overflow: visible !important;
+}
+
+.crux__tab {
+    position: relative !important;
+    min-width: 0 !important;
+    width: calc(var(--crux-tab-rail-width) - 2px) !important;
+    height: calc(var(--crux-width) * 0.22) !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: 999px !important;
+    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    color: rgba(255, 255, 255, 0.82) !important;
+    font-family: var(--crux-font-family) !important;
+    font-size: calc(var(--crux-width) * 0.052 * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    overflow: visible !important;
+    text-align: center !important;
+    box-shadow: none !important;
+}
+
+.crux__tab:hover {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border-color: rgba(255, 255, 255, 0.32) !important;
+}
+
+.crux__tab.is-active {
+    background: var(--crux-accent-bg) !important;
+    border-color: var(--crux-accent-color) !important;
+    box-shadow: 0 0 5px var(--crux-accent-glow) !important;
+    color: var(--crux-actor-text) !important;
+}
+
+.crux__tab-panel--blank {
+    position: relative !important;
+    min-height: calc(100vh - calc(var(--crux-width) * 0.12)) !important;
+}
+
+.crux__tab-panel--actor {
+    position: relative !important;
+    min-height: 100% !important;
+    padding: calc(var(--crux-width) * 0.035) 0 0 0 !important;
+    box-sizing: border-box !important;
+}
+
+.crux__tab-panel--actor > .crux__empty-tray {
+    position: relative !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    min-height: calc(100vh - calc(var(--crux-width) * 0.12)) !important;
+    width: 100% !important;
+}
+
+.crux__actor-tab {
+    position: relative !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 0 calc(var(--crux-width) * 0.03) calc(var(--crux-width) * 0.04) calc(var(--crux-width) * 0.04) !important;
+}
+
+.crux__actor-tab-name {
+    margin: calc(var(--crux-width) * -0.006) 0 calc(var(--crux-width) * 0.043) 0 !important;
+    padding: 0 calc(var(--crux-width) * 0.025) !important;
+    border: 1px solid rgba(255, 255, 255, 0.20) !important;
+    color: #fff !important;
+    font-family: var(--crux-font-family) !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.25 * var(--crux-character-name-size-multiplier)) !important;
+    font-weight: 700 !important;
+    line-height: 1.1 !important;
+    word-break: break-word !important;
+}
+
+.crux__container .crux__actor-tab-name {
+    margin: 1px 0 calc(var(--crux-width) * 0.031) 0 !important;
+}
+
+.crux__actor-hero {
+    position: relative !important;
+    margin-bottom: calc(var(--crux-width) * 0.118) !important;
+}
+
+.crux__actor-portrait-wrap {
+    position: relative !important;
+    width: 75% !important;
+    aspect-ratio: 3 / 4 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+}
+
+.crux__actor-portrait {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    border-radius: 4px !important;
+    box-sizing: border-box !important;
+}
+
+.crux__actor-ability-tabs {
+    position: absolute !important;
+    top: 50% !important;
+    right: calc(var(--crux-width) * -0.22) !important;
+    transform: translateY(-50%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: calc(var(--crux-width) * 0.010) !important;
+    width: calc(var(--crux-width) * 0.36) !important;
+}
+
+.crux__actor-ability-tab {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: calc(var(--crux-width) * 0.015) !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: calc((var(--crux-width) * 0.78 - (var(--crux-width) * 0.010 * 7)) / 8) !important;
+    padding: 0 calc(var(--crux-width) * 0.018) !important;
+    border: 1px solid rgba(255, 255, 255, 0.20) !important;
+    border-radius: 4px !important;
+    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    color: var(--crux-actor-text) !important;
+    font-family: var(--crux-font-family) !important;
+    font-size: calc(var(--crux-width) * 0.064 * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    overflow: hidden !important;
+    text-align: left !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.crux__actor-ability-abbr,
+.crux__actor-ability-score {
+    display: block !important;
+    min-width: 0 !important;
+}
+
+.crux__actor-ability-score {
+    text-align: right !important;
+    flex: 1 1 auto !important;
+}
+
+.crux__actor-ability-tab:hover {
+    border-color: var(--crux-accent-color) !important;
+    background: var(--crux-accent-bg) !important;
+}
+
+.crux__actor-exhaustion {
+    position: absolute !important;
+    left: calc(var(--crux-width) * 0.45) !important;
+    right: calc(var(--crux-width) * 0.055) !important;
+    bottom: calc(var(--crux-width) * -0.085) !important;
+    display: flex !important;
+    justify-content: center !important;
+    gap: calc(var(--crux-width) * 0.020) !important;
+    pointer-events: none !important;
+}
+
+.crux__actor-exhaustion-dot {
+    flex: 0 0 calc(var(--crux-width) * 0.054) !important;
+    width: calc(var(--crux-width) * 0.054) !important;
+    height: calc(var(--crux-width) * 0.054) !important;
+    border: 1px solid rgba(255, 255, 255, 0.32) !important;
+    border-radius: 50% !important;
+    background: var(--crux-accent-color) !important;
+    box-sizing: border-box !important;
+}
+
+.crux__actor-exhaustion-dot.is-empty {
+    background: rgba(0, 0, 0, 0.45) !important;
+}
+
+.crux__actor-death-saves {
+    position: absolute !important;
+    left: calc(var(--crux-width) * 0.025) !important;
+    bottom: calc(var(--crux-width) * -0.110) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: calc(var(--crux-width) * 0.004) !important;
+    pointer-events: none !important;
+}
+
+.crux__actor-death-row {
+    display: flex !important;
+    gap: calc(var(--crux-width) * 0.018) !important;
+}
+
+.crux__actor-death-row--failure {
+    margin-left: calc(var(--crux-width) * 0.0235) !important;
+}
+
+.crux__actor-death-dot {
+    flex: 0 0 calc(var(--crux-width) * 0.047) !important;
+    width: calc(var(--crux-width) * 0.047) !important;
+    height: calc(var(--crux-width) * 0.047) !important;
+    border: 1px solid rgba(255, 255, 255, 0.32) !important;
+    border-radius: 50% !important;
+    box-sizing: border-box !important;
+}
+
+.crux__actor-death-row--success .crux__actor-death-dot {
+    background: rgba(45, 135, 70, 0.86) !important;
+}
+
+.crux__actor-death-row--failure .crux__actor-death-dot {
+    background: rgba(145, 22, 42, 0.86) !important;
+}
+
+.crux__actor-death-dot.is-empty {
+    background: rgba(0, 0, 0, 0.45) !important;
+}
+
+.crux__actor-ac-badge {
+    position: absolute !important;
+    left: 37.5% !important;
+    bottom: calc(var(--crux-width) * -0.085) !important;
+    width: calc(var(--crux-width) * 0.18) !important;
+    height: calc(var(--crux-width) * 0.18) !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    border: 2px solid rgba(255, 255, 255, 0.55) !important;
+    border-radius: 50% !important;
+    background: rgba(0, 0, 0, 0.78) !important;
+    color: var(--crux-actor-text) !important;
+    font-size: calc(var(--crux-width) * 0.09 * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.65) !important;
+}
+
+.crux__actor-stat-row {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: calc(var(--crux-width) * 0.025) !important;
+    margin: 0 calc(var(--crux-width) * 0.025) calc(var(--crux-width) * 0.04) 0 !important;
+}
+
+.crux__actor-stat-tab {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: calc(var(--crux-width) * 0.025) calc(var(--crux-width) * 0.018) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: 4px !important;
+    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    box-sizing: border-box !important;
+    color: inherit !important;
+    font-family: var(--crux-font-family) !important;
+    line-height: normal !important;
+    text-align: center !important;
+}
+
+.crux__actor-stat-tab strong {
+    display: block !important;
+    color: var(--crux-actor-text) !important;
+    font-size: calc(var(--crux-width) * 0.086 * var(--crux-global-font-size-multiplier)) !important;
+    line-height: 1 !important;
+}
+
+.crux__actor-stat-tab span {
+    display: block !important;
+    margin-top: 3px !important;
+    color: var(--crux-actor-text-muted) !important;
+    font-size: calc(var(--crux-width) * 0.05 * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+}
+
+.crux__actor-vitals {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: calc(var(--crux-width) * 0.028) !important;
+    margin: 0 calc(var(--crux-width) * 0.025) calc(var(--crux-width) * 0.045) 0 !important;
+}
+
+.crux__actor-vital > span {
+    display: block !important;
+    margin-bottom: 2px !important;
+    color: var(--crux-actor-text-muted) !important;
+    font-size: calc(var(--crux-width) * 0.052 * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+}
+
+.crux__actor-bar {
+    position: relative !important;
+    height: calc(var(--crux-width) * 0.105) !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    border-radius: 4px !important;
+    background: rgba(0, 0, 0, 0.52) !important;
+}
+
+.crux__actor-bar--hp {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) calc(var(--crux-width) * 0.180) !important;
+}
+
+.crux__actor-bar-main {
+    position: relative !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+}
+
+.crux__actor-bar-main[data-action],
+.crux__actor-temp-hp[data-action] {
+    cursor: default !important;
+}
+
+.crux__actor-bar-main[data-edit="true"],
+.crux__actor-temp-hp[data-edit="true"] {
+    cursor: text !important;
+}
+
+.crux__actor-temp-hp {
+    position: relative !important;
+    z-index: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.45) !important;
+    background: rgba(0, 0, 0, 0.28) !important;
+    color: rgba(255, 255, 255, 0.72) !important;
+    font-family: var(--crux-font-family) !important;
+    font-size: calc(var(--crux-width) * 0.072 * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+}
+
+.crux__actor-bar--hp.has-temp-hp .crux__actor-temp-hp {
+    background: rgba(40, 96, 155, 0.86) !important;
+    color: var(--crux-actor-text) !important;
+}
+
+.crux__actor-bar-fill {
+    position: absolute !important;
+    inset: 0 auto 0 0 !important;
+}
+
+.crux__actor-bar-fill--hp {
+    background: rgba(45, 135, 70, 0.86) !important;
+}
+
+.crux__actor-bar-fill--hd {
+    background: rgba(110, 22, 42, 0.86) !important;
+}
+
+.crux__actor-bar strong {
+    position: relative !important;
+    z-index: 1 !important;
+    line-height: calc(var(--crux-width) * 0.105) !important;
+}
+
+.crux__actor-bar strong {
+    margin-left: calc(var(--crux-width) * 0.025) !important;
+    color: var(--crux-actor-text) !important;
+    font-size: calc(var(--crux-width) * 0.072 * var(--crux-global-font-size-multiplier)) !important;
+}
+
+.crux__actor-bar .edit-mode {
+    position: relative !important;
+    z-index: 2 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.crux__actor-bar .edit-mode.hidden {
+    display: none !important;
+}
+
+.crux__actor-bar input {
+    width: calc(100% - calc(var(--crux-width) * 0.030)) !important;
+    height: calc(var(--crux-width) * 0.082) !important;
+    margin: 0 !important;
+    padding: 0 calc(var(--crux-width) * 0.012) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    border-radius: 3px !important;
+    background: rgba(0, 0, 0, 0.72) !important;
+    color: var(--crux-actor-text) !important;
+    font-family: var(--crux-font-family) !important;
+    font-size: calc(var(--crux-width) * 0.072 * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+}
+
+.crux__actor-saves {
+    margin: 0 calc(var(--crux-width) * 0.025) 0 0 !important;
+    padding: calc(var(--crux-width) * 0.035) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: 5px !important;
+    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.35) !important;
+}
+
+.crux__actor-saves h2 {
+    margin: 0 0 calc(var(--crux-width) * 0.03) 0 !important;
+    border: 0 !important;
+    color: var(--crux-actor-text-muted) !important;
+    font-family: var(--crux-font-family) !important;
+    font-size: calc(var(--crux-width) * 0.064 * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 800 !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+}
+
+.crux__actor-save-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1px calc(var(--crux-width) * 0.025) !important;
+}
+
+.crux__actor-save {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    padding: calc(var(--crux-width) * 0.018) 0 !important;
+    border: 0 !important;
+    border-bottom: 1px dotted rgba(255, 255, 255, 0.18) !important;
+    background: transparent !important;
+    color: var(--crux-actor-text-muted) !important;
+    font-family: var(--crux-font-family) !important;
+    font-size: calc(var(--crux-width) * 0.062 * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 700 !important;
+}
+
+.crux__actor-save strong {
+    color: var(--crux-actor-text) !important;
+}
+
+.crux__actor-identity-cards {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: calc(var(--crux-width) * 0.025) !important;
+    margin: calc(var(--crux-width) * 0.04) calc(var(--crux-width) * 0.025) 0 0 !important;
+}
+
+.crux__actor-identity-card {
+    display: grid !important;
+    grid-template-columns: calc(var(--crux-width) * 0.125) minmax(0, 1fr) !important;
+    align-items: center !important;
+    gap: calc(var(--crux-width) * 0.035) !important;
+    min-width: 0 !important;
+    height: calc(var(--crux-width) * 0.175) !important;
+    min-height: calc(var(--crux-width) * 0.175) !important;
+    max-height: calc(var(--crux-width) * 0.175) !important;
+    padding: calc(var(--crux-width) * 0.014) calc(var(--crux-width) * 0.026) !important;
+    border: 1px solid rgba(255, 255, 255, 0.20) !important;
+    border-radius: 4px !important;
+    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    color: var(--crux-actor-text-muted) !important;
+    font-family: var(--crux-font-family) !important;
+    overflow: hidden !important;
+    text-align: left !important;
+}
+
+.crux__actor-identity-card:hover {
+    border-color: var(--crux-accent-color) !important;
+    background: var(--crux-accent-bg) !important;
+}
+
+.crux__actor-identity-card img {
+    width: calc(var(--crux-width) * 0.115) !important;
+    height: calc(var(--crux-width) * 0.115) !important;
+    object-fit: cover !important;
+    border-radius: 3px !important;
+}
+
+.crux__actor-identity-card span {
+    display: flex !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+}
+
+.crux__actor-identity-card strong {
+    overflow: hidden !important;
+    color: var(--crux-actor-text) !important;
+    font-size: calc(var(--crux-width) * 0.064 * var(--crux-global-font-size-multiplier)) !important;
+    line-height: 1.05 !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.crux__actor-identity-card em {
+    overflow: hidden !important;
+    color: var(--crux-actor-text-muted) !important;
+    font-size: calc(var(--crux-width) * 0.046 * var(--crux-global-font-size-multiplier)) !important;
+    font-style: normal !important;
+    line-height: 1.05 !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.crux__actor-traits {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: calc(var(--crux-width) * 0.055) !important;
+    margin: calc(var(--crux-width) * 0.055) calc(var(--crux-width) * 0.025) 0 0 !important;
+}
+
+.crux__actor-trait-category {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: calc(var(--crux-width) * 0.018) !important;
+}
+
+.crux__actor-trait-category h2 {
+    display: flex !important;
+    align-items: center !important;
+    gap: calc(var(--crux-width) * 0.018) !important;
+    margin: 0 !important;
+    padding-bottom: calc(var(--crux-width) * 0.010) !important;
+    border-bottom: 1px solid rgba(190, 194, 202, 0.28) !important;
+    color: var(--crux-actor-text-muted) !important;
+    font-family: var(--crux-font-family) !important;
+    font-size: calc(var(--crux-width) * 0.070 * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    text-transform: uppercase !important;
+}
+
+.crux__actor-trait-category h2 i {
+    flex: 0 0 auto !important;
+    color: var(--crux-actor-text-muted) !important;
+    font-size: calc(var(--crux-width) * 0.070 * var(--crux-global-font-size-multiplier)) !important;
+}
+
+.crux__actor-trait-tags {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: calc(var(--crux-width) * 0.012) !important;
+}
+
+.crux__actor-trait-tag {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: calc(var(--crux-width) * 0.018) !important;
+    height: calc(var(--crux-width) * 0.095) !important;
+    min-height: calc(var(--crux-width) * 0.095) !important;
+    max-height: calc(var(--crux-width) * 0.095) !important;
+    padding: 0 calc(var(--crux-width) * 0.024) !important;
+    border: 1px solid rgba(255, 255, 255, 0.20) !important;
+    border-radius: 3px !important;
+    background: rgba(0, 0, 0, calc(var(--crux-bg-opacity) + 0.08)) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.035), 0 1px 3px rgba(0, 0, 0, 0.28) !important;
+    color: var(--crux-actor-text) !important;
+    font-family: var(--crux-font-family) !important;
+    line-height: calc(var(--crux-width) * 0.095) !important;
+    text-transform: uppercase !important;
+}
+
+.crux__actor-trait-tag strong {
+    color: var(--crux-actor-text) !important;
+    font-size: calc(var(--crux-width) * 0.052 * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+}
+
+.crux__actor-trait-tag em {
+    padding-left: calc(var(--crux-width) * 0.012) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.20) !important;
+    color: var(--crux-actor-text-muted) !important;
+    font-size: calc(var(--crux-width) * 0.052 * var(--crux-global-font-size-multiplier)) !important;
+    font-style: normal !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+}
     
-.crux.active {
+#crux.application.crux.active,
+#crux.crux.active {
     transform: translateX(0);
 }
     
 #interface.crux-active {
-    margin-left: var(--crux-width) !important;
+    margin-left: var(--crux-interface-push-width) !important;
     transition: margin-left 0.1s ease;
 }
 
-.crux.active {
-    width: var(--crux-width) !important;
+body.crlngn-ui {
+    --crux-interface-push-width: calc(var(--crux-width) + 15px);
 }
 
-.crux.always-on {
+body.crlngn-ui .crux__tab {
+    border-radius: 3px !important;
+}
+
+#crux.application.crux.active,
+#crux.crux.active {
+    width: var(--crux-occupied-width) !important;
+}
+
+#crux.application.crux.always-on,
+#crux.crux.always-on {
     transition: width 0s;
 }
 .crux__section-header i, .crux__group-header i {
@@ -223,13 +864,13 @@
 }
 
 .crux__actions-container {
-    margin: 10px 2px !important;
+    margin: 6px 2px 2px 2px !important;
 }
 
 .crux__action-buttons {
     display: flex;
     justify-content: space-between;
-    gap: 4px;
+    gap: 2px;
 }
 
 .crux__action-button {
@@ -237,7 +878,7 @@
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 3px;
     cursor: pointer;
-    padding: 3px;
+    padding: 5px 3px;
     flex: 1;
     display: flex;
     align-items: center;
@@ -277,8 +918,8 @@
 .crux__utility-buttons {
     display: flex;
     justify-content: space-between;
-    gap: 4px;
-    margin: 10px 2px !important;
+    gap: 2px;
+    margin: 2px 2px !important;
 }
 
 .crux__utility-button {
@@ -287,7 +928,7 @@
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 3px;
     cursor: pointer;
-    padding: 1px 6px;
+    padding: 4px 6px;
 }
 
 .crux__utility-button a {
@@ -340,6 +981,8 @@
     border-radius: 3px !important;
     font-family: var(--crux-font-family) !important;
     font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 700 !important;
+    line-height: normal !important;
     cursor: pointer !important;
     display: flex !important;
     justify-content: space-between !important;
@@ -452,18 +1095,28 @@
 
 .crux__top-section {
     display: flex !important;
-    gap: calc(var(--crux-width) * 0.038) !important;
+    flex-direction: column !important;
+    gap: calc(var(--crux-width) * 0.020) !important;
     margin-bottom: 10px !important;
     padding: 5px !important;
     background: rgba(0, 0, 0, 0.2) !important;
     border-radius: 5px !important;
     overflow: hidden !important;
-    max-height: calc(var(--crux-width) * 0.7) !important;
+}
+
+.crux__action-actor-body {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) calc(var(--crux-width) * 0.38) calc(var(--crux-width) * 0.27) !important;
+    align-items: stretch !important;
+    gap: calc(var(--crux-width) * 0.025) !important;
+    height: calc(var(--crux-width) * 0.63) !important;
+    min-width: 0 !important;
 }
 
 .crux__portrait {
+    grid-column: 2 !important;
     flex: 0 0 calc(var(--crux-width) * 0.38);
-    height: calc(var(--crux-width) * 0.63);
+    height: 100%;
     position: relative;
     perspective: 1000px;
     cursor: pointer;
@@ -568,18 +1221,19 @@
 .crux__portrait-back {
     background: rgba(0, 0, 0, 0.8);
     transform: rotateY(180deg);
-    padding: calc(var(--crux-width) * 0.038);
+    padding: calc(var(--crux-width) * 0.048);
     display: flex;
     flex-direction: column;
-    gap: calc(var(--crux-width) * 0.03);
+    justify-content: space-between;
+    gap: calc(var(--crux-width) * 0.038);
 }
 
 .crux__rest-buttons {
     display: flex !important;
     justify-content: center !important;
-    gap: 12px !important;
+    gap: calc(var(--crux-width) * 0.045) !important;
     margin-top: auto !important;
-    margin-bottom: calc(var(--crux-width) * 0.038) !important;
+    margin-bottom: 0 !important;
 }
 
 .crux__rest-button {
@@ -587,9 +1241,9 @@
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 3px;
     cursor: pointer;
-    padding: 5px;
-    width: 30px;
-    height: 30px;
+    padding: calc(var(--crux-width) * 0.020);
+    width: calc(var(--crux-width) * 0.140);
+    height: calc(var(--crux-width) * 0.140);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -601,7 +1255,7 @@
 }
 
 .crux__rest-button i {
-    font-size: 18px;
+    font-size: calc(var(--crux-width) * 0.070);
     opacity: 0.8;
     transition: opacity 0.2s;
 }
@@ -615,7 +1269,7 @@
     align-items: center;
     gap: calc(var(--crux-width) * 0.015);
     color: white;
-    font-size: calc(var(--crux-width) * 0.042 * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * 0.056 * var(--crux-global-font-size-multiplier)) !important;
     line-height: 1.2;
 }
 
@@ -624,26 +1278,31 @@
 }
 
 .crux__stat-row img {
-    width: calc(var(--crux-width) * 0.046);
-    height: calc(var(--crux-width) * 0.046);
+    width: calc(var(--crux-width) * 0.062);
+    height: calc(var(--crux-width) * 0.062);
     filter: invert(1);
 }
 
 .crux__info-section {
-    flex: 1 !important;
+    grid-column: 3 !important;
+    width: 100% !important;
     overflow: hidden !important;
     min-width: 0 !important;
     display: flex !important;
     flex-direction: column !important;
-    max-height: 100% !important; 
+    justify-content: center !important;
+    max-height: 100% !important;
 }
 
 .crux__info-section > * {
     overflow: hidden !important;
 }
 
-.crux__info-section h1 {
+.crux__action-actor-name {
+    position: relative !important;
     margin: 0 0 5px 0 !important;
+    padding-bottom: calc(var(--crux-width) * 0.018) !important;
+    border-bottom: 0 !important;
     font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.1 * var(--crux-global-font-size-multiplier)) !important;
     overflow: hidden !important;
     width: 100% !important;
@@ -654,6 +1313,17 @@
     -webkit-line-clamp: 3 !important;
     -webkit-box-orient: vertical !important;
     text-overflow: ellipsis !important;
+}
+
+.crux__action-actor-name::after {
+    content: "" !important;
+    position: absolute !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    height: 1px !important;
+    background: rgba(220, 222, 226, 0.62) !important;
+    pointer-events: none !important;
 }
 
 .crux__actor-name {
@@ -668,33 +1338,40 @@
     font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.4 * var(--crux-character-name-size-multiplier)) !important;
 }
 
-.crux__info-section h1.long-name {
+.crux__action-actor-name.long-name {
     font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-character-name-size-multiplier)) !important;
 }
 
-.crux__info-section h1.long-name .crux__actor-name {
+.crux__action-actor-name.long-name .crux__actor-name {
     font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-character-name-size-multiplier)) !important;
 }
 
-.crux__info-section h1.very-long-name {
+.crux__action-actor-name.very-long-name {
     font-size: calc(var(--crux-width) * var(--text-header-ratio) * 0.8 * var(--crux-character-name-size-multiplier)) !important;
 }
 
-.crux__info-section h1.very-long-name .crux__actor-name {
+.crux__action-actor-name.very-long-name .crux__actor-name {
     font-size: calc(var(--crux-width) * var(--text-header-ratio) * 0.8 * var(--crux-character-name-size-multiplier)) !important;
 }
 
 .crux__abilities {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 3px;
-    margin-top: 3px !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    height: 100%;
+    margin-top: 0 !important;
     width: 100%;
     box-sizing: border-box;
 }
 
 .crux__ability {
-    padding: 2px 3px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: calc((var(--crux-width) * 0.63 - 14px) / 8) !important;
+    min-height: 0 !important;
+    padding: 0 3px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     text-transform: capitalize;
     text-align: center;
@@ -703,6 +1380,63 @@
     box-sizing: border-box;
     font-size: calc(var(--crux-width) * 0.05);
     overflow: hidden;
+}
+
+.crux__action-stat-column {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: calc(var(--crux-width) * 0.012) !important;
+    height: 100% !important;
+    min-width: 0 !important;
+}
+
+.crux__action-stat-tab {
+    appearance: none !important;
+    display: flex !important;
+    flex: 1 1 0 !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: calc(var(--crux-width) * 0.018) calc(var(--crux-width) * 0.018) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: 4px !important;
+    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    box-sizing: border-box !important;
+    color: inherit !important;
+    font-family: var(--crux-font-family) !important;
+    line-height: normal !important;
+    text-align: center !important;
+}
+
+button.crux__action-stat-tab {
+    cursor: pointer !important;
+}
+
+button.crux__action-stat-tab:hover {
+    border-color: var(--crux-accent-color) !important;
+    box-shadow: 0 0 0 1px var(--crux-accent-bg) inset !important;
+}
+
+.crux__action-stat-tab strong {
+    display: block !important;
+    color: var(--crux-actor-text) !important;
+    font-size: calc(var(--crux-width) * 0.064 * var(--crux-global-font-size-multiplier)) !important;
+    line-height: 1 !important;
+}
+
+.crux__action-stat-tab span {
+    display: block !important;
+    margin-top: 3px !important;
+    color: var(--crux-actor-text-muted) !important;
+    font-size: calc(var(--crux-width) * 0.044 * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
 }
 
 .crux__ability:hover {
@@ -730,7 +1464,7 @@
     height: 10px;
     border-radius: 50%;
     cursor: pointer;
-    background-color: var(--color-warm-2);
+    background-color: var(--crux-accent-color);
 }
 
 .crux__actor .group-dots .dot.empty {
@@ -1061,18 +1795,26 @@
 }
 
 .crux__skill-header {
-    display: block;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
     padding: 1px 6px;
     margin: 6px 2px 0px 2px !important;
     font-family: var(--crux-font-family) !important;
-    font-size: calc(var(--crux-width) * var(--text-base-ratio) * 1.1*var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-global-font-size-multiplier)) !important;
+    font-weight: 700 !important;
+    line-height: normal !important;
+    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    border: 1px solid rgba(255, 255, 255, 0.20) !important;
+    border-radius: 3px !important;
+    color: var(--crux-actor-text) !important;
 }
 
 .crux__skills {
     display: grid;
     grid-template-columns: auto 1fr auto auto;
     gap: 5px;
-    margin: 0 3px 5px 0 !important;
+    margin: calc(var(--crux-width) * 0.020) 3px 5px 0 !important;
     display: none;
 }
 
@@ -1082,11 +1824,13 @@
 
 .crux__skill-container .crux__skill-header i {
     transition: transform 0.3s ease;
-    float: right;
+    color: var(--crux-actor-text) !important;
+    float: none;
+    transform: rotate(180deg);
 }
 
 .crux__skill-container.is-open .crux__skill-header i {
-    transform: rotate(-180deg);
+    transform: rotate(0deg);
 }
 
 .crux__skill-container.is-open .crux__skills, 
@@ -1099,19 +1843,18 @@
 }
 
 .crux__skill-row > div {
-    padding: 0px 1px !important;
+    padding: 1px 1px !important;
     align-items: center !important;
     display: flex !important;
     border: none !important;
     margin: 0 !important;
     box-sizing: border-box !important;
-    height: 10px !important;
+    height: 14px !important;
     min-height: 0 !important;
 }
 
 .crux__skill-row:nth-child(even) > div {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    height: 18px !important;
+    background-color: transparent !important;
 }
 
 .crux__skill-row i {
@@ -1300,6 +2043,91 @@
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+.crux__tab-panel--actions [data-action]:hover {
+    background-color: transparent;
+}
+
+.crux__tab-panel--actions {
+    color: var(--crux-actor-text) !important;
+}
+
+.crux__tab-panel--actions .crux__actor-name,
+.crux__tab-panel--actions .crux__item .item-name h4,
+.crux__tab-panel--actions .crux__skill-row span,
+.crux__tab-panel--actions .crux__skill-bonus,
+.crux__tab-panel--actions .crux__activity-name {
+    color: var(--crux-actor-text) !important;
+}
+
+.crux__tab-panel--actions .crux__skill-passive,
+.crux__tab-panel--actions .crux__item .item-summary,
+.crux__tab-panel--actions .crux__group-header h3,
+.crux__tab-panel--actions .crux__skill-header {
+    color: var(--crux-actor-text-muted) !important;
+}
+
+.crux__tab-panel--actions .crux__section-header,
+.crux__tab-panel--actions .crux__action-button,
+.crux__tab-panel--actions .crux__utility-button,
+.crux__tab-panel--actions .crux__utility-button.crux__toggle-target,
+.crux__tab-panel--actions .crux__ability {
+    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    border-color: rgba(255, 255, 255, 0.20) !important;
+    color: var(--crux-actor-text) !important;
+}
+
+.crux__tab-panel--actions .crux__section:first-child .crux__section-header {
+    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    border-color: rgba(255, 255, 255, 0.20) !important;
+}
+
+.crux__tab-panel--actions .crux__section-header:hover,
+.crux__tab-panel--actions .crux__action-button:hover,
+.crux__tab-panel--actions .crux__utility-button:hover,
+.crux__tab-panel--actions .crux__ability:hover {
+    background: var(--crux-accent-bg) !important;
+    border-color: var(--crux-accent-color) !important;
+}
+
+.crux__tab-panel--actions .crux__section-header i,
+.crux__tab-panel--actions .crux__group-header i,
+.crux__tab-panel--actions .crux__skill-header i,
+.crux__tab-panel--actions .crux__utility-button i {
+    color: var(--crux-actor-text) !important;
+}
+
+.crux__tab-panel--actions .crux__group-header h3 {
+    border-bottom-color: rgba(190, 194, 202, 0.32) !important;
+}
+
+.crux__tab-panel--actions .crux__group-header .group-uses,
+.crux__tab-panel--actions .crux-spinner,
+.crux__tab-panel--actions .crux__item .item-summary .item-properties .tag {
+    background: rgba(0, 0, 0, calc(var(--crux-bg-opacity) + 0.08)) !important;
+    border-color: rgba(255, 255, 255, 0.20) !important;
+    color: var(--crux-actor-text) !important;
+}
+
+.crux__tab-panel--actions .crux-spinner .letter,
+.crux__tab-panel--actions .crux-spinner .value {
+    color: var(--crux-actor-text) !important;
+}
+
+.crux__tab-panel--actions .crux__activity-item:hover {
+    background: rgba(0, 0, 0, calc(var(--crux-bg-opacity) + 0.04)) !important;
+}
+
+.crux__tab-panel--actions .crux__item .item-summary .inline-roll {
+    background: rgba(0, 0, 0, calc(var(--crux-bg-opacity) + 0.08)) !important;
+    border-color: rgba(190, 194, 202, 0.45) !important;
+    color: var(--crux-actor-text) !important;
+}
+
+.crux__tab-panel--actions .crux__item .item-summary a,
+.crux__tab-panel--actions .crux__item .item-summary .content-link {
+    color: var(--crux-actor-text) !important;
+}
+
 .crux [data-action="toggleEffect"] {
     transition: border-color 0.2s, background-color 0.2s;
 }
@@ -1318,7 +2146,8 @@
     display: none !important;
 }
 
-.crux {
+#crux.application.crux,
+#crux.crux {
     transition: transform 0.1s ease, bottom 0.2s ease-in-out !important;
 }
 
