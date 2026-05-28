@@ -7,6 +7,11 @@ node_modules/
 *.log
 .local/
 
+# Local docs image drafts
+docs/images/*
+!docs/images/crux-banner-2.png
+!docs/images/crux-tray-preview-3.png
+
 # Foundry VTT specific
 crux.lock
 packs/**/CURRENT
