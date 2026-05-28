@@ -130,6 +130,8 @@ CRUX is designed for the dnd5e system and follows the system item/activity use f
 > CRUX is a continuation and enhancement of the "Action Pack" module originally created by Tero Parvinen.
 > Original module: https://github.com/teroparvinen/foundry-action-pack
 
+Brazilian Portuguese localization review and corrections by [Kharmans](https://github.com/Kharmans).
+
 ## Support
 
 CRUX is free and will remain free. If it helps at your table and you want to support development, you can buy me a coffee on Ko-fi.
