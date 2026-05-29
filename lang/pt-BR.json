@@ -39,7 +39,7 @@
         },
         "flag": {
             "bonus": "B",
-            "bonus-title": "Ação bônus",
+            "bonus-title": "Ação Bônus",
             "reaction": "R",
             "reaction-title": "Reação",
             "ritual": "Rt",
@@ -47,9 +47,9 @@
             "concentration": "C",
             "concentration-title": "Concentração",
             "legendary": "L",
-            "legendary-title": "Ação lendária",
-            "unprepared": "NP",
-            "unprepared-title": "Magia não preparada"
+            "legendary-title": "Ação Lendária",
+            "unprepared": "D",
+            "unprepared-title": "Magia Despreparada"
         },
         "category": {
             "favorites": "Favoritos",
