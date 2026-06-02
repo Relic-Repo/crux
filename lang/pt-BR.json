@@ -14,9 +14,9 @@
         },
         "short-rest": "Descanso Curto",
         "long-rest": "Descanso Longo",
-        "control-icon": "Alternar bandeja de ações",
+        "control-icon": "Alternar Bandeja de Ações",
         "end-turn": "Encerrar Turno",
-        "roll-initiative": "Rolar iniciativa!",
+        "roll-initiative": "Rolar Iniciativa!",
         "add-to-combat": "Adicionar ao Combate",
         "set-elevation": "Definir Elevação",
         "open-token": "Abrir Token",
@@ -38,7 +38,7 @@
             "special": "Especial"
         },
         "flag": {
-            "bonus": "B",
+            "bonus": "AB",
             "bonus-title": "Ação bônus",
             "reaction": "R",
             "reaction-title": "Reação",
@@ -46,10 +46,10 @@
             "ritual-title": "Ritual",
             "concentration": "C",
             "concentration-title": "Concentração",
-            "legendary": "L",
-            "legendary-title": "Ação lendária",
+            "legendary": "AL",
+            "legendary-title": "Ação Lendária",
             "unprepared": "NP",
-            "unprepared-title": "Magia não preparada"
+            "unprepared-title": "Magia Não-Preparada"
         },
         "category": {
             "favorites": "Favoritos",
@@ -65,6 +65,7 @@
             "innate": "Habilidade Inata",
             "atwill": "À Vontade",
             "pact": "Magia de Pacto",
+            "apothecary": "Apotecário",
             "spell0": "Truque",
             "spell1": "1º Nível",
             "spell2": "2º Nível",
