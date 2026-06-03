@@ -1,42 +1,370 @@
 :root {
     --crux-width: 260px;
-    --crux-tab-rail-width: 15px;
+    --crux-tab-rail-width: 18px;
     --crux-occupied-width: calc(var(--crux-width) + var(--crux-tab-rail-width));
-    --crux-interface-push-width: calc(var(--crux-width) + 8px);
-    --crux-accent-color: rgb(153, 25, 79);
-    --crux-accent-glow: rgba(153, 25, 79, 0.8);
-    --crux-accent-bg: rgba(153, 25, 79, 0.25);
-    --crux-actor-text: rgba(220, 222, 226, 0.92);
-    --crux-actor-text-muted: rgba(190, 194, 202, 0.76);
-    --crux-character-text: var(--crux-actor-text);
-    --crux-character-text-muted: var(--crux-actor-text-muted);
-    --icon-small-ratio: 0.11;
-    --icon-medium-ratio: 0.14;
-    --icon-large-ratio: 0.16;
-    --text-base-ratio: 0.07;
-    --text-header-ratio: 0.08;
-    --text-small-ratio: 0.055;
-    --text-summary-ratio: 0.062;
-    --flag-ratio: 0.058; 
-    --flag-text-ratio: 0.042;
-    --ritual-flag-ratio: 0.070;
-    --crux-bg-opacity: 0.4; 
-    --crux-blur: 1px; 
+    --crux-interface-push-width: calc(var(--crux-width) + var(--crux-tab-rail-width) - 12px);
+    --crux-panel-bg-rgb: 0, 0, 0;
+    --crux-element-bg-rgb: 0, 0, 0;
+    --crux-accent-rgb: 153, 25, 79;
+    --crux-text-rgb: 220, 222, 226;
+    --crux-muted-text-rgb: 190, 194, 202;
+    --crux-text-strong-rgb: var(--crux-text-rgb);
+    --crux-text-light-rgb: var(--crux-muted-text-rgb);
+    --crux-border-rgb: 255, 255, 255;
+    --crux-icon-small-ratio: 0.11;
+    --crux-icon-medium-ratio: 0.14;
+    --crux-icon-large-ratio: 0.16;
+    --crux-text-ratio: 0.07;
+    --crux-text-header-ratio: 0.08;
+    --crux-text-small-ratio: 0.055;
+    --crux-text-summary-ratio: 0.062;
+    --crux-flag-ratio: 0.058;
+    --crux-flag-text-ratio: 0.042;
+    --crux-ritual-flag-ratio: 0.070;
+    --crux-bg-opacity: 0.4;
+    --crux-element-bg-opacity: 0.4;
+    --crux-blur: blur(1px);
+    --crux-panel-bg: rgba(var(--crux-panel-bg-rgb), var(--crux-bg-opacity));
+    --crux-element-bg: rgba(var(--crux-element-bg-rgb), var(--crux-element-bg-opacity));
+    --crux-element-bg-light: rgba(var(--crux-element-bg-rgb), calc(var(--crux-element-bg-opacity) * 0.7));
+    --crux-element-bg-strong: rgba(var(--crux-element-bg-rgb), min(calc(var(--crux-element-bg-opacity) + 0.08), 1));
+    --crux-border-color: rgba(var(--crux-border-rgb), 0.20);
+    --crux-border-color-light: rgba(var(--crux-border-rgb), 0.18);
+    --crux-border-color-strong: rgba(var(--crux-border-rgb), 0.45);
+    --crux-border-width: 1px;
+    --crux-border-width-light: var(--crux-border-width);
+    --crux-border-width-strong: var(--crux-border-width);
+    --crux-text: rgba(var(--crux-text-rgb), 0.92);
+    --crux-text-strong: rgba(var(--crux-text-strong-rgb), 0.96);
+    --crux-text-light: rgba(var(--crux-text-light-rgb), 0.76);
+    --crux-active-bg: rgba(var(--crux-accent-rgb), 0.25);
+    --crux-active-border: rgb(var(--crux-accent-rgb));
+    --crux-active-glow: rgba(var(--crux-accent-rgb), 0.8);
+    --crux-hover-text: var(--crux-text-strong);
+    --crux-element-hover-bg: rgba(var(--crux-accent-rgb), 0.82);
+    --crux-element-hover-border: rgba(var(--crux-accent-rgb), 0.95);
+    --crux-element-hover-text: var(--crux-hover-text);
+    --crux-badge-bg: rgba(var(--crux-border-rgb), 0.8);
+    --crux-badge-text: rgb(var(--crux-panel-bg-rgb));
+    --crux-input-bg: rgba(var(--crux-panel-bg-rgb), min(calc(var(--crux-element-bg-opacity) + 0.32), 1));
+    --crux-input-border: var(--crux-border-color-strong);
+    --crux-divider-color: rgba(var(--crux-muted-text-rgb), 0.28);
+    --crux-divider-color-light: rgba(var(--crux-muted-text-rgb), 0.32);
+    --crux-divider-color-strong: rgba(var(--crux-muted-text-rgb), 0.45);
+    --crux-scrollbar-track: transparent;
+    --crux-scrollbar-thumb: rgba(var(--crux-border-rgb), 0.35);
+    --crux-scrollbar-thumb-hover: rgba(var(--crux-accent-rgb), 0.7);
+    --crux-empty-icon-color: var(--crux-active-border);
     --crux-font-family: "Modesto Condensed", "Palatino Linotype", serif;
     --crux-global-font-size-multiplier: 1.0;
     --crux-content-text-size-multiplier: 1.0;
     --crux-character-name-size-multiplier: 1.0;
+    --crux-actor-ability-text-size-multiplier: 1.0;
+    --crux-tab-height-multiplier: 1.0;
+    --crux-character-name-text: var(--crux-text-strong);
+    --crux-action-name-text: var(--crux-character-name-text);
+    --crux-actor-name-text: var(--crux-character-name-text);
+    --crux-action-header-text: var(--crux-text-strong);
+    --crux-actor-header-text: var(--crux-text-strong);
+    --crux-actor-ability-text: var(--crux-text-strong);
+    --crux-subheader-text: var(--crux-text);
+    --crux-item-text: var(--crux-text);
+    --crux-item-description-text: var(--crux-text-light);
+    --crux-actor-ac-text: var(--crux-text-strong);
+    --crux-actor-ac-bg-rgb: var(--crux-panel-bg-rgb);
+    --crux-actor-ac-bg: rgba(var(--crux-actor-ac-bg-rgb), var(--crux-element-bg-opacity));
+    --crux-actor-ac-border-rgb: var(--crux-border-rgb);
+    --crux-actor-ac-border-opacity: 0.55;
+    --crux-actor-ac-border-color: rgba(var(--crux-actor-ac-border-rgb), var(--crux-actor-ac-border-opacity));
+    --crux-actor-ac-border-width: var(--crux-border-width);
+    --crux-actor-hp-text: var(--crux-text);
+    --crux-actor-temp-hp-text: var(--crux-text);
+    --crux-actor-hit-dice-text: var(--crux-text);
+    --crux-panel-texture-image: none;
+    --crux-panel-texture-size: 512px 512px;
+    --crux-panel-texture-opacity: 0;
+    --crux-panel-texture-blend-mode: overlay;
     --crux-tray-bottom-offset: 0px;
     --crux-panel-gutter: 6px;
-    --end-turn-button-bg: rgba(255, 255, 255, 0.15);
-    --end-turn-button-color: rgb(255, 255, 255);
-    --end-turn-button-border-radius: 5px;
-    --end-turn-button-padding: 2px 2px;
-    --end-turn-button-font-size: 14px;
-    --end-turn-button-text-align: center;
-    --end-turn-button-font-weight: 200;
-    --end-turn-button-border: 1px solid rgba(255, 255, 255, 0.15);
-    --end-turn-button-box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.15);
+    --crux-end-turn-button-bg: rgba(var(--crux-border-rgb), 0.15);
+    --crux-end-turn-button-color: rgb(var(--crux-border-rgb));
+    --crux-end-turn-button-border-radius: 5px;
+    --crux-end-turn-button-padding: 2px 2px;
+    --crux-end-turn-button-font-size: 14px;
+    --crux-end-turn-button-text-align: center;
+    --crux-end-turn-button-font-weight: 200;
+    --crux-end-turn-button-border: var(--crux-border-width) solid rgba(var(--crux-border-rgb), 0.15);
+    --crux-end-turn-button-box-shadow: 0 0 0 0.5px rgba(var(--crux-border-rgb), 0.15);
+    --crux-element-1-bg: var(--crux-element-bg);
+    --crux-element-1-bg-light: var(--crux-element-bg-light);
+    --crux-element-1-bg-strong: var(--crux-element-bg-strong);
+    --crux-element-1-border-color: var(--crux-border-color);
+    --crux-element-1-border-color-light: var(--crux-border-color-light);
+    --crux-element-1-border-color-strong: var(--crux-border-color-strong);
+    --crux-element-1-border-width: var(--crux-border-width);
+    --crux-element-1-border-width-light: var(--crux-border-width-light);
+    --crux-element-1-border-width-strong: var(--crux-border-width-strong);
+    --crux-element-1-text: var(--crux-text);
+    --crux-element-1-text-light: var(--crux-text-light);
+    --crux-element-1-text-strong: var(--crux-text-strong);
+    --crux-element-1-hover-bg: var(--crux-element-hover-bg);
+    --crux-element-1-hover-border: var(--crux-element-hover-border);
+    --crux-element-1-hover-text: var(--crux-element-hover-text);
+    --crux-element-2-bg: var(--crux-element-bg);
+    --crux-element-2-bg-light: var(--crux-element-bg-light);
+    --crux-element-2-bg-strong: var(--crux-element-bg-strong);
+    --crux-element-2-border-color: var(--crux-border-color);
+    --crux-element-2-border-color-light: var(--crux-border-color-light);
+    --crux-element-2-border-color-strong: var(--crux-border-color-strong);
+    --crux-element-2-border-width: var(--crux-border-width);
+    --crux-element-2-border-width-light: var(--crux-border-width-light);
+    --crux-element-2-border-width-strong: var(--crux-border-width-strong);
+    --crux-element-2-text: var(--crux-text);
+    --crux-element-2-text-light: var(--crux-text-light);
+    --crux-element-2-text-strong: var(--crux-text-strong);
+    --crux-element-2-hover-bg: var(--crux-element-hover-bg);
+    --crux-element-2-hover-border: var(--crux-element-hover-border);
+    --crux-element-2-hover-text: var(--crux-element-hover-text);
+    --crux-element-3-bg: var(--crux-element-bg);
+    --crux-element-3-bg-light: var(--crux-element-bg-light);
+    --crux-element-3-bg-strong: var(--crux-element-bg-strong);
+    --crux-element-3-border-color: var(--crux-border-color);
+    --crux-element-3-border-color-light: var(--crux-border-color-light);
+    --crux-element-3-border-color-strong: var(--crux-border-color-strong);
+    --crux-element-3-border-width: var(--crux-border-width);
+    --crux-element-3-border-width-light: var(--crux-border-width-light);
+    --crux-element-3-border-width-strong: var(--crux-border-width-strong);
+    --crux-element-3-text: var(--crux-text);
+    --crux-element-3-text-light: var(--crux-text-light);
+    --crux-element-3-text-strong: var(--crux-text-strong);
+    --crux-element-3-hover-bg: var(--crux-element-hover-bg);
+    --crux-element-3-hover-border: var(--crux-element-hover-border);
+    --crux-element-3-hover-text: var(--crux-element-hover-text);
+    --crux-element-4-bg: var(--crux-element-bg);
+    --crux-element-4-bg-light: var(--crux-element-bg-light);
+    --crux-element-4-bg-strong: var(--crux-element-bg-strong);
+    --crux-element-4-border-color: var(--crux-border-color);
+    --crux-element-4-border-color-light: var(--crux-border-color-light);
+    --crux-element-4-border-color-strong: var(--crux-border-color-strong);
+    --crux-element-4-border-width: var(--crux-border-width);
+    --crux-element-4-border-width-light: var(--crux-border-width-light);
+    --crux-element-4-border-width-strong: var(--crux-border-width-strong);
+    --crux-element-4-text: var(--crux-text);
+    --crux-element-4-text-light: var(--crux-text-light);
+    --crux-element-4-text-strong: var(--crux-text-strong);
+    --crux-element-4-hover-bg: var(--crux-element-hover-bg);
+    --crux-element-4-hover-border: var(--crux-element-hover-border);
+    --crux-element-4-hover-text: var(--crux-element-hover-text);
+    --crux-element-5-bg: var(--crux-element-bg);
+    --crux-element-5-bg-light: var(--crux-element-bg-light);
+    --crux-element-5-bg-strong: var(--crux-element-bg-strong);
+    --crux-element-5-border-color: var(--crux-border-color);
+    --crux-element-5-border-color-light: var(--crux-border-color-light);
+    --crux-element-5-border-color-strong: var(--crux-border-color-strong);
+    --crux-element-5-border-width: var(--crux-border-width);
+    --crux-element-5-border-width-light: var(--crux-border-width-light);
+    --crux-element-5-border-width-strong: var(--crux-border-width-strong);
+    --crux-element-5-text: var(--crux-text);
+    --crux-element-5-text-light: var(--crux-text-light);
+    --crux-element-5-text-strong: var(--crux-text-strong);
+    --crux-element-5-hover-bg: var(--crux-element-hover-bg);
+    --crux-element-5-hover-border: var(--crux-element-hover-border);
+    --crux-element-5-hover-text: var(--crux-element-hover-text);
+    --crux-element-6-bg: var(--crux-element-bg);
+    --crux-element-6-bg-light: var(--crux-element-bg-light);
+    --crux-element-6-bg-strong: var(--crux-element-bg-strong);
+    --crux-element-6-border-color: var(--crux-border-color);
+    --crux-element-6-border-color-light: var(--crux-border-color-light);
+    --crux-element-6-border-color-strong: var(--crux-border-color-strong);
+    --crux-element-6-border-width: var(--crux-border-width);
+    --crux-element-6-border-width-light: var(--crux-border-width-light);
+    --crux-element-6-border-width-strong: var(--crux-border-width-strong);
+    --crux-element-6-text: var(--crux-text);
+    --crux-element-6-text-light: var(--crux-text-light);
+    --crux-element-6-text-strong: var(--crux-text-strong);
+    --crux-element-6-hover-bg: var(--crux-element-hover-bg);
+    --crux-element-6-hover-border: var(--crux-element-hover-border);
+    --crux-element-6-hover-text: var(--crux-element-hover-text);
+    --crux-element-7-bg: var(--crux-element-bg);
+    --crux-element-7-bg-light: var(--crux-element-bg-light);
+    --crux-element-7-bg-strong: var(--crux-element-bg-strong);
+    --crux-element-7-border-color: var(--crux-border-color);
+    --crux-element-7-border-color-light: var(--crux-border-color-light);
+    --crux-element-7-border-color-strong: var(--crux-border-color-strong);
+    --crux-element-7-border-width: var(--crux-border-width);
+    --crux-element-7-border-width-light: var(--crux-border-width-light);
+    --crux-element-7-border-width-strong: var(--crux-border-width-strong);
+    --crux-element-7-text: var(--crux-text);
+    --crux-element-7-text-light: var(--crux-text-light);
+    --crux-element-7-text-strong: var(--crux-text-strong);
+    --crux-element-7-hover-bg: var(--crux-element-hover-bg);
+    --crux-element-7-hover-border: var(--crux-element-hover-border);
+    --crux-element-7-hover-text: var(--crux-element-hover-text);
+    --crux-element-8-bg: var(--crux-element-bg);
+    --crux-element-8-bg-light: var(--crux-element-bg-light);
+    --crux-element-8-bg-strong: var(--crux-element-bg-strong);
+    --crux-element-8-border-color: var(--crux-border-color);
+    --crux-element-8-border-color-light: var(--crux-border-color-light);
+    --crux-element-8-border-color-strong: var(--crux-border-color-strong);
+    --crux-element-8-border-width: var(--crux-border-width);
+    --crux-element-8-border-width-light: var(--crux-border-width-light);
+    --crux-element-8-border-width-strong: var(--crux-border-width-strong);
+    --crux-element-8-text: var(--crux-text);
+    --crux-element-8-text-light: var(--crux-text-light);
+    --crux-element-8-text-strong: var(--crux-text-strong);
+    --crux-element-8-hover-bg: var(--crux-element-hover-bg);
+    --crux-element-8-hover-border: var(--crux-element-hover-border);
+    --crux-element-8-hover-text: var(--crux-element-hover-text);
+    --crux-element-9-bg: var(--crux-element-bg);
+    --crux-element-9-bg-light: var(--crux-element-bg-light);
+    --crux-element-9-bg-strong: var(--crux-element-bg-strong);
+    --crux-element-9-border-color: var(--crux-border-color);
+    --crux-element-9-border-color-light: var(--crux-border-color-light);
+    --crux-element-9-border-color-strong: var(--crux-border-color-strong);
+    --crux-element-9-border-width: var(--crux-border-width);
+    --crux-element-9-border-width-light: var(--crux-border-width-light);
+    --crux-element-9-border-width-strong: var(--crux-border-width-strong);
+    --crux-element-9-text: var(--crux-text);
+    --crux-element-9-text-light: var(--crux-text-light);
+    --crux-element-9-text-strong: var(--crux-text-strong);
+    --crux-element-9-hover-bg: var(--crux-element-hover-bg);
+    --crux-element-9-hover-border: var(--crux-element-hover-border);
+    --crux-element-9-hover-text: var(--crux-element-hover-text);
+    --crux-element-10-bg: var(--crux-element-bg);
+    --crux-element-10-bg-light: var(--crux-element-bg-light);
+    --crux-element-10-bg-strong: var(--crux-element-bg-strong);
+    --crux-element-10-border-color: var(--crux-border-color);
+    --crux-element-10-border-color-light: var(--crux-border-color-light);
+    --crux-element-10-border-color-strong: var(--crux-border-color-strong);
+    --crux-element-10-border-width: var(--crux-border-width);
+    --crux-element-10-border-width-light: var(--crux-border-width-light);
+    --crux-element-10-border-width-strong: var(--crux-border-width-strong);
+    --crux-element-10-text: var(--crux-text);
+    --crux-element-10-text-light: var(--crux-text-light);
+    --crux-element-10-text-strong: var(--crux-text-strong);
+    --crux-element-10-hover-bg: var(--crux-element-hover-bg);
+    --crux-element-10-hover-border: var(--crux-element-hover-border);
+    --crux-element-10-hover-text: var(--crux-element-hover-text);
+}
+
+.crux-element-slot-1 {
+    background: var(--crux-element-1-bg);
+    border: var(--crux-element-1-border-width) solid var(--crux-element-1-border-color);
+    color: var(--crux-element-1-text);
+}
+
+.crux-element-slot-1:hover {
+    background: var(--crux-element-1-hover-bg);
+    border-color: var(--crux-element-1-hover-border);
+    color: var(--crux-element-1-hover-text);
+}
+
+.crux-element-slot-2 {
+    background: var(--crux-element-2-bg);
+    border: var(--crux-element-2-border-width) solid var(--crux-element-2-border-color);
+    color: var(--crux-element-2-text);
+}
+
+.crux-element-slot-2:hover {
+    background: var(--crux-element-2-hover-bg);
+    border-color: var(--crux-element-2-hover-border);
+    color: var(--crux-element-2-hover-text);
+}
+
+.crux-element-slot-3 {
+    background: var(--crux-element-3-bg);
+    border: var(--crux-element-3-border-width) solid var(--crux-element-3-border-color);
+    color: var(--crux-element-3-text);
+}
+
+.crux-element-slot-3:hover {
+    background: var(--crux-element-3-hover-bg);
+    border-color: var(--crux-element-3-hover-border);
+    color: var(--crux-element-3-hover-text);
+}
+
+.crux-element-slot-4 {
+    background: var(--crux-element-4-bg);
+    border: var(--crux-element-4-border-width) solid var(--crux-element-4-border-color);
+    color: var(--crux-element-4-text);
+}
+
+.crux-element-slot-4:hover {
+    background: var(--crux-element-4-hover-bg);
+    border-color: var(--crux-element-4-hover-border);
+    color: var(--crux-element-4-hover-text);
+}
+
+.crux-element-slot-5 {
+    background: var(--crux-element-5-bg);
+    border: var(--crux-element-5-border-width) solid var(--crux-element-5-border-color);
+    color: var(--crux-element-5-text);
+}
+
+.crux-element-slot-5:hover {
+    background: var(--crux-element-5-hover-bg);
+    border-color: var(--crux-element-5-hover-border);
+    color: var(--crux-element-5-hover-text);
+}
+
+.crux-element-slot-6 {
+    background: var(--crux-element-6-bg);
+    border: var(--crux-element-6-border-width) solid var(--crux-element-6-border-color);
+    color: var(--crux-element-6-text);
+}
+
+.crux-element-slot-6:hover {
+    background: var(--crux-element-6-hover-bg);
+    border-color: var(--crux-element-6-hover-border);
+    color: var(--crux-element-6-hover-text);
+}
+
+.crux-element-slot-7 {
+    background: var(--crux-element-7-bg);
+    border: var(--crux-element-7-border-width) solid var(--crux-element-7-border-color);
+    color: var(--crux-element-7-text);
+}
+
+.crux-element-slot-7:hover {
+    background: var(--crux-element-7-hover-bg);
+    border-color: var(--crux-element-7-hover-border);
+    color: var(--crux-element-7-hover-text);
+}
+
+.crux-element-slot-8 {
+    background: var(--crux-element-8-bg);
+    border: var(--crux-element-8-border-width) solid var(--crux-element-8-border-color);
+    color: var(--crux-element-8-text);
+}
+
+.crux-element-slot-8:hover {
+    background: var(--crux-element-8-hover-bg);
+    border-color: var(--crux-element-8-hover-border);
+    color: var(--crux-element-8-hover-text);
+}
+
+.crux-element-slot-9 {
+    background: var(--crux-element-9-bg);
+    border: var(--crux-element-9-border-width) solid var(--crux-element-9-border-color);
+    color: var(--crux-element-9-text);
+}
+
+.crux-element-slot-9:hover {
+    background: var(--crux-element-9-hover-bg);
+    border-color: var(--crux-element-9-hover-border);
+    color: var(--crux-element-9-hover-text);
+}
+
+.crux-element-slot-10 {
+    background: var(--crux-element-10-bg);
+    border: var(--crux-element-10-border-width) solid var(--crux-element-10-border-color);
+    color: var(--crux-element-10-text);
+}
+
+.crux-element-slot-10:hover {
+    background: var(--crux-element-10-hover-bg);
+    border-color: var(--crux-element-10-hover-border);
+    color: var(--crux-element-10-hover-text);
 }
 
 .crux {
@@ -58,23 +386,23 @@
 }
 
 .crux__section-header {
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-header-ratio) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__group-header h3 {
-    font-size: calc(var(--crux-width) * var(--text-base-ratio) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__info-section h1 {
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.1 * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-header-ratio) * 1.1 * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__container h1 {
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.2 * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-header-ratio) * 1.2 * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__skill-header {
-    font-size: calc(var(--crux-width) * var(--text-base-ratio) * 1.1 * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-ratio) * 1.1 * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__ability {
@@ -82,24 +410,24 @@
 }
 
 .crux__utility-button a {
-    font-size: calc(var(--crux-width) * var(--text-base-ratio) *1.4* var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-ratio) *1.4* var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__item .item-name h4 {
-    font-size: calc(var(--crux-width) * var(--text-base-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__stat-row {
     font-size: calc(var(--crux-width) * 0.042 * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }
 
-.crux__skill-row span, 
+.crux__skill-row span,
 .crux__skill-passive {
-    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__item .item-summary {
-    font-size: calc(var(--crux-width) * var(--text-summary-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-summary-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }
 .crux__wrapper {
     transform: none !important;
@@ -107,14 +435,60 @@
     top: 0 !important;
     bottom: var(--crux-tray-bottom-offset) !important;
     left: 0 !important;
-    width: 100vw !important;
+    width: var(--crux-width) !important;
     height: auto !important;
     z-index: 0 !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow: visible !important;
+}
+
+#crux .window-content,
+#crux [data-application-part="tray"] {
+    position: absolute !important;
+    inset: 0 !important;
+    width: var(--crux-width) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    --background: transparent !important;
+    --background-color: transparent !important;
+    --filigree-background-color: transparent !important;
+    --color-data-background: transparent !important;
+}
+
+#crux::before,
+#crux::after,
+#crux .window-content::before,
+#crux .window-content::after,
+#crux [data-application-part="tray"]::before,
+#crux [data-application-part="tray"]::after,
+.crux__wrapper::before,
+.crux__wrapper::after,
+.crux__tray::before,
+.crux__tray::after {
+    content: none !important;
+    display: none !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
 }
 
 #crux.application.crux,
 #crux.crux {
-    position: fixed !important;
+    position: absolute !important;
     top: 0 !important;
     right: auto !important;
     bottom: var(--crux-tray-bottom-offset) !important;
@@ -123,36 +497,6 @@
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-#crux .window-content,
-#crux [data-application-part="tray"] {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    overflow: visible !important;
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-#crux.application.crux,
-#crux.crux {
-    position: absolute !important;
-    top: 0 !important;
-    bottom: var(--crux-tray-bottom-offset) !important;
-    left: 0 !important;
-    width: var(--crux-occupied-width) !important;
-    height: auto !important;
     transition: transform 0.1s ease;
     transform: translateX(-100%);
     z-index: 0 !important;
@@ -162,15 +506,72 @@
     border-radius: 0 !important;
     box-shadow: none !important;
     outline: none !important;
+    --background: transparent !important;
+    --background-color: transparent !important;
+    --filigree-background-color: transparent !important;
+    --color-data-background: transparent !important;
 }
 
 .crux__tray {
     position: absolute !important;
     inset: 0 !important;
-    width: var(--crux-occupied-width) !important;
+    width: var(--crux-width) !important;
     height: auto !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
     box-shadow: none !important;
     outline: none !important;
+    z-index: 1 !important;
+    opacity: 1 !important;
+    --background: transparent !important;
+    --background-color: transparent !important;
+    --filigree-background-color: transparent !important;
+    --color-data-background: transparent !important;
+}
+
+.crux__panel-backdrop {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: var(--crux-width) !important;
+    background: var(--crux-panel-bg) !important;
+    backdrop-filter: var(--crux-blur) !important;
+    -webkit-backdrop-filter: var(--crux-blur) !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+    overflow: hidden !important;
+}
+
+.crux__panel-backdrop::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--crux-panel-texture-image);
+    background-repeat: repeat;
+    background-size: var(--crux-panel-texture-size);
+    mix-blend-mode: var(--crux-panel-texture-blend-mode);
+    opacity: var(--crux-panel-texture-opacity);
+    pointer-events: none;
+    z-index: 0;
+}
+
+#crux.application.crux.crux-blur-disabled .crux__panel-backdrop,
+#crux.crux.crux-blur-disabled .crux__panel-backdrop {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+#crux.application.crux.crux-backdrop-disabled .crux__panel-backdrop,
+#crux.crux.crux-backdrop-disabled .crux__panel-backdrop {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
 .crux__container {
@@ -180,19 +581,22 @@
     bottom: 0 !important;
     width: var(--crux-width) !important;
     box-sizing: border-box !important;
-    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
-    backdrop-filter: blur(calc(var(--crux-blur) - 1px)) !important;
-    color: white !important;
-    z-index: 0 !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    color: var(--crux-text) !important;
+    z-index: 1 !important;
     padding-left: var(--crux-panel-gutter) !important;
     padding-right: 0 !important;
     overflow-y: scroll !important;
     overflow-x: hidden !important;
+    scrollbar-color: var(--crux-scrollbar-thumb) var(--crux-scrollbar-track) !important;
+    scrollbar-width: thin !important;
     height: auto !important;
     transform: scale(1) !important;
     transition: bottom 0.3s !important;
-    --crux-icon: calc(var(--crux-width) * var(--icon-medium-ratio));
-    --die-icon-size: calc(var(--crux-icon) * 0.67);
+    --crux-icon: calc(var(--crux-width) * var(--crux-icon-medium-ratio));
+    --crux-die-icon-size: calc(var(--crux-icon) * 0.67);
 }
 .crux__empty-tray {
     position: absolute !important;
@@ -208,34 +612,80 @@
     overflow: hidden;
 }
 
+.crux__container::-webkit-scrollbar {
+    width: 8px !important;
+    background: transparent !important;
+}
+
+.crux__container::-webkit-scrollbar-track {
+    background: var(--crux-scrollbar-track) !important;
+}
+
+.crux__container::-webkit-scrollbar-corner {
+    background: transparent !important;
+}
+
+.crux__container::-webkit-scrollbar-thumb {
+    background: var(--crux-scrollbar-thumb) !important;
+    border-radius: 999px !important;
+}
+
+.crux__container::-webkit-scrollbar-thumb:hover {
+    background: var(--crux-scrollbar-thumb-hover) !important;
+}
+
 .crux__tab-rail {
     position: absolute !important;
     top: 0 !important;
     bottom: 0 !important;
-    left: var(--crux-width) !important;
+    left: calc(var(--crux-width)) !important;
     z-index: 3 !important;
     display: flex !important;
     flex-direction: column !important;
-    gap: 3px !important;
+    gap: 5px !important;
     width: var(--crux-tab-rail-width) !important;
-    padding: 5px 0 !important;
+    padding: 13px 0 !important;
     box-sizing: border-box !important;
     background: transparent !important;
     backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    isolation: isolate !important;
     overflow: visible !important;
+}
+
+.crux__tab-rail::before,
+.crux__tab-rail::after {
+    content: none !important;
+    display: none !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+    box-shadow: none !important;
+}
+
+.crux__tab-rail > :not(.crux__tab) {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+    box-shadow: none !important;
 }
 
 .crux__tab {
     position: relative !important;
     min-width: 0 !important;
-    width: calc(var(--crux-tab-rail-width) - 2px) !important;
-    height: calc(var(--crux-width) * 0.22) !important;
+    width: calc(var(--crux-tab-rail-width) - 6px) !important;
+    height: calc(var(--crux-width) * 0.24 * var(--crux-tab-height-multiplier)) !important;
     margin: 0 auto !important;
-    padding: 0 !important;
-    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    padding: 5px !important;
+    border: var(--crux-border-width-light) solid var(--crux-border-color-light) !important;
     border-radius: 999px !important;
-    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
-    color: rgba(255, 255, 255, 0.82) !important;
+    background: var(--crux-element-bg) !important;
+    color: var(--crux-text-light) !important;
     font-family: var(--crux-font-family) !important;
     font-size: calc(var(--crux-width) * 0.052 * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 700 !important;
@@ -246,15 +696,16 @@
 }
 
 .crux__tab:hover {
-    background: rgba(255, 255, 255, 0.14) !important;
-    border-color: rgba(255, 255, 255, 0.32) !important;
+    background: var(--crux-active-bg) !important;
+    border-color: var(--crux-active-border) !important;
+    color: var(--crux-hover-text) !important;
 }
 
 .crux__tab.is-active {
-    background: var(--crux-accent-bg) !important;
-    border-color: var(--crux-accent-color) !important;
-    box-shadow: 0 0 5px var(--crux-accent-glow) !important;
-    color: var(--crux-actor-text) !important;
+    background: var(--crux-active-bg) !important;
+    border-color: var(--crux-active-border) !important;
+    box-shadow: 0 0 5px var(--crux-active-glow) !important;
+    color: var(--crux-hover-text) !important;
 }
 
 .crux__tab-panel--blank {
@@ -288,10 +739,10 @@
 .crux__actor-tab-name {
     margin: calc(var(--crux-width) * -0.006) 0 calc(var(--crux-width) * 0.043) 0 !important;
     padding: 0 calc(var(--crux-width) * 0.025) !important;
-    border: 1px solid rgba(255, 255, 255, 0.20) !important;
-    color: #fff !important;
+    border: var(--crux-border-width) solid var(--crux-border-color) !important;
+    color: var(--crux-actor-name-text) !important;
     font-family: var(--crux-font-family) !important;
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.25 * var(--crux-character-name-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-header-ratio) * 1.25 * var(--crux-character-name-size-multiplier)) !important;
     font-weight: 700 !important;
     line-height: 1.1 !important;
     word-break: break-word !important;
@@ -320,7 +771,7 @@
     height: 100% !important;
     object-fit: cover !important;
     object-position: center center !important;
-    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    border: var(--crux-border-width) solid var(--crux-border-color) !important;
     border-radius: 4px !important;
     box-sizing: border-box !important;
 }
@@ -345,12 +796,16 @@
     min-width: 0 !important;
     height: calc((var(--crux-width) * 0.78 - (var(--crux-width) * 0.010 * 7)) / 8) !important;
     padding: 0 calc(var(--crux-width) * 0.018) !important;
-    border: 1px solid rgba(255, 255, 255, 0.20) !important;
+    border: var(--crux-border-width) solid var(--crux-border-color) !important;
     border-radius: 4px !important;
-    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
-    color: var(--crux-actor-text) !important;
+    background: var(--crux-element-bg) !important;
+    color: var(--crux-actor-ability-text) !important;
     font-family: var(--crux-font-family) !important;
-    font-size: calc(var(--crux-width) * 0.064 * var(--crux-global-font-size-multiplier)) !important;
+    font-size: clamp(
+        calc(var(--crux-width) * 0.044),
+        calc(var(--crux-width) * 0.064 * var(--crux-global-font-size-multiplier) * var(--crux-actor-ability-text-size-multiplier)),
+        calc(var(--crux-width) * 0.064)
+    ) !important;
     font-weight: 700 !important;
     line-height: 1 !important;
     overflow: hidden !important;
@@ -371,8 +826,16 @@
 }
 
 .crux__actor-ability-tab:hover {
-    border-color: var(--crux-accent-color) !important;
-    background: var(--crux-accent-bg) !important;
+    border-color: var(--crux-element-hover-border) !important;
+    background: var(--crux-element-hover-bg) !important;
+    color: var(--crux-element-hover-text) !important;
+    filter: none !important;
+    text-shadow: none !important;
+}
+
+.crux__actor-ability-tab:hover * {
+    filter: none !important;
+    text-shadow: none !important;
 }
 
 .crux__actor-exhaustion {
@@ -390,9 +853,9 @@
     flex: 0 0 calc(var(--crux-width) * 0.054) !important;
     width: calc(var(--crux-width) * 0.054) !important;
     height: calc(var(--crux-width) * 0.054) !important;
-    border: 1px solid rgba(255, 255, 255, 0.32) !important;
+    border: var(--crux-border-width) solid var(--crux-element-hover-border) !important;
     border-radius: 50% !important;
-    background: var(--crux-accent-color) !important;
+    background: var(--crux-active-border) !important;
     box-sizing: border-box !important;
 }
 
@@ -423,7 +886,7 @@
     flex: 0 0 calc(var(--crux-width) * 0.047) !important;
     width: calc(var(--crux-width) * 0.047) !important;
     height: calc(var(--crux-width) * 0.047) !important;
-    border: 1px solid rgba(255, 255, 255, 0.32) !important;
+    border: var(--crux-border-width) solid var(--crux-element-hover-border) !important;
     border-radius: 50% !important;
     box-sizing: border-box !important;
 }
@@ -451,15 +914,15 @@
     align-items: center !important;
     justify-content: center !important;
     box-sizing: border-box !important;
-    border: 2px solid rgba(255, 255, 255, 0.55) !important;
+    border: var(--crux-actor-ac-border-width) solid var(--crux-actor-ac-border-color) !important;
     border-radius: 50% !important;
-    background: rgba(0, 0, 0, 0.78) !important;
-    color: var(--crux-actor-text) !important;
+    background: var(--crux-actor-ac-bg) !important;
+    color: var(--crux-actor-ac-text) !important;
     font-size: calc(var(--crux-width) * 0.09 * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 800 !important;
     line-height: 1 !important;
     text-align: center !important;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.65) !important;
+    box-shadow: none !important;
 }
 
 .crux__actor-stat-row {
@@ -477,9 +940,9 @@
     min-height: 0 !important;
     margin: 0 !important;
     padding: calc(var(--crux-width) * 0.025) calc(var(--crux-width) * 0.018) !important;
-    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border: var(--crux-border-width-light) solid var(--crux-border-color-light) !important;
     border-radius: 4px !important;
-    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    background: var(--crux-element-bg) !important;
     box-sizing: border-box !important;
     color: inherit !important;
     font-family: var(--crux-font-family) !important;
@@ -489,7 +952,7 @@
 
 .crux__actor-stat-tab strong {
     display: block !important;
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-text-strong) !important;
     font-size: calc(var(--crux-width) * 0.086 * var(--crux-global-font-size-multiplier)) !important;
     line-height: 1 !important;
 }
@@ -497,7 +960,7 @@
 .crux__actor-stat-tab span {
     display: block !important;
     margin-top: 3px !important;
-    color: var(--crux-actor-text-muted) !important;
+    color: var(--crux-text-strong) !important;
     font-size: calc(var(--crux-width) * 0.05 * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
@@ -513,7 +976,7 @@
 .crux__actor-vital > span {
     display: block !important;
     margin-bottom: 2px !important;
-    color: var(--crux-actor-text-muted) !important;
+    color: var(--crux-text) !important;
     font-size: calc(var(--crux-width) * 0.052 * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
@@ -523,7 +986,7 @@
     position: relative !important;
     height: calc(var(--crux-width) * 0.105) !important;
     overflow: hidden !important;
-    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    border: var(--crux-border-width-strong) solid var(--crux-border-color-strong) !important;
     border-radius: 4px !important;
     background: rgba(0, 0, 0, 0.52) !important;
 }
@@ -555,9 +1018,9 @@
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.45) !important;
+    border-left: var(--crux-border-width-strong) solid var(--crux-border-color-strong) !important;
     background: rgba(0, 0, 0, 0.28) !important;
-    color: rgba(255, 255, 255, 0.72) !important;
+    color: var(--crux-text-light) !important;
     font-family: var(--crux-font-family) !important;
     font-size: calc(var(--crux-width) * 0.072 * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 700 !important;
@@ -566,7 +1029,7 @@
 
 .crux__actor-bar--hp.has-temp-hp .crux__actor-temp-hp {
     background: rgba(40, 96, 155, 0.86) !important;
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-actor-temp-hp-text) !important;
 }
 
 .crux__actor-bar-fill {
@@ -590,8 +1053,15 @@
 
 .crux__actor-bar strong {
     margin-left: calc(var(--crux-width) * 0.025) !important;
-    color: var(--crux-actor-text) !important;
     font-size: calc(var(--crux-width) * 0.072 * var(--crux-global-font-size-multiplier)) !important;
+}
+
+.crux__actor-bar--hp strong {
+    color: var(--crux-actor-hp-text) !important;
+}
+
+.crux__actor-bar--hd strong {
+    color: var(--crux-actor-hit-dice-text) !important;
 }
 
 .crux__actor-bar .edit-mode {
@@ -613,10 +1083,10 @@
     height: calc(var(--crux-width) * 0.082) !important;
     margin: 0 !important;
     padding: 0 calc(var(--crux-width) * 0.012) !important;
-    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    border: var(--crux-border-width-strong) solid var(--crux-border-color-strong) !important;
     border-radius: 3px !important;
     background: rgba(0, 0, 0, 0.72) !important;
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-text) !important;
     font-family: var(--crux-font-family) !important;
     font-size: calc(var(--crux-width) * 0.072 * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 700 !important;
@@ -627,21 +1097,29 @@
 .crux__actor-saves {
     margin: 0 calc(var(--crux-width) * 0.025) 0 0 !important;
     padding: calc(var(--crux-width) * 0.035) !important;
-    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border: var(--crux-border-width-light) solid var(--crux-border-color-light) !important;
     border-radius: 5px !important;
-    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    background: var(--crux-element-bg) !important;
     box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.35) !important;
 }
 
 .crux__actor-saves h2 {
     margin: 0 0 calc(var(--crux-width) * 0.03) 0 !important;
     border: 0 !important;
-    color: var(--crux-actor-text-muted) !important;
+    color: var(--crux-text-strong) !important;
     font-family: var(--crux-font-family) !important;
     font-size: calc(var(--crux-width) * 0.064 * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 800 !important;
     text-align: center !important;
     text-transform: uppercase !important;
+}
+
+.crux__actor-saves h2 .crux__svg-icon {
+    display: inline-block !important;
+    width: calc(var(--crux-width) * 0.055) !important;
+    height: calc(var(--crux-width) * 0.055) !important;
+    margin-right: calc(var(--crux-width) * 0.012) !important;
+    vertical-align: -0.08em !important;
 }
 
 .crux__actor-save-grid {
@@ -657,16 +1135,16 @@
     min-width: 0 !important;
     padding: calc(var(--crux-width) * 0.018) 0 !important;
     border: 0 !important;
-    border-bottom: 1px dotted rgba(255, 255, 255, 0.18) !important;
+    border-bottom: var(--crux-border-width-light) dotted var(--crux-border-color-light) !important;
     background: transparent !important;
-    color: var(--crux-actor-text-muted) !important;
+    color: var(--crux-text) !important;
     font-family: var(--crux-font-family) !important;
     font-size: calc(var(--crux-width) * 0.062 * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 700 !important;
 }
 
 .crux__actor-save strong {
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-text) !important;
 }
 
 .crux__actor-identity-cards {
@@ -686,18 +1164,19 @@
     min-height: calc(var(--crux-width) * 0.175) !important;
     max-height: calc(var(--crux-width) * 0.175) !important;
     padding: calc(var(--crux-width) * 0.014) calc(var(--crux-width) * 0.026) !important;
-    border: 1px solid rgba(255, 255, 255, 0.20) !important;
+    border: var(--crux-border-width) solid var(--crux-border-color) !important;
     border-radius: 4px !important;
-    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
-    color: var(--crux-actor-text-muted) !important;
+    background: var(--crux-element-bg) !important;
+    color: var(--crux-text-light) !important;
     font-family: var(--crux-font-family) !important;
     overflow: hidden !important;
     text-align: left !important;
 }
 
 .crux__actor-identity-card:hover {
-    border-color: var(--crux-accent-color) !important;
-    background: var(--crux-accent-bg) !important;
+    border-color: var(--crux-element-hover-border) !important;
+    background: var(--crux-element-hover-bg) !important;
+    color: var(--crux-element-hover-text) !important;
 }
 
 .crux__actor-identity-card img {
@@ -715,7 +1194,7 @@
 
 .crux__actor-identity-card strong {
     overflow: hidden !important;
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-text-strong) !important;
     font-size: calc(var(--crux-width) * 0.064 * var(--crux-global-font-size-multiplier)) !important;
     line-height: 1.05 !important;
     text-overflow: ellipsis !important;
@@ -724,7 +1203,7 @@
 
 .crux__actor-identity-card em {
     overflow: hidden !important;
-    color: var(--crux-actor-text-muted) !important;
+    color: var(--crux-text) !important;
     font-size: calc(var(--crux-width) * 0.046 * var(--crux-global-font-size-multiplier)) !important;
     font-style: normal !important;
     line-height: 1.05 !important;
@@ -751,8 +1230,8 @@
     gap: calc(var(--crux-width) * 0.018) !important;
     margin: 0 !important;
     padding-bottom: calc(var(--crux-width) * 0.010) !important;
-    border-bottom: 1px solid rgba(190, 194, 202, 0.28) !important;
-    color: var(--crux-actor-text-muted) !important;
+    border-bottom: var(--crux-border-width) solid var(--crux-divider-color) !important;
+    color: var(--crux-text-strong) !important;
     font-family: var(--crux-font-family) !important;
     font-size: calc(var(--crux-width) * 0.070 * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 800 !important;
@@ -762,7 +1241,7 @@
 
 .crux__actor-trait-category h2 i {
     flex: 0 0 auto !important;
-    color: var(--crux-actor-text-muted) !important;
+    color: var(--crux-text-strong) !important;
     font-size: calc(var(--crux-width) * 0.070 * var(--crux-global-font-size-multiplier)) !important;
 }
 
@@ -781,18 +1260,18 @@
     min-height: calc(var(--crux-width) * 0.095) !important;
     max-height: calc(var(--crux-width) * 0.095) !important;
     padding: 0 calc(var(--crux-width) * 0.024) !important;
-    border: 1px solid rgba(255, 255, 255, 0.20) !important;
+    border: var(--crux-border-width) solid var(--crux-border-color) !important;
     border-radius: 3px !important;
-    background: rgba(0, 0, 0, calc(var(--crux-bg-opacity) + 0.08)) !important;
+    background: var(--crux-element-bg-strong) !important;
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.035), 0 1px 3px rgba(0, 0, 0, 0.28) !important;
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-text) !important;
     font-family: var(--crux-font-family) !important;
     line-height: calc(var(--crux-width) * 0.095) !important;
     text-transform: uppercase !important;
 }
 
 .crux__actor-trait-tag strong {
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-text) !important;
     font-size: calc(var(--crux-width) * 0.052 * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 700 !important;
     line-height: 1 !important;
@@ -800,30 +1279,40 @@
 
 .crux__actor-trait-tag em {
     padding-left: calc(var(--crux-width) * 0.012) !important;
-    border-left: 1px solid rgba(255, 255, 255, 0.20) !important;
-    color: var(--crux-actor-text-muted) !important;
+    border-left: var(--crux-border-width) solid var(--crux-border-color) !important;
+    color: var(--crux-text) !important;
     font-size: calc(var(--crux-width) * 0.052 * var(--crux-global-font-size-multiplier)) !important;
     font-style: normal !important;
     font-weight: 700 !important;
     line-height: 1 !important;
 }
-    
+
 #crux.application.crux.active,
 #crux.crux.active {
     transform: translateX(0);
 }
-    
+
 #interface.crux-active {
     margin-left: var(--crux-interface-push-width) !important;
     transition: margin-left 0.1s ease;
 }
 
 body.crlngn-ui {
-    --crux-interface-push-width: calc(var(--crux-width) + 15px);
+    --crux-interface-push-width: calc(var(--crux-width) + 18px);
+}
+
+body.crlngn-ui .crux__tab-rail {
+    gap: 1px !important;
+    padding: 0 !important;
 }
 
 body.crlngn-ui .crux__tab {
-    border-radius: 3px !important;
+    border-radius: 2px !important;
+    padding: 0 !important;
+}
+
+body.crlngn-ui .crux__tab.is-active {
+    box-shadow: 0 0 2px rgba(var(--crux-accent-rgb), 0.35) !important;
 }
 
 #crux.application.crux.active,
@@ -841,25 +1330,26 @@ body.crlngn-ui .crux__tab {
 }
 
 .crux__empty-tray i {
+    color: var(--crux-empty-icon-color) !important;
     font-size: calc(var(--crux-width) * 0.7 * var(--crux-global-font-size-multiplier)) !important;
     opacity: 0.3;
 }
 
 .crux__container.icon-small {
-    --crux-icon: calc(var(--crux-width) * var(--icon-small-ratio));
-    --die-icon-size: calc(var(--crux-icon) * 0.67);
+    --crux-icon: calc(var(--crux-width) * var(--crux-icon-small-ratio));
+    --crux-die-icon-size: calc(var(--crux-icon) * 0.67);
 }
 
 .crux__container.icon-large {
-    --crux-icon: calc(var(--crux-width) * var(--icon-large-ratio));
-    --die-icon-size: calc(var(--crux-icon) * 0.67);
+    --crux-icon: calc(var(--crux-width) * var(--crux-icon-large-ratio));
+    --crux-die-icon-size: calc(var(--crux-icon) * 0.67);
 }
 
 
 .crux__container h1 {
     border: 0 !important;
     font-family: var(--crux-font-family) !important;
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.2 * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-header-ratio) * 1.2 * var(--crux-global-font-size-multiplier)) !important;
     margin: 5px 0 0 0 !important;
 }
 
@@ -874,8 +1364,8 @@ body.crlngn-ui .crux__tab {
 }
 
 .crux__action-button {
-    background-color: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background-color: var(--crux-element-bg);
+    border: var(--crux-border-width) solid var(--crux-border-color);
     border-radius: 3px;
     cursor: pointer;
     padding: 5px 3px;
@@ -883,36 +1373,145 @@ body.crlngn-ui .crux__tab {
     display: flex;
     align-items: center;
     justify-content: center;
+    color: var(--crux-text-strong) !important;
     transition: background-color 0.2s;
 }
 
 .crux__action-button:hover {
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: var(--crux-element-hover-bg);
+    border-color: var(--crux-element-hover-border);
+    color: var(--crux-element-hover-text) !important;
 }
 
-.crux__action-button img {
+.crux__svg-icon {
+    display: block;
     width: 20px;
     height: 20px;
-    filter: invert(1);
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-
-.crux__utility-button img {
-    width: 18px;
-    height: 18px;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-
-.crux__status-effects-button img {
+    background: currentColor;
     border: none !important;
     outline: none !important;
+    opacity: 0.8;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    transition: opacity 0.2s;
 }
 
-.crux__action-button:hover img,
-.crux__utility-button:hover img {
+.crux__svg-icon--dash {
+    -webkit-mask-image: url("../img/dash.svg");
+    mask-image: url("../img/dash.svg");
+}
+
+.crux__svg-icon--disengage {
+    -webkit-mask-image: url("../img/disengage.svg");
+    mask-image: url("../img/disengage.svg");
+}
+
+.crux__svg-icon--dodge {
+    -webkit-mask-image: url("../img/dodge.svg");
+    mask-image: url("../img/dodge.svg");
+}
+
+.crux__svg-icon--grapple {
+    -webkit-mask-image: url("../img/grapple.svg");
+    mask-image: url("../img/grapple.svg");
+}
+
+.crux__svg-icon--hide {
+    -webkit-mask-image: url("../img/hide.svg");
+    mask-image: url("../img/hide.svg");
+}
+
+.crux__svg-icon--shove {
+    -webkit-mask-image: url("../img/shove.svg");
+    mask-image: url("../img/shove.svg");
+}
+
+.crux__svg-icon--aura {
+    -webkit-mask-image: url("../img/aura.svg");
+    mask-image: url("../img/aura.svg");
+}
+
+.crux__svg-icon--shield {
+    -webkit-mask-image: url("../img/shield.svg");
+    mask-image: url("../img/shield.svg");
+}
+
+.crux__svg-icon--hearts {
+    -webkit-mask-image: url("../img/hearts.svg");
+    mask-image: url("../img/hearts.svg");
+}
+
+.crux__svg-icon--eye-target {
+    -webkit-mask-image: url("../img/eye-target.svg");
+    mask-image: url("../img/eye-target.svg");
+}
+
+.crux__svg-icon--knife-fork {
+    -webkit-mask-image: url("../img/knife-fork.svg");
+    mask-image: url("../img/knife-fork.svg");
+}
+
+.crux__svg-icon--camping-tent {
+    -webkit-mask-image: url("../img/camping-tent.svg");
+    mask-image: url("../img/camping-tent.svg");
+}
+
+.crux__svg-icon--hourglass {
+    -webkit-mask-image: url("../img/hourglass.svg");
+    mask-image: url("../img/hourglass.svg");
+}
+
+.crux__svg-icon--character {
+    -webkit-mask-image: url("../img/character.svg");
+    mask-image: url("../img/character.svg");
+}
+
+.crux__svg-icon--target {
+    -webkit-mask-image: url("../img/target.svg");
+    mask-image: url("../img/target.svg");
+}
+
+.crux__svg-icon--sword {
+    -webkit-mask-image: url("../img/sword.svg");
+    mask-image: url("../img/sword.svg");
+}
+
+.crux__svg-icon--lift {
+    -webkit-mask-image: url("../img/lift.svg");
+    mask-image: url("../img/lift.svg");
+}
+
+.crux__svg-icon--back-forth {
+    -webkit-mask-image: url("../img/back-forth.svg");
+    mask-image: url("../img/back-forth.svg");
+}
+
+.crux__utility-button .crux__svg-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.crux__action-button:hover .crux__svg-icon,
+.crux__utility-button:hover .crux__svg-icon {
     opacity: 1;
+}
+
+.crux__tab:hover i,
+.crux__tab.is-active i,
+.crux__action-button:hover i,
+.crux__utility-button:hover i,
+.crux__ability:hover,
+.crux__ability:hover *,
+.crux__actor-ability-tab:hover *,
+.crux__actor-identity-card:hover *,
+.crux__activity-item:hover *,
+.crux-effects .effect-control.active *,
+.crux-effects-small .effect-control.active * {
+    color: inherit !important;
 }
 
 .crux__utility-buttons {
@@ -924,8 +1523,8 @@ body.crlngn-ui .crux__tab {
 
 .crux__utility-button {
     flex: 1;
-    background-color: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background-color: var(--crux-element-bg);
+    border: var(--crux-border-width) solid var(--crux-border-color);
     border-radius: 3px;
     cursor: pointer;
     padding: 4px 6px;
@@ -935,19 +1534,28 @@ body.crlngn-ui .crux__tab {
     display: flex;
     align-items: center;
     justify-content: center;
+    color: var(--crux-text-strong) !important;
     font-family: var(--crux-font-family) !important;
-    font-size: calc(var(--crux-width) * var(--text-base-ratio)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-ratio)) !important;
     position: relative;
 }
 
 .crux__utility-button i {
+    color: var(--crux-text-strong) !important;
     opacity: 0.8;
     flex: 0 0 14px;
     text-align: center;
 }
 
 .crux__utility-button:hover {
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: var(--crux-element-hover-bg);
+    border-color: var(--crux-element-hover-border);
+    color: var(--crux-element-hover-text) !important;
+}
+
+.crux__utility-button:hover a,
+.crux__utility-button:hover .crux__svg-icon {
+    color: var(--crux-element-hover-text) !important;
 }
 
 .crux__utility-button .button-text {
@@ -959,7 +1567,7 @@ body.crlngn-ui .crux__tab {
 }
 
 .crux__utility-button.crux__toggle-target {
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: var(--crux-element-bg);
     transition: background-color 0.2s;
 }
 
@@ -974,13 +1582,13 @@ body.crlngn-ui .crux__tab {
 
 .crux__section-header {
     position: relative !important;
-    background-color: rgba(255, 255, 255, 0.15) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    background-color: var(--crux-element-bg) !important;
+    border: var(--crux-border-width) solid var(--crux-border-color) !important;
     padding: 1px 6px !important;
     margin: 10px 2px 4px 2px !important;
     border-radius: 3px !important;
     font-family: var(--crux-font-family) !important;
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-header-ratio) * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 700 !important;
     line-height: normal !important;
     cursor: pointer !important;
@@ -990,6 +1598,7 @@ body.crlngn-ui .crux__tab {
 }
 
 .crux__section-header i {
+    color: inherit !important;
     transition: transform 0.3s ease;
 }
 
@@ -1023,10 +1632,10 @@ body.crlngn-ui .crux__tab {
     display: flex !important;
     align-items: center !important;
     margin: 0 !important;
-    font-size: calc(var(--crux-width) * var(--text-base-ratio) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
     font-weight: bold !important;
-    color: rgba(255, 255, 255, 0.7) !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.5) !important;
+    color: var(--crux-text) !important;
+    border-bottom: var(--crux-border-width-strong) solid var(--crux-divider-color-strong) !important;
     min-width: 0 !important;
     flex: 1 !important;
     font-family: var(--crux-font-family) !important;
@@ -1049,8 +1658,8 @@ body.crlngn-ui .crux__tab {
 }
 
 .crux__group-header .group-uses {
-    background: rgba(255, 255, 255, 0.8) !important;
-    color: black !important;
+    background: var(--crux-badge-bg) !important;
+    color: var(--crux-badge-text) !important;
     padding: 3px 6px !important;
     border-radius: 5px !important;
     margin-right: 8px !important;
@@ -1060,6 +1669,7 @@ body.crlngn-ui .crux__tab {
 }
 
 .crux__group-header i {
+    color: inherit !important;
     transition: transform 0.3s ease !important;
     flex: 0 0 14px !important;
     text-align: center !important;
@@ -1142,7 +1752,7 @@ body.crlngn-ui .crux__tab {
     height: 100%;
     backface-visibility: hidden;
     border-radius: 5px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: var(--crux-border-width-strong) solid var(--crux-border-color-strong);
     overflow: hidden;
     transform-origin: center;
 }
@@ -1153,7 +1763,7 @@ body.crlngn-ui .crux__tab {
     height: 100%;
     backface-visibility: hidden;
     border-radius: 5px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: var(--crux-border-width-strong) solid var(--crux-border-color-strong);
     overflow: hidden;
     transform-origin: center;
     z-index: 0;
@@ -1204,7 +1814,7 @@ body.crlngn-ui .crux__tab {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: var(--color-warm-2);
+    background-color: var(--crux-active-border);
     opacity: 0.8;
     mix-blend-mode: multiply;
     z-index: -1;
@@ -1219,7 +1829,7 @@ body.crlngn-ui .crux__tab {
 }
 
 .crux__portrait-back {
-    background: rgba(0, 0, 0, 0.8);
+    background: var(--crux-element-bg-strong);
     transform: rotateY(180deg);
     padding: calc(var(--crux-width) * 0.048);
     display: flex;
@@ -1237,9 +1847,10 @@ body.crlngn-ui .crux__tab {
 }
 
 .crux__rest-button {
-    background-color: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background-color: var(--crux-element-bg);
+    border: var(--crux-border-width) solid var(--crux-border-color);
     border-radius: 3px;
+    color: var(--crux-text);
     cursor: pointer;
     padding: calc(var(--crux-width) * 0.020);
     width: calc(var(--crux-width) * 0.140);
@@ -1247,28 +1858,34 @@ body.crlngn-ui .crux__tab {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, border-color 0.2s;
 }
 
 .crux__rest-button:hover {
-    background-color: rgba(255, 255, 255, 0.25);
+    background: var(--crux-active-bg) !important;
+    border-color: var(--crux-active-border);
+    color: var(--crux-hover-text) !important;
+    filter: none;
+    text-shadow: none;
 }
 
-.crux__rest-button i {
-    font-size: calc(var(--crux-width) * 0.070);
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-
-.crux__rest-button:hover i {
+.crux__rest-button .crux__svg-icon {
+    width: calc(var(--crux-width) * 0.070);
+    height: calc(var(--crux-width) * 0.070);
     opacity: 1;
+    transition: none;
+}
+
+.crux__rest-button:hover .crux__svg-icon {
+    filter: none;
+    text-shadow: none;
 }
 
 .crux__stat-row {
     display: flex;
     align-items: center;
     gap: calc(var(--crux-width) * 0.015);
-    color: white;
+    color: var(--crux-text);
     font-size: calc(var(--crux-width) * 0.056 * var(--crux-global-font-size-multiplier)) !important;
     line-height: 1.2;
 }
@@ -1277,10 +1894,10 @@ body.crlngn-ui .crux__tab {
     white-space: nowrap !important;
 }
 
-.crux__stat-row img {
+.crux__stat-row .crux__svg-icon {
     width: calc(var(--crux-width) * 0.062);
     height: calc(var(--crux-width) * 0.062);
-    filter: invert(1);
+    opacity: 1;
 }
 
 .crux__info-section {
@@ -1303,7 +1920,7 @@ body.crlngn-ui .crux__tab {
     margin: 0 0 5px 0 !important;
     padding-bottom: calc(var(--crux-width) * 0.018) !important;
     border-bottom: 0 !important;
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.1 * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-header-ratio) * 1.1 * var(--crux-global-font-size-multiplier)) !important;
     overflow: hidden !important;
     width: 100% !important;
     word-wrap: break-word !important;
@@ -1322,7 +1939,7 @@ body.crlngn-ui .crux__tab {
     bottom: 0 !important;
     left: 0 !important;
     height: 1px !important;
-    background: rgba(220, 222, 226, 0.62) !important;
+    background: rgba(var(--crux-text-rgb), 0.62) !important;
     pointer-events: none !important;
 }
 
@@ -1335,23 +1952,23 @@ body.crlngn-ui .crux__tab {
     color: inherit !important;
     text-decoration: none !important;
     word-break: break-word !important;
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 1.4 * var(--crux-character-name-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-header-ratio) * 1.4 * var(--crux-character-name-size-multiplier)) !important;
 }
 
 .crux__action-actor-name.long-name {
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-character-name-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-header-ratio) * var(--crux-character-name-size-multiplier)) !important;
 }
 
 .crux__action-actor-name.long-name .crux__actor-name {
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-character-name-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-header-ratio) * var(--crux-character-name-size-multiplier)) !important;
 }
 
 .crux__action-actor-name.very-long-name {
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 0.8 * var(--crux-character-name-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-header-ratio) * 0.8 * var(--crux-character-name-size-multiplier)) !important;
 }
 
 .crux__action-actor-name.very-long-name .crux__actor-name {
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * 0.8 * var(--crux-character-name-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-header-ratio) * 0.8 * var(--crux-character-name-size-multiplier)) !important;
 }
 
 .crux__abilities {
@@ -1372,14 +1989,15 @@ body.crlngn-ui .crux__tab {
     height: calc((var(--crux-width) * 0.63 - 14px) / 8) !important;
     min-height: 0 !important;
     padding: 0 3px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    border-bottom: var(--crux-border-width-strong) solid var(--crux-border-color-strong);
     text-transform: capitalize;
     text-align: center;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--crux-element-bg-light);
     border-radius: 3px;
     box-sizing: border-box;
     font-size: calc(var(--crux-width) * 0.05);
     overflow: hidden;
+    color: var(--crux-text) !important;
 }
 
 .crux__action-stat-column {
@@ -1404,11 +2022,11 @@ body.crlngn-ui .crux__tab {
     min-width: 0 !important;
     margin: 0 !important;
     padding: calc(var(--crux-width) * 0.018) calc(var(--crux-width) * 0.018) !important;
-    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border: var(--crux-border-width-light) solid var(--crux-border-color-light) !important;
     border-radius: 4px !important;
-    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
+    background: var(--crux-element-bg) !important;
     box-sizing: border-box !important;
-    color: inherit !important;
+    color: var(--crux-text) !important;
     font-family: var(--crux-font-family) !important;
     line-height: normal !important;
     text-align: center !important;
@@ -1419,13 +2037,14 @@ button.crux__action-stat-tab {
 }
 
 button.crux__action-stat-tab:hover {
-    border-color: var(--crux-accent-color) !important;
-    box-shadow: 0 0 0 1px var(--crux-accent-bg) inset !important;
+    border-color: var(--crux-active-border) !important;
+    box-shadow: 0 0 0 1px var(--crux-active-bg) inset !important;
+    color: var(--crux-hover-text) !important;
 }
 
 .crux__action-stat-tab strong {
     display: block !important;
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-text) !important;
     font-size: calc(var(--crux-width) * 0.064 * var(--crux-global-font-size-multiplier)) !important;
     line-height: 1 !important;
 }
@@ -1433,22 +2052,30 @@ button.crux__action-stat-tab:hover {
 .crux__action-stat-tab span {
     display: block !important;
     margin-top: 3px !important;
-    color: var(--crux-actor-text-muted) !important;
+    color: var(--crux-text) !important;
     font-size: calc(var(--crux-width) * 0.044 * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
 }
 
 .crux__ability:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--crux-element-hover-bg);
+    color: var(--crux-element-hover-text) !important;
+    filter: none !important;
+    text-shadow: none !important;
+}
+
+.crux__ability:hover * {
+    filter: none !important;
+    text-shadow: none !important;
 }
 
 
 .crux__actor .group-uses {
     flex: 0;
     align-self: flex-end;
-    background: rgba(255, 255, 255, 0.8);
-    color: black;
+    background: var(--crux-badge-bg);
+    color: var(--crux-badge-text);
     padding: 3px 6px;
     border-radius: 5px;
     margin-right: 8px !important;
@@ -1464,11 +2091,12 @@ button.crux__action-stat-tab:hover {
     height: 10px;
     border-radius: 50%;
     cursor: pointer;
-    background-color: var(--crux-accent-color);
+    border: 1px solid rgba(var(--crux-accent-rgb), 0.75);
+    background-color: rgb(var(--crux-accent-rgb));
 }
 
 .crux__actor .group-dots .dot.empty {
-    background-color: rgba(255, 255, 255, 0.2) !important;
+    background-color: rgba(var(--crux-accent-rgb), 0.22) !important;
 }
 
 .crux__items {
@@ -1500,8 +2128,9 @@ button.crux__action-stat-tab:hover {
     display: flex;
     align-items: center;
     gap: 5px;
-    font-size: calc(var(--crux-width) * var(--text-base-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
     font-family: var(--crux-font-family) !important;
+    color: var(--crux-item-text) !important;
 }
 
 .crux-spinner {
@@ -1509,27 +2138,27 @@ button.crux__action-stat-tab:hover {
     align-items: center !important;
     justify-content: center !important;
     background: rgba(0, 0, 0, 0.8) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border: var(--crux-border-width) solid var(--crux-border-color) !important;
     border-radius: 3px !important;
     margin-right: 4px !important;
     padding: 0 2px !important;
     cursor: pointer !important;
-    height: calc(var(--crux-width) * var(--flag-ratio)) !important;
-    min-width: calc(var(--crux-width) * var(--flag-ratio) * 0.4) !important;
+    height: calc(var(--crux-width) * var(--crux-flag-ratio)) !important;
+    min-width: calc(var(--crux-width) * var(--crux-flag-ratio) * 0.4) !important;
     width: auto !important;
     flex: 0 0 auto !important;
 }
 
 .crux-spinner .letter {
     font-weight: bold !important;
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: var(--crux-text) !important;
     margin-right: 1px !important;
-    font-size: calc(var(--crux-width) * var(--flag-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-flag-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux-spinner .value {
-    color: white !important;
-    font-size: calc(var(--crux-width) * var(--flag-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
+    color: var(--crux-text) !important;
+    font-size: calc(var(--crux-width) * var(--crux-flag-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux-spinner .edit-mode {
@@ -1538,15 +2167,15 @@ button.crux__action-stat-tab:hover {
 }
 
 .crux-spinner .edit-mode input {
-    width: calc(var(--crux-width) * var(--flag-ratio) * 1.5) !important;
-    height: calc(var(--crux-width) * var(--flag-ratio) * 0.7) !important;
+    width: calc(var(--crux-width) * var(--crux-flag-ratio) * 1.5) !important;
+    height: calc(var(--crux-width) * var(--crux-flag-ratio) * 0.7) !important;
     text-align: center !important;
-    background: rgba(0, 0, 0, 0.5) !important;
-    color: white !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    background: var(--crux-input-bg) !important;
+    color: var(--crux-text) !important;
+    border: var(--crux-border-width-strong) solid var(--crux-input-border) !important;
     border-radius: 2px !important;
     padding: 0 2px !important;
-    font-size: calc(var(--crux-width) * var(--flag-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-flag-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux-spinner .hidden {
@@ -1562,7 +2191,7 @@ button.crux__action-stat-tab:hover {
 }
 
 .crux__activity-name {
-    color: var(--color-warm-2);
+    color: var(--crux-active-border);
     font-family: var(--crux-font-family) !important;
     font-size: calc(0.9em * var(--crux-global-font-size-multiplier)) !important;
     font-style: italic;
@@ -1592,7 +2221,7 @@ button.crux__action-stat-tab:hover {
 
 .crux__item .item-name .item-image i {
     display: none;
-    font-size: calc(var(--die-icon-size) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-die-icon-size) * var(--crux-global-font-size-multiplier)) !important;
     opacity: 0.5;
 }
 
@@ -1605,13 +2234,13 @@ button.crux__action-stat-tab:hover {
 }
 
 .crux__item .flag {
-    flex: 0 0 calc(var(--crux-width) * var(--flag-ratio));
-    height: calc(var(--crux-width) * var(--flag-ratio));
+    flex: 0 0 calc(var(--crux-width) * var(--crux-flag-ratio));
+    height: calc(var(--crux-width) * var(--crux-flag-ratio));
     border-radius: 50%;
-    line-height: calc(var(--crux-width) * var(--flag-ratio));
+    line-height: calc(var(--crux-width) * var(--crux-flag-ratio));
     text-align: center;
     font-weight: bold;
-    font-size: calc(var(--crux-width) * var(--flag-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-flag-text-ratio) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 
@@ -1642,13 +2271,13 @@ button.crux__action-stat-tab:hover {
 .crux__item .ritual {
     background: rgba(255, 255, 0, 0.8) !important;
     color: black;
-    flex: 0 0 calc(var(--crux-width) * var(--ritual-flag-ratio));
+    flex: 0 0 calc(var(--crux-width) * var(--crux-ritual-flag-ratio));
     border-radius: 10px;
 }
 
 .crux__item .unprepared {
     background: rgba(233, 47, 47, 0.5);
-    color: white;
+    color: var(--crux-text);
 }
 
 .crux__item .item-summary {
@@ -1657,26 +2286,26 @@ button.crux__action-stat-tab:hover {
     margin: 4px 0 10px 0 !important;
     background: transparent;
     border-radius: 0;
-    font-size: calc(var(--crux-width) * var(--text-summary-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-summary-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
     line-height: 1.4;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--crux-item-description-text);
 }
 
 .crux__item .item-summary a {
-    color: var(--color-warm-2);
+    color: var(--crux-active-border);
 }
 
 .crux__item .item-summary .content-link {
-    color: var(--color-warm-2);
+    color: var(--crux-active-border);
     text-decoration: underline;
 }
 
 .crux__item .item-summary .inline-roll {
     background: rgba(0, 0, 0, 0.4);
-    border: 1px solid #9ecdff;
+    border: var(--crux-border-width) solid var(--crux-border-color-strong);
     border-radius: 3px;
     padding: 0 3px;
-    color: white;
+    color: var(--crux-text);
     font-weight: bold;
 }
 
@@ -1707,7 +2336,7 @@ button.crux__action-stat-tab:hover {
     padding: 5px 9px;
     gap: 7px;
     background-color: rgba(255, 255, 255, 0.7);
-    border: 1px solid black;
+    border: var(--crux-border-width) solid var(--crux-border-color-strong);
     border-radius: 3px;
     color: black;
     font-size: calc(14px * var(--crux-global-font-size-multiplier)) !important;
@@ -1724,16 +2353,16 @@ button.crux__action-stat-tab:hover {
 }
 
 .crux__end-turn-button {
-    background-color: var(--end-turn-button-bg) !important;
-    color: var(--end-turn-button-color) !important;
-    border-radius: var(--end-turn-button-border-radius) !important;
-    padding: var(--end-turn-button-padding) !important;
-    font-size: calc(var(--end-turn-button-font-size) * var(--crux-global-font-size-multiplier)) !important;
-    text-align: var(--end-turn-button-text-align) !important;
-    font-weight: var(--end-turn-button-font-weight) !important;
+    background-color: var(--crux-end-turn-button-bg) !important;
+    color: var(--crux-end-turn-button-color) !important;
+    border-radius: var(--crux-end-turn-button-border-radius) !important;
+    padding: var(--crux-end-turn-button-padding) !important;
+    font-size: calc(var(--crux-end-turn-button-font-size) * var(--crux-global-font-size-multiplier)) !important;
+    text-align: var(--crux-end-turn-button-text-align) !important;
+    font-weight: var(--crux-end-turn-button-font-weight) !important;
     font-family: var(--crux-font-family) !important;
-    border: var(--end-turn-button-border) !important;
-    box-shadow: var(--end-turn-button-box-shadow) !important;
+    border: var(--crux-end-turn-button-border) !important;
+    box-shadow: var(--crux-end-turn-button-box-shadow) !important;
     justify-content: center !important;
     align-items: center !important;
     display: flex !important;
@@ -1743,13 +2372,22 @@ button.crux__action-stat-tab:hover {
     text-align: center !important;
 }
 
-.crux__initiative i, .crux__end-turn-button i {
+.crux__initiative i,
+.crux__initiative .crux__svg-icon,
+.crux__end-turn-button i,
+.crux__end-turn-button .crux__svg-icon {
     font-size: calc(16px * var(--crux-global-font-size-multiplier)) !important;
     margin-right: 8px !important;
     display: inline-flex !important;
     align-items: center !important;
     vertical-align: middle !important;
     flex: 0 0 auto !important;
+}
+
+.crux__initiative .crux__svg-icon,
+.crux__end-turn-button .crux__svg-icon {
+    width: calc(16px * var(--crux-global-font-size-multiplier)) !important;
+    height: calc(16px * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__initiative div, .crux__end-turn-button div {
@@ -1801,13 +2439,28 @@ button.crux__action-stat-tab:hover {
     padding: 1px 6px;
     margin: 6px 2px 0px 2px !important;
     font-family: var(--crux-font-family) !important;
-    font-size: calc(var(--crux-width) * var(--text-header-ratio) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-header-ratio) * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 700 !important;
     line-height: normal !important;
-    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
-    border: 1px solid rgba(255, 255, 255, 0.20) !important;
+    background: var(--crux-element-bg) !important;
+    border: var(--crux-border-width) solid var(--crux-border-color) !important;
     border-radius: 3px !important;
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-action-header-text) !important;
+}
+
+.crux__skill-header:hover {
+    background: var(--crux-active-bg) !important;
+    border-color: var(--crux-active-border) !important;
+    color: var(--crux-hover-text) !important;
+    filter: none !important;
+    text-shadow: none !important;
+}
+
+.crux__skill-header:hover span,
+.crux__skill-header:hover i {
+    color: inherit !important;
+    filter: none !important;
+    text-shadow: none !important;
 }
 
 .crux__skills {
@@ -1824,7 +2477,7 @@ button.crux__action-stat-tab:hover {
 
 .crux__skill-container .crux__skill-header i {
     transition: transform 0.3s ease;
-    color: var(--crux-actor-text) !important;
+    color: inherit !important;
     float: none;
     transform: rotate(180deg);
 }
@@ -1833,7 +2486,7 @@ button.crux__action-stat-tab:hover {
     transform: rotate(0deg);
 }
 
-.crux__skill-container.is-open .crux__skills, 
+.crux__skill-container.is-open .crux__skills,
 .crux__skill-container.append .crux__skills {
     display: grid;
 }
@@ -1862,7 +2515,7 @@ button.crux__action-stat-tab:hover {
 }
 
 .crux__skill-row span {
-    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
     line-height: 1 !important;
 }
 
@@ -1885,15 +2538,16 @@ button.crux__action-stat-tab:hover {
     text-align: center;
     justify-content: center;
     width: 40px;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: calc(var(--crux-width) * var(--text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+    color: var(--crux-text-light);
+    font-size: calc(var(--crux-width) * var(--crux-text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__activities-menu {
-    background-color: rgba(0, 0, 0, 0.9) !important;
-    border: 1.5px solid var(--color-warm-1) !important;
+    background-color: var(--crux-element-bg-strong) !important;
+    border: var(--crux-border-width-strong) solid var(--crux-border-color-strong) !important;
     border-radius: 5px !important;
-    color: white !important;
+    color: var(--crux-text) !important;
+    font-family: var(--crux-font-family) !important;
     padding: 0 !important;
     min-width: 200px !important;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
@@ -1901,8 +2555,8 @@ button.crux__action-stat-tab:hover {
 }
 
 .crux__activities-header {
-    background-color: var(--color-secondary-75) !important;
-    color: white !important;
+    background-color: var(--crux-element-bg) !important;
+    color: var(--crux-text-strong) !important;
     padding: 5px 10px !important;
     font-weight: bold !important;
     font-size: calc(14px * var(--crux-global-font-size-multiplier)) !important;
@@ -1925,7 +2579,7 @@ button.crux__action-stat-tab:hover {
     display: flex !important;
     justify-content: space-between !important;
     align-items: center !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-bottom: var(--crux-border-width-light) solid var(--crux-border-color-light) !important;
 }
 
 .crux__activity-item:last-child {
@@ -1933,33 +2587,45 @@ button.crux__action-stat-tab:hover {
 }
 
 .crux__activity-item:hover {
-    background-color: var(--color-dark-6) !important;
+    background-color: var(--crux-active-bg) !important;
+    color: var(--crux-hover-text) !important;
 }
 
 .crux__activity-name {
     flex: 1 !important;
     font-size: calc(13px * var(--crux-global-font-size-multiplier)) !important;
-    color: var(--color-light-2) !important;
-    background-color: rgba(0, 0, 0, 0.3) !important;
+    color: var(--crux-text) !important;
+    background-color: var(--crux-element-bg) !important;
     padding: 2px 5px !important;
     border-radius: 3px !important;
 }
 
 .crux__activity-type {
     font-size: calc(11px * var(--crux-global-font-size-multiplier)) !important;
-    color: var(--color-light-2) !important;
-    background-color: rgba(0, 0, 0, 0.3) !important;
+    color: var(--crux-text-light) !important;
+    background-color: var(--crux-element-bg) !important;
     padding: 2px 5px !important;
     border-radius: 3px !important;
     margin-left: 5px !important;
     text-transform: capitalize !important;
 }
 
+#crux.crux .window-header,
+#crux.crux header.window-header,
 .crux .window-header {
-    display: none;
+    display: none !important;
+    visibility: hidden !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 .crux-effects {
+    --crux-element-bg: rgba(0, 0, 0, 0.7);
+    --crux-active-bg: rgba(255, 100, 0, 0.2);
+    --crux-active-border: var(--color-warm-2);
     background: transparent;
     border: none;
     box-shadow: none;
@@ -1979,7 +2645,7 @@ button.crux__action-stat-tab:hover {
     grid-template-columns: repeat(4, 1fr);
     gap: 4px;
     padding: 4px;
-    background: rgba(0, 0, 0, 0.7);
+    background: var(--crux-element-bg);
     border-radius: 3px;
 }
 
@@ -1987,18 +2653,19 @@ button.crux__action-stat-tab:hover {
     width: 36px !important;
     height: 36px !important;
     padding: 3px !important;
-    border: 1px solid transparent;
+    border: var(--crux-border-width) solid transparent;
     border-radius: 4px;
     cursor: pointer;
 }
 
 .crux-effects .effect-control:hover {
-    border-color: var(--color-warm-2) !important;
+    border-color: var(--crux-active-border) !important;
 }
 
 .crux-effects .effect-control.active {
-    border-color: var(--color-warm-2) !important;
-    background: rgba(255, 100, 0, 0.2);
+    border-color: var(--crux-active-border) !important;
+    background: var(--crux-active-bg);
+    color: var(--crux-hover-text) !important;
 }
 
 .crux-effects .effect-control img {
@@ -2021,12 +2688,13 @@ button.crux__action-stat-tab:hover {
 }
 
 .crux-effects-small .effect-control:hover {
-    border-color: var(--color-warm-2) !important;
+    border-color: var(--crux-active-border) !important;
 }
 
 .crux-effects-small .effect-control.active {
-    border-color: var(--color-warm-2) !important;
-    background: rgba(255, 100, 0, 0.2) !important;
+    border-color: var(--crux-active-border) !important;
+    background: var(--crux-active-bg) !important;
+    color: var(--crux-hover-text) !important;
 }
 
 .crux-effects-small .effect-control img {
@@ -2040,7 +2708,8 @@ button.crux__action-stat-tab:hover {
 }
 
 .crux [data-action]:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--crux-element-hover-bg);
+    color: var(--crux-element-hover-text);
 }
 
 .crux__tab-panel--actions [data-action]:hover {
@@ -2048,84 +2717,121 @@ button.crux__action-stat-tab:hover {
 }
 
 .crux__tab-panel--actions {
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-text) !important;
 }
 
 .crux__tab-panel--actions .crux__actor-name,
+.crux__tab-panel--actions .crux__action-actor-name {
+    color: var(--crux-action-name-text) !important;
+}
+
 .crux__tab-panel--actions .crux__item .item-name h4,
 .crux__tab-panel--actions .crux__skill-row span,
 .crux__tab-panel--actions .crux__skill-bonus,
 .crux__tab-panel--actions .crux__activity-name {
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-text) !important;
 }
 
 .crux__tab-panel--actions .crux__skill-passive,
-.crux__tab-panel--actions .crux__item .item-summary,
-.crux__tab-panel--actions .crux__group-header h3,
-.crux__tab-panel--actions .crux__skill-header {
-    color: var(--crux-actor-text-muted) !important;
+.crux__tab-panel--actions .crux__item .item-summary {
+    color: var(--crux-text-light) !important;
 }
 
-.crux__tab-panel--actions .crux__section-header,
+.crux__tab-panel--actions .crux__group-header h3 {
+    color: var(--crux-text) !important;
+}
+
+.crux__tab-panel--actions .crux__section-header {
+    background: var(--crux-element-bg) !important;
+    border-color: var(--crux-border-color) !important;
+    color: var(--crux-action-header-text) !important;
+}
+
 .crux__tab-panel--actions .crux__action-button,
 .crux__tab-panel--actions .crux__utility-button,
 .crux__tab-panel--actions .crux__utility-button.crux__toggle-target,
 .crux__tab-panel--actions .crux__ability {
-    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
-    border-color: rgba(255, 255, 255, 0.20) !important;
-    color: var(--crux-actor-text) !important;
+    background: var(--crux-element-bg) !important;
+    border-color: var(--crux-border-color) !important;
+    color: var(--crux-text) !important;
+}
+
+.crux__tab-panel--actions .crux__action-button,
+.crux__tab-panel--actions .crux__utility-button,
+.crux__tab-panel--actions .crux__utility-button.crux__toggle-target {
+    color: var(--crux-text-strong) !important;
 }
 
 .crux__tab-panel--actions .crux__section:first-child .crux__section-header {
-    background: rgba(0, 0, 0, var(--crux-bg-opacity)) !important;
-    border-color: rgba(255, 255, 255, 0.20) !important;
+    background: var(--crux-element-bg) !important;
+    border-color: var(--crux-border-color) !important;
 }
 
 .crux__tab-panel--actions .crux__section-header:hover,
 .crux__tab-panel--actions .crux__action-button:hover,
 .crux__tab-panel--actions .crux__utility-button:hover,
+.crux__tab-panel--actions .crux__skill-header:hover,
 .crux__tab-panel--actions .crux__ability:hover {
-    background: var(--crux-accent-bg) !important;
-    border-color: var(--crux-accent-color) !important;
+    background: var(--crux-element-hover-bg) !important;
+    border-color: var(--crux-element-hover-border) !important;
+    color: var(--crux-element-hover-text) !important;
 }
 
 .crux__tab-panel--actions .crux__section-header i,
 .crux__tab-panel--actions .crux__group-header i,
-.crux__tab-panel--actions .crux__skill-header i,
+.crux__tab-panel--actions .crux__skill-header i {
+    color: inherit !important;
+}
+
 .crux__tab-panel--actions .crux__utility-button i {
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-text-strong) !important;
+}
+
+.crux__tab-panel--actions .crux__utility-button:hover a,
+.crux__tab-panel--actions .crux__utility-button:hover i,
+.crux__tab-panel--actions .crux__utility-button:hover .crux__svg-icon {
+    color: var(--crux-element-hover-text) !important;
 }
 
 .crux__tab-panel--actions .crux__group-header h3 {
-    border-bottom-color: rgba(190, 194, 202, 0.32) !important;
+    border-bottom-color: var(--crux-divider-color-light) !important;
+}
+
+.crux .crux__skill-header {
+    font-family: var(--crux-font-family) !important;
+}
+
+.crux .crux__skill-header-label {
+    font-family: var(--crux-font-family) !important;
 }
 
 .crux__tab-panel--actions .crux__group-header .group-uses,
 .crux__tab-panel--actions .crux-spinner,
 .crux__tab-panel--actions .crux__item .item-summary .item-properties .tag {
-    background: rgba(0, 0, 0, calc(var(--crux-bg-opacity) + 0.08)) !important;
-    border-color: rgba(255, 255, 255, 0.20) !important;
-    color: var(--crux-actor-text) !important;
+    background: var(--crux-element-bg-strong) !important;
+    border-color: var(--crux-border-color) !important;
+    color: var(--crux-text) !important;
 }
 
 .crux__tab-panel--actions .crux-spinner .letter,
 .crux__tab-panel--actions .crux-spinner .value {
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-text) !important;
 }
 
 .crux__tab-panel--actions .crux__activity-item:hover {
-    background: rgba(0, 0, 0, calc(var(--crux-bg-opacity) + 0.04)) !important;
+    background: rgba(var(--crux-element-bg-rgb), min(calc(var(--crux-element-bg-opacity) + 0.04), 1)) !important;
+    color: var(--crux-hover-text) !important;
 }
 
 .crux__tab-panel--actions .crux__item .item-summary .inline-roll {
-    background: rgba(0, 0, 0, calc(var(--crux-bg-opacity) + 0.08)) !important;
-    border-color: rgba(190, 194, 202, 0.45) !important;
-    color: var(--crux-actor-text) !important;
+    background: var(--crux-element-bg-strong) !important;
+    border-color: var(--crux-divider-color-strong) !important;
+    color: var(--crux-text) !important;
 }
 
 .crux__tab-panel--actions .crux__item .item-summary a,
 .crux__tab-panel--actions .crux__item .item-summary .content-link {
-    color: var(--crux-actor-text) !important;
+    color: var(--crux-text) !important;
 }
 
 .crux [data-action="toggleEffect"] {
@@ -2139,7 +2845,7 @@ button.crux__action-stat-tab:hover {
 }
 
 :root {
-    --ft-height: 50px;
+    --crux-taskbar-height: 50px;
 }
 
 #taskbar .taskbar-item[data-tiappid="crux"] {

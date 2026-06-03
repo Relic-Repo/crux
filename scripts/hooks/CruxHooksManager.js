@@ -13,7 +13,7 @@ export default class CruxHooksManager {
      */
     static init() {
         console.log("Crux | Initializing Crux hooks");
-        
+
         this.#registerHooks();
         this.#registerKeybindings();
     }
@@ -38,8 +38,7 @@ export default class CruxHooksManager {
                 if (game.crux.lastUsedItem === undefined) game.crux.lastUsedItem = null;
             }
             await game.crux.app.render(true);
-            CruxSettings._updateFontFamily();
-            CruxSettings._updateCharacterNameSizeMultiplier();
+            await CruxSettings.applySavedVisualSettings();
             game.crux.app._initializeTraySize();
             if (game.crux.app.element && document.body.contains(game.crux.app.element)) {
                 const trayMode = game.settings.get("crux", "tray-mode");
@@ -69,11 +68,10 @@ export default class CruxHooksManager {
             const taskbarHeight = taskbar?.getBoundingClientRect().height ?? 0;
             const shouldOffsetTray = isTaskbarActive && isCompatEnabled && taskbarHeight > 0;
             const offset = shouldOffsetTray ? `${taskbarHeight}px` : '0px';
-            document.documentElement.style.setProperty('--ft-height', `${taskbarHeight || 50}px`);
-            document.documentElement.style.setProperty('--crux-tray-bottom-offset', offset);
-            document.body.style.setProperty('--crux-tray-bottom-offset', offset);
+            CruxSettings.setCruxGlobalVariable('--crux-taskbar-height', `${taskbarHeight || 50}px`);
+            CruxSettings.setCruxGlobalVariable('--crux-tray-bottom-offset', offset);
             document.body.classList.toggle("crux-taskbar-compat", shouldOffsetTray);
-            console.log("Crux | Checking tray visibility flags for all items...");        
+            console.log("Crux | Checking tray visibility flags for all items...");
             let needsUpdate = false;
             let updateCount = 0;
             const checkAndUpdate = async (item) => {
@@ -138,9 +136,9 @@ export default class CruxHooksManager {
             game.crux.app.render();
             if (game.crux.app.element && document.body.contains(game.crux.app.element)) {
                 const trayMode = game.settings.get("crux", "tray-mode");
-                const interfaceEl = document.querySelector("#interface");                
+                const interfaceEl = document.querySelector("#interface");
                 if (trayMode === "auto") {
-                    const hasSelectedTokens = canvas.tokens.controlled.length > 0;                
+                    const hasSelectedTokens = canvas.tokens.controlled.length > 0;
                     if (hasSelectedTokens) {
                         game.crux.app.element.classList.add("active");
                         if (interfaceEl) interfaceEl.classList.add("crux-active");
@@ -154,7 +152,7 @@ export default class CruxHooksManager {
                     game.crux.app.element.classList.add("always-on");
                     if (interfaceEl) interfaceEl.classList.add("crux-active");
                 }
-            }            
+            }
             if (isControlled && token.actor) {
                 CruxEffectsAppV2.updateInstance(token.actor, token);
             }
@@ -363,8 +361,8 @@ export default class CruxHooksManager {
                 if (!game.user.isGM && !item.isOwner) {
                     return false;
                 }
-                
-                if (item._processingTrayVisibility) return false; 
+
+                if (item._processingTrayVisibility) return false;
                 item._processingTrayVisibility = true;
                 const setFlag = async () => {
                     try {
@@ -386,7 +384,7 @@ export default class CruxHooksManager {
             }
         } catch (error) {
             console.error(`Crux | Error in _ensureItemTrayVisibility for item ${item?.name} (${item?.id}):`, error);
-            if (item) delete item._processingTrayVisibility; 
+            if (item) delete item._processingTrayVisibility;
         }
         return false;
     }

@@ -2,6 +2,23 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2026-06-03] [2.2.1]
+
+### Added
+- Added visual presets for Crux panel styling, including Foundry Light, Black Glass, Crimson Knight, and additional themed palettes.
+- Added control settings for panel opacity, element opacity, and panel blur.
+- Added settings preview behavior so visual preset, opacity, blur, size, and font controls preview live while editing.
+- Added new SVG icon assets for Action panel controls, rest buttons, combat controls, and Actor panel details.
+- Added attribution updates for bundled icons, textures, Font Awesome usage, and Brazilian Portuguese review credit.
+
+### Changed
+- Updated Crux styling so panel, element, text, border, hover, active, and accent colors are driven by the new visual preset system.
+- Updated Crux CSS variable structure for future preset and add-on panel theming.
+- Updated item-name interactions:
+  - Left click now expands or collapses the Crux item description.
+  - Right click now opens the item sheet.
+  - Middle click keeps the Activities Menu behavior where supported.
+
 ## [2026-05-26] [2.2.0]
 
 ### Added

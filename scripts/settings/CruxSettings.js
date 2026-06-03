@@ -1,405 +1,21 @@
+import { createCruxSettingDefinitions } from "./CruxSettingDefinitions.js";
+import CRUX_VISUAL_PRESETS from "./CruxVisualPresets.js";
+import * as CruxThemeVariables from "./CruxThemeVariables.js";
+
 /**
  * Manages settings registration and access for Crux
  */
 export default class CruxSettings {
+    static EXTERNAL_THEME_VARIABLES = CruxThemeVariables.EXTERNAL_THEME_VARIABLES;
+
+    static VISUAL_PRESETS = CRUX_VISUAL_PRESETS;
+
+    static _lastSavedVisualPreset = null;
+
     /**
      * Configuration settings for the module
      */
-    static SETTINGS = {
-        "tray-mode": {
-            name: "Tray Display Mode",
-            hint: "Toggle - only hide tray when toggled (using hot key) / When token selected - Hide the tray if no tokens are selected, show otherwise / Automatic - Toggle for players, When token selected for the GM",
-            scope: "client",
-            config: true,
-            type: String,
-            choices: {
-                "auto": "Automatic",
-                "always": "Always Show",
-                "manual": "Toggle"
-            },
-            default: "manual"
-        },
-        "assume-default-character": {
-            name: "Assume Default Character",
-            hint: "When no other token is selected, show the tray for the user's default character (usually only set for players). This can help with scenes with no tokens (or a generic party token) visible.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: false
-        },
-        "show-favorites-section": {
-            name: "Show Favorites Section",
-            hint: "Display the Favorites section in the tray.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: true
-        },
-        "show-equipped-section": {
-            name: "Show Equipped Section",
-            hint: "Display the Equipped section in the tray.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: true
-        },
-        "show-features-section": {
-            name: "Show Features Section",
-            hint: "Display the Features section in the tray.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: true
-        },
-        "show-spells-section": {
-            name: "Show Spells Section",
-            hint: "Display the Spells section in the tray.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: true
-        },
-        "show-inventory-section": {
-            name: "Show Inventory Section",
-            hint: "Display the Inventory section in the tray.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: true
-        },
-        "use-tidy5e-sections": {
-            name: "Use Tidy 5e Sheet Sections",
-            hint: "When enabled, recognizes and uses Tidy 5e Sheet sections instead of standard Crux sections.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: false
-        },
-        "show-quantity": {
-            name: "Show Quantity (Q)",
-            hint: "Display the quantity indicator for items in the tray.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: true
-        },
-        "show-uses": {
-            name: "Show Uses (U)",
-            hint: "Display the uses indicator for items in the tray.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: true
-        },        
-        "show-no-uses": {
-            name: "Show Items With No Uses Left",
-            hint: "Display items in the tray even when they have no remaining uses.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: false
-        },
-        "show-unprepared-cantrips": {
-            name: "Show Unprepared Cantrips",
-            hint: "Show cantrips in the tray even if they are not prepared.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: false
-        },
-        "show-all-npc-items": {
-            name: "Show All NPC Items",
-            hint: "Display all items for NPCs in the tray, not just passive ones.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: false
-        },        
-        "show-spell-dots": {
-            name: "Show Spell Slot Dots",
-            hint: "Display dots indicating available spell slots.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: true
-        },
-        "show-spell-fractions": {
-            name: "Show Spell Slot Numbers",
-            hint: "Display numerical fractions showing available/maximum spell slots.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: false
-        },
-        "sort-alphabetic": {
-            name: "Sort Items Alphabetically",
-            hint: "Sort items in alphabetical order rather than by their default sorting.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: false
-        },
-        "exclude-container-items": {
-            name: "crux.settings.exclude-container-items.name",
-            hint: "crux.settings.exclude-container-items.hint",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: true
-        },
-        "skill-mode": {
-            name: "Skill List Location",
-            hint: "If 'Collapsible at the top' is selected, the skill toggle hot key (in control settings) can be used to toggle the skill list open and closed, opening the panel if needed. If skills are at the bottom of the panel, the hotkey automatically scrolls to reveal them.",
-            scope: "client",
-            config: true,
-            type: String,
-            choices: {
-                "none": "None",
-                "dropdown": "Collapsible at the top",
-                "append": "At the bottom of the panel"
-            },
-            default: "dropdown"
-        },       
-        "skills-expanded": {
-            name: "Skills Section Default State",
-            hint: "Choose whether the Skills section starts expanded or collapsed by default",
-            scope: "client",
-            config: true,
-            type: String,
-            choices: {
-                "open": "Open",
-                "collapsed": "Collapsed"
-            },
-            default: "collapsed"
-        },
-        "main-sections-expanded": {
-            name: "Main Sections Default State",
-            hint: "Choose whether the main sections (like Features, Spells, etc.) start expanded or collapsed by default",
-            scope: "client",
-            config: true,
-            type: String,
-            choices: {
-                "open": "Open",
-                "collapsed": "Collapsed"
-            },
-            default: "open"
-        },
-        "sub-sections-expanded": {
-            name: "Sub-Sections Default State",
-            hint: "Choose whether sub-sections (like spell levels) start expanded or collapsed by default",
-            scope: "client",
-            config: true,
-            type: String,
-            choices: {
-                "open": "Open",
-                "collapsed": "Collapsed"
-            },
-            default: "collapsed"
-        },        
-        "icon-size": {
-            name: "Icon Size",
-            hint: "Set the size of icons in the tray.",
-            scope: "client",
-            config: true,
-            type: String,
-            choices: {
-                "small": "Small",
-                "medium": "Medium",
-                "large": "Large"
-            },
-            default: "small"
-        },
-        "tray-size": {
-            name: "Tray Size",
-            hint: "Set the overall size of the tray interface.",
-            scope: "client",
-            config: true,
-            type: Number,
-            range: {
-                min: 200,
-                max: 300,
-                step: 1
-            },
-            default: 260
-        },
-        "health-overlay-enabled": {
-            name: "Enable Health Overlay",
-            hint: "Show a dynamic health overlay on character portraits",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: true
-        },
-        "health-overlay-direction": {
-            name: "Health Overlay Direction",
-            hint: "Choose whether the health overlay fills up or down",
-            scope: "client",
-            config: true,
-            type: String,
-            choices: {
-                "up": "Fill Up",
-                "down": "Fill Down"
-            },
-            default: "up"
-        },
-        "font-family": {
-            name: "Font Family",
-            hint: "Choose the font family used throughout the interface",
-            scope: "client",
-            config: true,
-            type: String,
-            choices: {
-                "modesto": "Modesto Condensed (Default)",
-                "signika": "Signika",
-                "roboto": "Roboto Slab",
-                "carolingian-ui": "Carolingian UI",
-                "custom": "Custom Font"
-            },
-            default: "modesto"
-        },
-        "custom-font-family": {
-            name: "Custom Font Family",
-            hint: "Specify a custom font family (only used when Font Family is set to 'Custom Font')",
-            scope: "client",
-            config: true,
-            type: String,
-            default: ""
-        },
-"global-font-size-multiplier": {
-    name: "Global Font Size Multiplier",
-    hint: "Adjust the size of all text in the interface. 1.0 is the recommended default scale.",
-    scope: "client",
-    config: true,
-    type: Number,
-    range: {
-        min: 0.7,
-        max: 2.1,
-        step: 0.1
-    },
-    default: 1.0,
-    onChange: value => {
-        if (game.crux?.app) {
-            this._updateGlobalFontSizeMultiplier();
-        }
-    }
-},
-"global-font-scale-rebased": {
-    name: "Global Font Scale Rebased",
-    scope: "client",
-    config: false,
-    type: Boolean,
-    default: false
-},
-"content-text-size-multiplier": {
-    name: "Content Text Size Multiplier",
-    hint: "Adjust the size of content text elements like item descriptions, abilities, and skills while maintaining proportions (0.5 = half size, 1.0 = default, 1.5 = 50% larger)",
-    scope: "client",
-    config: true,
-    type: Number,
-    range: {
-        min: 0.5,
-        max: 1.5,
-        step: 0.1
-    },
-    default: 1.0
-},
-"character-name-size-multiplier": {
-    name: "Character Name Size Multiplier",
-    hint: "Adjust the size of character names in the interface (0.5 = half size, 1.0 = default, 1.5 = 50% larger). This setting is independent of other font size settings.",
-    scope: "client",
-    config: true,
-    type: Number,
-    range: {
-        min: 0.5,
-        max: 1.5,
-        step: 0.1
-    },
-    default: 1.0,
-    onChange: value => {
-        if (game.crux?.app) {
-            this._updateCharacterNameSizeMultiplier();
-        }
-    }
-},
-"panel-opacity": {
-    name: "Panel Opacity",
-    hint: "Adjust the background opacity of the Crux panel and tabs.",
-    scope: "client",
-    config: true,
-    type: Number,
-    range: {
-        min: 0.1,
-        max: 0.9,
-        step: 0.05
-    },
-    default: 0.4
-},
-        "taskbar-compatibility": {
-            name: "Taskbar Compatibility",
-            hint: "Enable compatibility with the Taskbar module (Requires Refresh)",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: true,
-            onChange: value => {
-                const isTaskbarActive = game.modules.get("foundry-taskbar")?.active;
-                const taskbar = document.querySelector("#taskbar");
-                const taskbarHeight = taskbar?.getBoundingClientRect().height ?? 0;
-                const shouldOffsetTray = isTaskbarActive && value && taskbarHeight > 0;
-                const offset = shouldOffsetTray ? `${taskbarHeight}px` : '0px';
-                document.documentElement.style.setProperty('--ft-height', `${taskbarHeight || 50}px`);
-                document.documentElement.style.setProperty('--crux-tray-bottom-offset', offset);
-                document.body.style.setProperty('--crux-tray-bottom-offset', offset);
-                document.body.classList.toggle("crux-taskbar-compat", shouldOffsetTray);
-            }
-        },
-        "empty-tray-icon": {
-            name: "Empty Tray Icon",
-            hint: "Choose the icon to display when the tray is empty",
-            scope: "client",
-            config: true,
-            type: String,
-            choices: {
-                "fa-thin fa-dragon": "Dragon",
-                "fa-brands fa-d-and-d": "D&D",
-                "fa-thin fa-helmet-battle": "Helm",
-                "fa-thin fa-swords": "Swords",
-                "fa-thin fa-staff": "Staff",
-                "fa-thin fa-wand": "Wand",
-                "fa-thin fa-paw-claws": "Paw",
-                "fa-thin fa-mandolin": "Mandolin",
-                "fa-thin fa-bow-arrow": "Bow",
-                "fa-thin fa-axe-battle": "Battle-Axe",
-                "fa-thin fa-mace": "Mace",
-                "fa-thin fa-hammer-war": "Warhammer",
-                "fa-thin fa-dagger": "Dagger",
-                "fa-thin fa-hand-fist": "Fist",
-                "fa-thin fa-fire-flame": "Pyro",
-                "fa-thin fa-flask-round-potion": "Potion",
-                "fa-thin fa-scroll-old": "Scroll",
-                "fa-thin fa-dungeon": "Dungeon",
-                "fa-thin fa-eye-evil": "The-Eye",
-                "fa-thin fa-dice-d20": "D20"
-            },
-            default: "fa-thin fa-dragon"
-        },
-        "auto-select-first-activity": {
-            name: "Auto-select First Activity",
-            hint: "When enabled, Crux will automatically use the first activity without showing the activity selection dialog. When disabled, the system will handle activity selection according to its own rules.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: false
-        },
-        "process-compendium-items": {
-            name: "Process Compendium Items",
-            hint: "When enabled, Crux will process items in unlocked compendiums to set tray visibility flags. Disable this if you experience performance issues during startup.",
-            scope: "client",
-            config: true,
-            type: Boolean,
-            default: false
-        }
-    };
+    static SETTINGS = createCruxSettingDefinitions(this);
 
     /**
      * Register all module settings
@@ -409,14 +25,27 @@ export default class CruxSettings {
             const originalOnChange = setting.onChange;
             game.settings.register("crux", key, {
                 ...setting,
-                onChange: (value) => {
-                    originalOnChange?.(value);
+                onChange: async (value) => {
+                    await originalOnChange?.(value);
                     if (key === "font-family" || key === "custom-font-family") {
                         this._updateFontFamily();
                     }
+                    if (key === "visual-preset") {
+                        this._lastSavedVisualPreset = value;
+                        await this._applyVisualPreset({ presetKey: value, syncControls: true });
+                    }
+                    if (key === "panel-opacity") {
+                        this._updatePanelOpacity(value);
+                    }
+                    if (key === "element-opacity") {
+                        this._updateElementOpacity(value);
+                    }
+                    if (key === "panel-blur") {
+                        this._updatePanelBlur(value);
+                    }
                     if (game.crux?.app) {
                     if (key === "tray-size") {
-                        game.crux.app._updateTraySize();
+                        this._updateTraySize(value);
                     }
                     if (key === "tray-mode") {
                         this._handleTrayModeChange(value);
@@ -430,22 +59,39 @@ export default class CruxSettings {
                     if (key === "character-name-size-multiplier") {
                         this._updateCharacterNameSizeMultiplier();
                     }
-                    if (key === "panel-opacity") {
-                        this._updatePanelOpacity();
+                    if (key === "actor-ability-text-size-multiplier") {
+                        this._updateActorPanelAppearance();
+                    }
+                    if (key === "tab-height-multiplier") {
+                        this._updateTabHeightMultiplier(value);
                     }
                         game.crux.app.render(true);
                     }
                 }
             });
         }
-        this._updateFontFamily();
+        this._registerLiveSettingsPreviewHooks();
         this._normalizeGlobalFontScale();
-        this._updateContentTextSizeMultiplier();
-        this._updateGlobalFontSizeMultiplier();
-        this._updateCharacterNameSizeMultiplier();
-        this._updatePanelOpacity();
+        this.applySavedVisualSettings();
     }
-    
+
+    static _registerLiveSettingsPreviewHooks() {
+        if (this._liveSettingsPreviewRegistered) return;
+        this._liveSettingsPreviewRegistered = true;
+
+        Hooks.on("renderSettingsConfig", (app) => {
+            this._activateLiveSettingsPreview(app.element);
+        });
+
+        Hooks.on("renderApplication", (app) => {
+            this._activateLiveSettingsPreview(app.element);
+        });
+
+        Hooks.on("closeSettingsConfig", () => {
+            setTimeout(() => this.applySavedVisualSettings(), 0);
+        });
+    }
+
     /**
      * Handle changes to the tray-mode setting
      * @param {string} value - The new tray-mode value
@@ -453,16 +99,16 @@ export default class CruxSettings {
      */
     static _handleTrayModeChange(value) {
         if (!game.crux?.app?.element || !document.body.contains(game.crux.app.element)) return;
-        
+
         const interfaceEl = document.querySelector("#interface");
         if (value === "always") {
             game.crux.app.element.classList.add("active");
             game.crux.app.element.classList.add("always-on");
             interfaceEl.classList.add("crux-active");
-        } 
+        }
         else if (value === "auto") {
             const hasSelectedTokens = canvas.tokens.controlled.length > 0;
-            game.crux.app.element.classList.remove("always-on");            
+            game.crux.app.element.classList.remove("always-on");
             if (hasSelectedTokens) {
                 game.crux.app.element.classList.add("active");
                 interfaceEl.classList.add("crux-active");
@@ -475,7 +121,7 @@ export default class CruxSettings {
             game.crux.app.element.classList.remove("always-on");
         }
     }
-    
+
     /**
      * Get the Carolingian UI font from CSS variable
      * @returns {string} The Carolingian UI font family
@@ -490,7 +136,7 @@ export default class CruxSettings {
      */
     static getSelectedFontFamily() {
         const fontSetting = this.getSetting("font-family");
-        
+
         if (fontSetting === "carolingian-ui") {
             return this.getCarolingianUIFont();
         }
@@ -512,8 +158,125 @@ export default class CruxSettings {
             default:
                 fontFamily = '"Modesto Condensed", "Palatino Linotype", serif';
         }
-        
+
         return fontFamily;
+    }
+
+    static _getCruxAppElement() {
+        return CruxThemeVariables.getCruxAppElement();
+    }
+
+    static _setCruxAppVariable(name, value) {
+        CruxThemeVariables.setCruxAppVariable(name, value);
+    }
+
+    static _removeCruxAppVariable(name) {
+        CruxThemeVariables.removeCruxAppVariable(name);
+    }
+
+    static setCruxGlobalVariable(name, value) {
+        CruxThemeVariables.setCruxGlobalVariable(name, value);
+    }
+
+    static _setCruxCssVariable(name, value) {
+        CruxThemeVariables.setCruxCssVariable(name, value);
+    }
+
+    static _clearVisualPresetVariables() {
+        CruxThemeVariables.clearVisualPresetVariables(this.VISUAL_PRESETS);
+    }
+
+    static _clampOpacity(value) {
+        return CruxThemeVariables.clampOpacity(value);
+    }
+
+    static _getCruxThemeValue(name) {
+        return CruxThemeVariables.getCruxThemeValue(name);
+    }
+
+    static _applyCruxAppThemeVariables() {
+        CruxThemeVariables.applyCruxAppThemeVariables(key => this.getSetting(key));
+    }
+
+    static applyThemeToExternalRoot(root) {
+        CruxThemeVariables.applyThemeToExternalRoot(root);
+    }
+
+    static _syncExternalThemeRoots() {
+        CruxThemeVariables.syncExternalThemeRoots();
+    }
+
+    static async applySavedVisualSettings() {
+        this._lastSavedVisualPreset = this.getSetting("visual-preset");
+        await this._applyVisualPreset();
+        this._updateFontFamily();
+        this._updateTraySize();
+        this._updateContentTextSizeMultiplier();
+        this._updateGlobalFontSizeMultiplier();
+        this._updateCharacterNameSizeMultiplier();
+        this._updateActorPanelAppearance();
+        this._updateTabHeightMultiplier();
+        this._updatePanelOpacity();
+        this._updateElementOpacity();
+        this._updatePanelBlur();
+    }
+
+    static async _applyVisualPreset({ presetKey = this.getSetting("visual-preset"), syncControls = false } = {}) {
+        const preset = this.VISUAL_PRESETS[presetKey] ?? this.VISUAL_PRESETS.foundry;
+
+        this._clearVisualPresetVariables();
+        for (const [name, value] of Object.entries(CruxThemeVariables.getVisualPresetVariables(preset))) {
+            this._setCruxCssVariable(name, value);
+        }
+        this._applyCruxAppThemeVariables();
+
+        if (syncControls) {
+            this._updatePanelOpacity(preset.opacity);
+            this._updateElementOpacity(preset.elementOpacity);
+            this._updatePanelBlur(preset.blur);
+            this._updateBackdropVisibility(preset.opacity, preset.blur);
+            this._syncVisualControlInputsDeferred(preset);
+        }
+
+        if (syncControls && Number(this.getSetting("panel-opacity")) !== preset.opacity) {
+            await game.settings.set("crux", "panel-opacity", preset.opacity);
+        }
+        if (syncControls && Number(this.getSetting("element-opacity")) !== preset.elementOpacity) {
+            await game.settings.set("crux", "element-opacity", preset.elementOpacity);
+        }
+        if (syncControls && Number(this.getSetting("panel-blur")) !== preset.blur) {
+            await game.settings.set("crux", "panel-blur", preset.blur);
+        }
+
+        if (syncControls) {
+            this._updatePanelOpacity(preset.opacity);
+            this._updateElementOpacity(preset.elementOpacity);
+            this._updatePanelBlur(preset.blur);
+            this._updateBackdropVisibility(preset.opacity, preset.blur);
+            this._syncVisualControlInputsDeferred(preset);
+        } else {
+            this._updatePanelOpacity();
+            this._updateElementOpacity();
+            this._updatePanelBlur();
+        }
+        this._syncExternalThemeRoots();
+    }
+
+    static _previewVisualPreset(presetKey, root = document) {
+        const preset = this.VISUAL_PRESETS[presetKey] ?? this.VISUAL_PRESETS.foundry;
+
+        this._clearVisualPresetVariables();
+        for (const [name, value] of Object.entries(CruxThemeVariables.getVisualPresetVariables(preset))) {
+            this._setCruxCssVariable(name, value);
+        }
+        this._applyCruxAppThemeVariables();
+
+        this._updatePanelOpacity(preset.opacity);
+        this._updateElementOpacity(preset.elementOpacity);
+        this._updatePanelBlur(preset.blur);
+        this._updateBackdropVisibility(preset.opacity, preset.blur);
+        this._syncVisualControlInputs(preset, root);
+        this._syncExternalThemeRoots();
     }
 
     /**
@@ -522,19 +285,33 @@ export default class CruxSettings {
      */
     static _updateFontFamily() {
         const fontFamily = this.getSelectedFontFamily();
-        document.documentElement.style.setProperty('--crux-font-family', fontFamily);
-        document.body?.style.setProperty('--crux-font-family', fontFamily);
-        game.crux?.app?.element?.style.setProperty('--crux-font-family', fontFamily);
+        this._setCruxAppVariable('--crux-font-family', fontFamily);
+        this._syncExternalThemeRoots();
     }
-    
+
+    static _updateTraySize(value = this.getSetting("tray-size")) {
+        const traySize = Number(value) || 230;
+        this.setCruxGlobalVariable('--crux-width', `${traySize}px`);
+
+        const appElement = this._getCruxAppElement();
+        if (!appElement) return;
+        appElement.style.width = 'var(--crux-occupied-width)';
+        appElement.style.position = 'fixed';
+        appElement.style.top = '0px';
+        appElement.style.left = '0px';
+        appElement.style.bottom = 'var(--crux-tray-bottom-offset)';
+        appElement.style.height = 'auto';
+    }
+
     /**
      * Update the global font size multiplier CSS variable based on settings
      * @private
      */
     static _updateGlobalFontSizeMultiplier() {
         const rawMultiplier = this.getSetting("global-font-size-multiplier");
-        const globalFontSizeMultiplier = rawMultiplier * 0.7;
-        document.documentElement.style.setProperty('--crux-global-font-size-multiplier', globalFontSizeMultiplier);
+        const globalFontSizeMultiplier = rawMultiplier;
+        this._setCruxAppVariable('--crux-global-font-size-multiplier', globalFontSizeMultiplier);
+        this._syncExternalThemeRoots();
     }
 
     static _normalizeGlobalFontScale() {
@@ -546,28 +323,185 @@ export default class CruxSettings {
         }
         game.settings.set("crux", "global-font-scale-rebased", true);
     }
-    
+
     /**
      * Update the content text size multiplier CSS variable based on settings
      * @private
      */
     static _updateContentTextSizeMultiplier() {
         const contentTextSizeMultiplier = this.getSetting("content-text-size-multiplier");
-        document.documentElement.style.setProperty('--crux-content-text-size-multiplier', contentTextSizeMultiplier);
+        this._setCruxAppVariable('--crux-content-text-size-multiplier', contentTextSizeMultiplier);
     }
 
     static _updateCharacterNameSizeMultiplier() {
         const characterNameSizeMultiplier = this.getSetting("character-name-size-multiplier");
-        document.documentElement.style.setProperty('--crux-character-name-size-multiplier', characterNameSizeMultiplier);
-        document.body?.style.setProperty('--crux-character-name-size-multiplier', characterNameSizeMultiplier);
-        game.crux?.app?.element?.style.setProperty('--crux-character-name-size-multiplier', characterNameSizeMultiplier);
+        this._setCruxAppVariable('--crux-character-name-size-multiplier', characterNameSizeMultiplier);
     }
 
-    static _updatePanelOpacity() {
-        const panelOpacity = this.getSetting("panel-opacity");
-        document.documentElement.style.setProperty('--crux-bg-opacity', panelOpacity);
-        document.body?.style.setProperty('--crux-bg-opacity', panelOpacity);
-        game.crux?.app?.element?.style.setProperty('--crux-bg-opacity', panelOpacity);
+    static _updateActorPanelAppearance() {
+        this._setCruxAppVariable('--crux-actor-ability-text-size-multiplier', this.getSetting("actor-ability-text-size-multiplier"));
+    }
+
+    static _updateTabHeightMultiplier(value = this.getSetting("tab-height-multiplier")) {
+        const multiplier = Number(value) || 1;
+        this._setCruxAppVariable('--crux-tab-height-multiplier', multiplier);
+    }
+
+    static _updatePanelOpacity(value = this.getSetting("panel-opacity")) {
+        const panelOpacity = value;
+        this._setCruxAppVariable('--crux-bg-opacity', panelOpacity);
+        this._applyCruxAppThemeVariables();
+        this._updateBackdropVisibility(panelOpacity);
+    }
+
+    static _updateElementOpacity(value = this.getSetting("element-opacity")) {
+        const elementOpacity = value;
+        this._setCruxAppVariable('--crux-element-bg-opacity', elementOpacity);
+        this._applyCruxAppThemeVariables();
+    }
+
+    static _updatePanelBlur(value = this.getSetting("panel-blur")) {
+        const panelBlur = value;
+        const blurDisabled = Number(panelBlur) <= 0;
+        const blurValue = blurDisabled ? "none" : `blur(${panelBlur}px)`;
+        document.documentElement.style.removeProperty("--crux-blur");
+        document.body?.style.removeProperty("--crux-blur");
+        const appElement = this._getCruxAppElement();
+        appElement?.style.setProperty('--crux-blur', blurValue);
+        appElement?.classList.toggle("crux-blur-disabled", blurDisabled);
+        this._updateBackdropVisibility(undefined, panelBlur);
+    }
+
+    static _updateBackdropVisibility(panelOpacity = this.getSetting("panel-opacity"), panelBlur = this.getSetting("panel-blur")) {
+        const resolvedPanelOpacity = Number(panelOpacity ?? this.getSetting("panel-opacity"));
+        const resolvedPanelBlur = Number(panelBlur ?? this.getSetting("panel-blur"));
+        const backdropDisabled = resolvedPanelOpacity <= 0 && resolvedPanelBlur <= 0;
+        this._getCruxAppElement()?.classList.toggle("crux-backdrop-disabled", backdropDisabled);
+    }
+
+    static _syncVisualControlInputs(preset, root = document) {
+        const values = {
+            "panel-opacity": preset.opacity,
+            "element-opacity": preset.elementOpacity,
+            "panel-blur": preset.blur
+        };
+
+        for (const [key, value] of Object.entries(values)) {
+            const selectors = [
+                `[name="crux.${key}"]`,
+                `[name="${key}"]`,
+                `[data-setting-id="crux.${key}"]`,
+                `[data-setting-id="${key}"]`
+            ];
+            for (const input of root.querySelectorAll(selectors.join(","))) {
+                if (!("value" in input)) continue;
+                input.value = value;
+                input.setAttribute("value", value);
+                const rangeValue = input.nextElementSibling;
+                this._syncRangeValue(rangeValue, value);
+                input.dispatchEvent(new Event("input", { bubbles: true }));
+            }
+        }
+    }
+
+    static _syncVisualControlInputsDeferred(preset) {
+        this._syncVisualControlInputs(preset);
+        requestAnimationFrame(() => this._syncVisualControlInputs(preset));
+        setTimeout(() => this._syncVisualControlInputs(preset), 50);
+    }
+
+    static _syncRangeValue(rangeValue, value) {
+        if (!rangeValue?.classList?.contains("range-value")) return;
+        if ("value" in rangeValue) rangeValue.value = value;
+        rangeValue.textContent = value;
+    }
+
+    static _activateLiveSettingsPreview(root) {
+        if (!root || root.dataset?.cruxLiveSettingsPreview === "true") return;
+        if (!root.querySelector?.('[name="crux.visual-preset"], [name="crux.panel-opacity"], [name="crux.element-opacity"], [name="crux.panel-blur"], [name="crux.tray-size"], [name="crux.global-font-size-multiplier"], [name="crux.content-text-size-multiplier"], [name="crux.character-name-size-multiplier"], [name="crux.actor-ability-text-size-multiplier"], [name="crux.tab-height-multiplier"]')) return;
+
+        root.dataset.cruxLiveSettingsPreview = "true";
+
+        const getInput = key => root.querySelector(`[name="crux.${key}"], [name="${key}"]`);
+        const updateRangeDisplay = input => this._syncRangeValue(input?.nextElementSibling, input?.value);
+
+        const panelOpacity = getInput("panel-opacity");
+        const elementOpacity = getInput("element-opacity");
+        const panelBlur = getInput("panel-blur");
+        const traySize = getInput("tray-size");
+        const globalFontSizeMultiplier = getInput("global-font-size-multiplier");
+        const contentTextSizeMultiplier = getInput("content-text-size-multiplier");
+        const characterNameSizeMultiplier = getInput("character-name-size-multiplier");
+        const actorAbilityTextSizeMultiplier = getInput("actor-ability-text-size-multiplier");
+        const tabHeightMultiplier = getInput("tab-height-multiplier");
+        const visualPreset = getInput("visual-preset");
+        if (visualPreset) {
+            visualPreset.value = this._lastSavedVisualPreset ?? this.getSetting("visual-preset");
+        }
+
+        const form = root.closest?.("form") ?? root.querySelector?.("form");
+        form?.addEventListener("submit", () => {
+            this._lastSavedVisualPreset = visualPreset?.value ?? this.getSetting("visual-preset");
+        }, { capture: true });
+
+        panelOpacity?.addEventListener("input", event => {
+            const value = Number(event.currentTarget.value);
+            this._updatePanelOpacity(value);
+            updateRangeDisplay(event.currentTarget);
+        });
+
+        elementOpacity?.addEventListener("input", event => {
+            const value = Number(event.currentTarget.value);
+            this._updateElementOpacity(value);
+            updateRangeDisplay(event.currentTarget);
+        });
+
+        panelBlur?.addEventListener("input", event => {
+            const value = Number(event.currentTarget.value);
+            this._updatePanelBlur(value);
+            updateRangeDisplay(event.currentTarget);
+        });
+
+        traySize?.addEventListener("input", event => {
+            const value = Number(event.currentTarget.value);
+            this._updateTraySize(value);
+            updateRangeDisplay(event.currentTarget);
+        });
+
+        globalFontSizeMultiplier?.addEventListener("input", event => {
+            const value = Number(event.currentTarget.value);
+            this._setCruxAppVariable('--crux-global-font-size-multiplier', value);
+            this._syncExternalThemeRoots();
+            updateRangeDisplay(event.currentTarget);
+        });
+
+        contentTextSizeMultiplier?.addEventListener("input", event => {
+            const value = Number(event.currentTarget.value);
+            this._setCruxAppVariable('--crux-content-text-size-multiplier', value);
+            updateRangeDisplay(event.currentTarget);
+        });
+
+        characterNameSizeMultiplier?.addEventListener("input", event => {
+            const value = Number(event.currentTarget.value);
+            this._setCruxAppVariable('--crux-character-name-size-multiplier', value);
+            updateRangeDisplay(event.currentTarget);
+        });
+
+        actorAbilityTextSizeMultiplier?.addEventListener("input", event => {
+            const value = Number(event.currentTarget.value);
+            this._setCruxAppVariable('--crux-actor-ability-text-size-multiplier', value);
+            updateRangeDisplay(event.currentTarget);
+        });
+
+        tabHeightMultiplier?.addEventListener("input", event => {
+            const value = Number(event.currentTarget.value);
+            this._updateTabHeightMultiplier(value);
+            updateRangeDisplay(event.currentTarget);
+        });
+
+        visualPreset?.addEventListener("change", event => {
+            this._previewVisualPreset(event.currentTarget.value, root);
+        });
     }
 
     /**

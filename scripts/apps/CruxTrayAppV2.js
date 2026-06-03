@@ -3,6 +3,7 @@ import CruxHooksManager from "../hooks/CruxHooksManager.js";
 import CruxCompatibility from "../utils/CruxCompatibility.js";
 import CruxDomUtils from "../utils/CruxDomUtils.js";
 import CruxEffectsAppV2 from "./CruxEffectsAppV2.js";
+import CruxSettings from "../settings/CruxSettings.js";
 import CruxUtils from "../utils/CruxUtilityManager.js";
 
 /**
@@ -33,6 +34,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             toggleSection: function(event, target) { this._onToggleSection(event, target); },
             toggleGroup: function(event, target) { this._onToggleGroup(event, target); },
             openSheet: function(event, target) { this._onOpenSheet(event, target); },
+            toggleItemSummary: function(event, target) { this._onToggleItemSummary(event, target); },
             activateItem: function(event, target) { this._onActivateItem(event, target); },
             rechargeItem: function(event, target) { this._onRechargeItem(event, target); },
             rollAbility: function(event, target) { this._onRollAbility(event, target); },
@@ -123,7 +125,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             if (settingExcludeContainerItems) {
                 itemsToProcess = itemsToProcess.filter(item => item.container === undefined);
             }
-            
+
             for (let item of itemsToProcess) {
                 const itemData = item.system;
                 const uses = this._calculateUsesForItem(item);
@@ -136,7 +138,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 if (trayVisibility === "hide") {
                     continue;
                 }
-                
+
                 if (favoriteEntry && (trayVisibility !== "hide")) {
                     sections.favorites.items.push({ item, uses, sort: favoriteEntry.sort });
                 }
@@ -144,7 +146,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
 
                 if (item.type === "spell" && (trayVisibility !== "hide")) {
                     const activationType = CruxCompatibility.getActivationType(item);
-                    const hasActivities = CruxCompatibility.isDnDv4() ? CruxCompatibility.hasActivities(item, false) : activationType && activationType !== "none";                    
+                    const hasActivities = CruxCompatibility.isDnDv4() ? CruxCompatibility.hasActivities(item, false) : activationType && activationType !== "none";
                     if (forceShow || actor.type === "npc" && settingShowAllNpcItems) {
                         this._categorizeSpell(item, itemData, sections, useTidy5e, canCastUnpreparedRituals, settingShowUnpreparedCantrips, uses, true);
                     } else if (hasActivities) {
@@ -155,16 +157,16 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 } else {
                     const activationType = CruxCompatibility.getActivationType(item);
                     const isDnDv4 = CruxCompatibility.isDnDv4();
-                    let shouldShow = false;                    
+                    let shouldShow = false;
                     if (isDnDv4) {
-                        shouldShow = !item.getFlag("crux", "hidden") && 
+                        shouldShow = !item.getFlag("crux", "hidden") &&
                                     (forceShow || (settingShowNoUses || !uses || !uses.hasMaxUses || uses.available) &&
-                                    (CruxCompatibility.hasActivities(item, false) || 
+                                    (CruxCompatibility.hasActivities(item, false) ||
                                      (item.type === "consumable" && item.system.type?.value === "ammo")));
                     } else {
-                        shouldShow = !item.getFlag("crux", "hidden") && 
+                        shouldShow = !item.getFlag("crux", "hidden") &&
                                     (forceShow || (settingShowNoUses || !uses || uses.available) &&
-                                    ((activationType && activationType !== "none") || 
+                                    ((activationType && activationType !== "none") ||
                                      (item.type === "consumable" && item.system.type?.value === "ammo")));
                     }
 
@@ -180,14 +182,14 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 }
             }
 
-            if (CruxCompatibility.isDnDv4() && actorData.favorites?.length) {                
-                const activityFavorites = actorData.favorites.filter(f => f.type === "activity");                
+            if (CruxCompatibility.isDnDv4() && actorData.favorites?.length) {
+                const activityFavorites = actorData.favorites.filter(f => f.type === "activity");
                 for (const favoriteEntry of activityFavorites) {
                     const favoriteId = favoriteEntry.id.startsWith(".") ? favoriteEntry.id.substring(1) : favoriteEntry.id;
-                    const idParts = favoriteId.split(".");                    
+                    const idParts = favoriteId.split(".");
                     if (idParts.length >= 4 && idParts[0] === "Item" && idParts[2] === "Activity") {
                         const itemId = idParts[1];
-                        const activityId = idParts[3];                      
+                        const activityId = idParts[3];
                         const parentItem = actor.items.find(i => i.id === itemId);
                         if (!parentItem || parentItem.getFlag("crux", "hidden")) {
                             continue;
@@ -210,7 +212,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                                 }
                             }
                         }
-                        
+
                         if (activity) {
                             const activityEntry = {
                                 item: parentItem,
@@ -227,7 +229,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                     }
                 }
             }
-            
+
             sections = this._removeEmptySections(sections);
             sections = this._addSpellLevelUses(sections, actorData);
             sections = this._sortItems(sections, settingSortAlphabetically);
@@ -315,12 +317,12 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             }
             return prev;
         }, {});
-        
+
         groups.general = {
             items: [],
             title: "crux.category.general"
         };
-        
+
         return groups;
     }
 
@@ -621,7 +623,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             const type = item.system.type.value;
             const subtype = item.system.type.subtype;
         const capitalize = (str) => {
-            return str.split(/[\s-_]+/).map(word => 
+            return str.split(/[\s-_]+/).map(word =>
                 word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
             ).join(' ');
         };
@@ -865,7 +867,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      */
     _updateTraySize() {
         const traySize = game.settings.get("crux", "tray-size");
-        document.documentElement.style.setProperty('--crux-width', traySize + 'px');
+        CruxSettings.setCruxGlobalVariable('--crux-width', traySize + 'px');
         if (this.element) {
             this.element.style.width = 'var(--crux-occupied-width)';
             this.element.style.position = 'fixed';
@@ -883,11 +885,12 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     async _render(force, options) {
         const html = await super._render(force, options);
         const interfaceEl = document.querySelector("#interface");
-        
+
         if (this.element && interfaceEl) {
             interfaceEl.insertBefore(this.element, interfaceEl.firstChild);
             this._initializeTraySize();
-            
+            await CruxSettings.applySavedVisualSettings();
+
             const trayMode = game.settings.get("crux", "tray-mode");
             if (trayMode === "always") {
                 this.element.classList.add("active");
@@ -896,7 +899,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             }
             else if (trayMode === "auto") {
                 const hasSelectedTokens = canvas.tokens.controlled.length > 0;
-                
+
                 if (hasSelectedTokens) {
                     this.element.classList.add("active");
                     interfaceEl.classList.add("crux-active");
@@ -909,10 +912,10 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         this._setupTaskbarCompatibility();
         const activeActors = game.crux.state.getActiveActors();
         const currentCombatant = game.combat?.combatant;
-        const actorsInCombat = activeActors.filter(actor => 
+        const actorsInCombat = activeActors.filter(actor =>
             game.combat?.combatants.some(c => c.actor?.id === actor.id)
         );
-        const isCurrentCombatant = activeActors.some(actor => 
+        const isCurrentCombatant = activeActors.some(actor =>
             currentCombatant?.actor?.id === actor.id
         );
         if (isCurrentCombatant) {
@@ -939,7 +942,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                         }
                     }
                     const combatActionsContainer = actorElement.querySelector('.crux__combat-actions');
-                    
+
                     if (needsInitiative) {
                         const initiativeButton = combatActionsContainer.querySelector('.crux__initiative');
                         if (!initiativeButton) {
@@ -989,7 +992,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 }
             }
         });
-        
+
         return html;
     }
 
@@ -1061,7 +1064,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             dot.addEventListener('click', async (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                
+
                 const actorUuid = event.currentTarget.closest('.crux__actor').dataset.actorUuid;
                 const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
                 const group = event.currentTarget.closest('.group-dots').dataset.groupName;
@@ -1228,10 +1231,10 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             this.render(true);
             return;
         }
-        
+
         const trayMode = game.settings.get("crux", "tray-mode");
         const interfaceEl = document.querySelector("#interface");
-        
+
         if (trayMode === "always") {
             if (!this.element.classList.contains("active")) {
                 this.element.classList.add("active");
@@ -1256,7 +1259,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         this.element.classList.toggle("active");
         if (interfaceEl) interfaceEl.classList.toggle("crux-active");
     }
-    
+
     /**
      * Clean up resources when the application is closed
      * @override
@@ -1265,17 +1268,17 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         if (options?.closeKey) {
             return false;
         }
-        
+
         document.removeEventListener('keydown', this._onHotkeyDown);
         document.removeEventListener('keyup', this._onHotkeyUp);
         if (this._taskbarObserver) {
             this._taskbarObserver.disconnect();
             this._taskbarObserver = null;
         }
-        
+
         return super.close(options);
     }
-    
+
     /**
      * Set up taskbar compatibility if the module is active and compatibility is enabled
      * @private
@@ -1287,9 +1290,8 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         const taskbarHeight = taskbar?.getBoundingClientRect().height ?? 0;
         const shouldOffsetTray = isTaskbarActive && isCompatEnabled && taskbarHeight > 0;
         const offset = shouldOffsetTray ? `${taskbarHeight}px` : '0px';
-        document.documentElement.style.setProperty('--ft-height', `${taskbarHeight || 50}px`);
-        document.documentElement.style.setProperty('--crux-tray-bottom-offset', offset);
-        document.body.style.setProperty('--crux-tray-bottom-offset', offset);
+        CruxSettings.setCruxGlobalVariable('--crux-taskbar-height', `${taskbarHeight || 50}px`);
+        CruxSettings.setCruxGlobalVariable('--crux-tray-bottom-offset', offset);
         document.body.classList.toggle("crux-taskbar-compat", shouldOffsetTray);
     }
 
@@ -1297,10 +1299,10 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         if (!event && !target) {
             const skillContainers = this.element.querySelectorAll('.crux__skill-container');
             if (!skillContainers.length) return;
-            
+
             skillContainers.forEach(container => {
                 container.classList.toggle("is-open");
-                
+
                 const actors = game.crux.state.getActiveActors();
                 if (actors.length === 1) {
                     const actor = actors[0];
@@ -1312,10 +1314,10 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             });
             return;
         }
-        
+
         const skillContainer = target.closest('.crux__skill-container');
         if (!skillContainer) return;
-        skillContainer.classList.toggle("is-open");        
+        skillContainer.classList.toggle("is-open");
         const actors = game.crux.state.getActiveActors();
         if (actors.length === 1) {
             const actor = actors[0];
@@ -1329,12 +1331,12 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     _onToggleSection(event, target) {
         const section = target.closest('.crux__section');
         if (!section) return;
-        section.classList.toggle('is-collapsed');        
+        section.classList.toggle('is-collapsed');
         const actors = game.crux.state.getActiveActors();
         if (actors.length === 1) {
             const actor = actors[0];
             const title = section.querySelector('.crux__section-header span')?.textContent;
-            if (!title) return;            
+            if (!title) return;
             const isCollapsed = section.classList.contains('is-collapsed');
             game.crux.state.updateSectionState(actor, title, isCollapsed);
             game.crux.state.updateActorState(actor, {
@@ -1346,12 +1348,12 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     _onToggleGroup(event, target) {
         const group = target.closest('.crux__group');
         if (!group) return;
-        group.classList.toggle('is-collapsed');        
+        group.classList.toggle('is-collapsed');
         const actors = game.crux.state.getActiveActors();
         if (actors.length === 1) {
             const actor = actors[0];
             const title = group.querySelector('.crux__group-header h3 span')?.textContent;
-            if (!title) return;            
+            if (!title) return;
             const isCollapsed = group.classList.contains('is-collapsed');
             game.crux.state.updateGroupState(actor, title, isCollapsed);
             game.crux.state.updateActorState(actor, {
@@ -1362,9 +1364,21 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
 
     _onOpenSheet(event, target) {
         const itemUuid = target.closest(".item")?.dataset.itemUuid;
-        if (!itemUuid) return;        
+        if (!itemUuid) return;
         const item = CruxHooksManager.fromUuid(itemUuid);
         if (item) item.sheet.render(true);
+    }
+
+    async _onToggleItemSummary(event, target) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.shiftKey) return;
+        const itemElement = target.closest(".item");
+        const itemUuid = itemElement?.dataset.itemUuid;
+        if (!itemUuid) return;
+        const item = await CruxHooksManager.fromUuid(itemUuid);
+        if (!item) return;
+        await this._toggleItemSummary(itemElement, item);
     }
 
     async _onActivateItem(event, target) {
@@ -1388,12 +1402,12 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                     } else {
                         actorUuid = actors[0].uuid;
                     }
-                }                
+                }
                 if (!actorUuid) return;
             } else {
                 actorUuid = actorElement.dataset.actorUuid;
             }
-            
+
             const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
             if (!actor) return;
 
@@ -1419,70 +1433,16 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
 
         const itemUuid = target.closest(".item")?.dataset.itemUuid;
         if (!itemUuid) return;
-        
+
         const item = await CruxHooksManager.fromUuid(itemUuid);
         if (!item) return;
-        
+
         const isItemImage = target.classList.contains('item-image') || target.closest('.item-image');
         const isItemNameH4 = target.tagName === 'H4' || target.closest('h4');
-        
-        if (isItemNameH4 && event.which === 2) {
-            event.preventDefault();
-            return this._onOpenSheet(event, target);
-        }
 
         if (isItemNameH4 && event.which === 1 && !event.shiftKey) {
             const li = target.closest(".item");
-            
-            if (li.classList.contains("expanded")) {
-                let summary = li.querySelector(".item-summary");
-                if (summary) {
-                    if (window.jQuery) {
-                        window.jQuery(summary).slideUp(200, () => summary.remove());
-                    } else {
-                        summary.remove();
-                    }
-                }
-                } else {
-                    const description = await CruxCompatibility.getDescription(item);
-                    let enrichedDescription = description;
-                    try {
-                        enrichedDescription = await TextEditor.enrichHTML(description, {
-                            secrets: item.actor?.isOwner ?? false,
-                            rollData: item.getRollData ? item.getRollData() : {},
-                            relativeTo: item
-                        });
-                    } catch (error) {
-                        console.warn("Crux | Item description enrichment failed", item, error);
-                    }
-                    let div = document.createElement('div');
-                    div.className = 'item-summary';
-                    div.innerHTML = enrichedDescription;
-                    const chatData = await item.getChatData({ secrets: item.actor.isOwner });
-                if (chatData && chatData.properties && chatData.properties.length) {
-                    let props = document.createElement('div');
-                    props.className = 'item-properties';                    
-                    chatData.properties.forEach(p => {
-                        let span = document.createElement('span');
-                        span.className = 'tag';
-                        span.textContent = p;
-                        props.appendChild(span);
-                    });
-                    if (item.system.quantity !== undefined && item.system.quantity > 0) {
-                        let qtySpan = document.createElement('span');
-                        qtySpan.className = 'tag';
-                        qtySpan.textContent = `Qty: ${item.system.quantity}`;
-                        props.appendChild(qtySpan);
-                    }
-                    
-                    div.appendChild(props);
-                }  
-                li.appendChild(div);
-                if (window.jQuery) {
-                    window.jQuery(div).hide().slideDown(200);
-                }
-            }            
-            li.classList.toggle("expanded");
+            await this._toggleItemSummary(li, item);
             return;
         }
 
@@ -1502,7 +1462,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             return;
         }
         event.fromCrux = true;
-        
+
         const itemEntry = target.closest('.crux__item');
         const activityId = itemEntry?.dataset?.activityId;
         return CruxUtils.activateItem(itemUuid, activityId, event);
@@ -1537,7 +1497,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
 
     _onRollAbility(event, target) {
         const abl = target.dataset.ability;
-        if (!abl) return;        
+        if (!abl) return;
         let actorElement = target.closest('.crux__actor');
         let actorUuid;
         if (!actorElement) {
@@ -1553,7 +1513,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             if (!actorUuid) return;
         } else {
             actorUuid = actorElement.dataset.actorUuid;
-        }        
+        }
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (actor) {
             actor.rollAbility({ ability: abl }, {}, {});
@@ -1587,7 +1547,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
 
     _onRollSkill(event, target) {
         const skill = target.dataset.skill;
-        if (!skill) return;        
+        if (!skill) return;
         let actorElement = target.closest('.crux__actor');
         let actorUuid;
         if (!actorElement) {
@@ -1603,7 +1563,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             if (!actorUuid) return;
         } else {
             actorUuid = actorElement.dataset.actorUuid;
-        }        
+        }
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (actor) {
             actor.rollSkill({ skill: skill }, {}, {});
@@ -1632,7 +1592,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             if (!actorUuid) return;
         } else {
             actorUuid = actorElement.dataset.actorUuid;
-        }        
+        }
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (!actor) return;
 
@@ -1658,12 +1618,12 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             if (!actorUuid) return;
         } else {
             actorUuid = actorElement.dataset.actorUuid;
-        }        
+        }
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (!actor) return;
         const token = actor.getActiveTokens()[0];
         if (token) {
-            if (CruxEffectsAppV2.activeInstance?.rendered && 
+            if (CruxEffectsAppV2.activeInstance?.rendered &&
                 CruxEffectsAppV2.activeInstance.actor.id === actor.id) {
                 CruxEffectsAppV2.activeInstance.close();
             } else {
@@ -1682,23 +1642,23 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             }
             if (!actorElement) return;
         }
-        
+
         const sections = actorElement.querySelectorAll('.crux__section');
-        const groups = actorElement.querySelectorAll('.crux__group');        
-        const isAnySectionCollapsed = Array.from(sections).some(section => 
+        const groups = actorElement.querySelectorAll('.crux__group');
+        const isAnySectionCollapsed = Array.from(sections).some(section =>
             section.classList.contains('is-collapsed')
         );
-        const isAnyGroupCollapsed = Array.from(groups).some(group => 
+        const isAnyGroupCollapsed = Array.from(groups).some(group =>
             group.classList.contains('is-collapsed')
         );
         const newSectionState = isAnySectionCollapsed;
-        const newGroupState = isAnyGroupCollapsed;        
+        const newGroupState = isAnyGroupCollapsed;
         sections.forEach(section => {
             section.classList.toggle('is-collapsed', !newSectionState);
-        });        
+        });
         groups.forEach(group => {
             group.classList.toggle('is-collapsed', !newGroupState);
-        });        
+        });
         const actor = game.crux.state.getActiveActors()[0];
         if (actor) {
             sections.forEach(section => {
@@ -1723,7 +1683,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         const actors = game.crux.state.getActiveActors();
         if (!actors.length) return;
         const combat = game.combat;
-        const isGM = game.user.isGM;        
+        const isGM = game.user.isGM;
         if (!combat && isGM) {
             await Combat.create();
         } else if (!combat) {
@@ -1732,10 +1692,10 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         }
         const newActors = actors.filter(actor => {
             const token = actor.getActiveTokens()[0];
-            if (!token) return false;            
-            const alreadyInCombat = game.combat.combatants.some(c => 
+            if (!token) return false;
+            const alreadyInCombat = game.combat.combatants.some(c =>
                 c.actorId === actor.id && c.tokenId === token.id
-            );            
+            );
             if (alreadyInCombat) {
                 ui.notifications.warn(`${actor.name} is already in combat.`);
                 return false;
@@ -1770,7 +1730,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             if (!actorUuid) return;
         } else {
             actorUuid = actorElement.dataset.actorUuid;
-        }        
+        }
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (!actor) return;
         const token = actor.getActiveTokens()[0];
@@ -1823,7 +1783,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         } else {
             actorUuid = actorElement.dataset.actorUuid;
         }
-        
+
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (!actor) return;
 
@@ -1840,9 +1800,10 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      * @private
      */
     async _showItemActivitiesMenu(event, item) {
-        if (!CruxCompatibility.isDnDv4() || !item) return false;        
+        if (!CruxCompatibility.isDnDv4() || !item) return false;
         const menu = document.createElement('div');
         menu.classList.add('crux__activities-menu');
+        CruxSettings.applyThemeToExternalRoot(menu);
         menu.dataset.cruxContextMenu = 'true';
         menu.style.position = 'absolute';
         menu.style.zIndex = '1000';
@@ -1863,9 +1824,9 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             const activities = Object.values(item.system.activities.contents)
                 .filter(activity => activity !== undefined);
             activityEntries = activities.map(activity => [activity.id || activity.type, activity]);
-        }        
+        }
         for (const [id, activity] of activityEntries) {
-            if (!activity || !activity.name) continue;            
+            if (!activity || !activity.name) continue;
             const li = document.createElement('li');
             li.classList.add('crux__activity-item');
             li.dataset.activityId = id;
@@ -1886,17 +1847,17 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 if (document.body.contains(menu)) {
                     document.body.removeChild(menu);
                 }
-                document.removeEventListener('click', onClickOutside);                
-                
+                document.removeEventListener('click', onClickOutside);
+
                 try {
                     await CruxUtils.activateItem(item.uuid, id, event);
                 } catch (error) {
                     ui.notifications.error(`Failed to use ${activity.name}: ${error.message}`);
                 }
             });
-            
+
             activityList.appendChild(li);
-        }        
+        }
         menu.appendChild(activityList);
         const x = event.clientX;
         const y = event.clientY;
@@ -1905,10 +1866,10 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         document.body.appendChild(menu);
         const menuRect = menu.getBoundingClientRect();
         const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;        
+        const viewportHeight = window.innerHeight;
         if (menuRect.right > viewportWidth) {
             menu.style.left = `${x - menuRect.width}px`;
-        }        
+        }
         if (menuRect.bottom > viewportHeight) {
             menu.style.top = `${y - menuRect.height}px`;
         }
@@ -1921,7 +1882,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         setTimeout(() => {
             document.addEventListener('click', onClickOutside);
         }, 100);
-        
+
         return true;
     }
 
@@ -1941,29 +1902,29 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             if (!actorUuid) return;
         } else {
             actorUuid = actorElement.dataset.actorUuid;
-        }        
+        }
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (!actor) return;
         actor.rollInitiative({ createCombatants: true });
     }
 
     _onShortRest(event, target) {
-        event.stopPropagation();        
+        event.stopPropagation();
         let actorElement = target.closest('.crux__actor');
-        if (!actorElement) return;        
+        if (!actorElement) return;
         const actorUuid = actorElement.dataset.actorUuid;
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
-        if (!actor) return;        
+        if (!actor) return;
         actor.shortRest();
     }
 
     _onLongRest(event, target) {
-        event.stopPropagation();        
+        event.stopPropagation();
         let actorElement = target.closest('.crux__actor');
-        if (!actorElement) return;        
+        if (!actorElement) return;
         const actorUuid = actorElement.dataset.actorUuid;
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
-        if (!actor) return;        
+        if (!actor) return;
         actor.longRest();
     }
 
@@ -2039,11 +2000,11 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         if (!itemUuid) return;
         const item = await fromUuid(itemUuid);if (!item || !item.isOwner || !item.parent) return;
         const input = spinner.querySelector('input');
-        const value = Math.max(0, parseInt(input.value) || 0);        
+        const value = Math.max(0, parseInt(input.value) || 0);
         await item.parent.updateEmbeddedDocuments("Item", [{
             _id: item.id,
             "system.quantity": value
-        }]);        
+        }]);
         spinner.querySelector('.value').textContent = value;
         input.value = value;
         if (item.sheet?.rendered) {
@@ -2058,20 +2019,20 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
      */
     async _saveUSpinnerChanges(spinner) {
         const itemUuid = spinner.dataset.itemUuid;
-        if (!itemUuid) return;    
+        if (!itemUuid) return;
         const item = await fromUuid(itemUuid);
-        if (!item || !item.isOwner || !item.parent) return;    
+        if (!item || !item.isOwner || !item.parent) return;
         const input = spinner.querySelector('input');
         const max = parseInt(input.max) || 0;
         const rawValue = parseInt(input.value);
         const value = Math.min(max, Math.max(0, isNaN(rawValue) ? 0 : rawValue));
-        const spent = max - value;    
+        const spent = max - value;
         await item.parent.updateEmbeddedDocuments("Item", [{
             _id: item.id,
             "system.uses.spent": spent
-        }]);    
+        }]);
         spinner.querySelector('.value').textContent = `${value}/${max}`;
-        input.value = value;    
+        input.value = value;
         if (item.sheet?.rendered) {
             item.sheet.render(false);
         }
@@ -2152,18 +2113,18 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     async _onItemMouseDown(event) {
         if (event.target.closest('[data-crux-context-menu="true"]')) {
             return false;
-        }        
+        }
         const itemElement = event.currentTarget.closest(".item");
-        if (!itemElement) return false;        
+        if (!itemElement) return false;
         const itemUuid = itemElement.dataset.itemUuid;
-        if (!itemUuid) return false;        
+        if (!itemUuid) return false;
         const item = await CruxHooksManager.fromUuid(itemUuid);
         if (!item) return false;
         if (event.which === 2) {
             event.preventDefault();
             event.stopPropagation();
             const itemEntry = itemElement.closest('.crux__item');
-            const activityId = itemEntry?.dataset?.activityId;            
+            const activityId = itemEntry?.dataset?.activityId;
             if (CruxCompatibility.isDnDv4() && activityId) {
                 return this._showItemActivitiesMenu(event, item);
             } else if (CruxCompatibility.isDnDv4() && CruxCompatibility.hasActivities(item)) {
@@ -2180,79 +2141,87 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         if (event.currentTarget.classList.contains('item-name')) {
             if (event.shiftKey && CruxCompatibility.canModifyUses(item)) {
                 event.preventDefault();
-                event.stopPropagation();                
+                event.stopPropagation();
                 const uses = CruxCompatibility.getUses(item);
-                if (!uses) return false;                
+                if (!uses) return false;
                 let newValue;
                 if (event.which === 1) {
                     newValue = Math.min(uses.value + 1, uses.max);
                 } else if (event.which === 3) {
                     newValue = Math.max(uses.value - 1, 0);
-                }                
+                }
                 if (newValue !== undefined && newValue !== uses.value) {
                     await CruxCompatibility.updateUses(item, newValue);
                     this.render();
                     return false;
                 }
             }
-            
+
             if (event.which === 3 && !event.shiftKey) {
                 event.preventDefault();
-                event.stopPropagation();                
-                const li = itemElement;                
-                if (li.classList.contains("expanded")) {
-                    let summary = li.querySelector(".item-summary");
-                    if (summary) {
-                        if (window.jQuery) {
-                            window.jQuery(summary).slideUp(200, () => summary.remove());
-                        } else {
-                            summary.remove();
-                        }
-                    }
-                } else {
-                    const description = CruxCompatibility.getDescription(item);
-                    let enrichedDescription = description;
-                    try {
-                        enrichedDescription = await TextEditor.enrichHTML(description, {
-                            secrets: item.actor?.isOwner ?? false,
-                            rollData: item.getRollData ? item.getRollData() : {},
-                            relativeTo: item
-                        });
-                    } catch (error) {
-                        console.warn("Crux | Item description enrichment failed", item, error);
-                    }
-                    let div = document.createElement('div');
-                    div.className = 'item-summary';
-                    div.innerHTML = enrichedDescription;
-                    const chatData = await item.getChatData({ secrets: item.actor.isOwner });
-                    if (chatData && chatData.properties && chatData.properties.length) {
-                        let props = document.createElement('div');
-                        props.className = 'item-properties';                        
-                        chatData.properties.forEach(p => {
-                            let span = document.createElement('span');
-                            span.className = 'tag';
-                            span.textContent = p;
-                            props.appendChild(span);
-                        });
-                        if (item.system.quantity !== undefined && item.system.quantity > 0) {
-                            let qtySpan = document.createElement('span');
-                            qtySpan.className = 'tag';
-                            qtySpan.textContent = `Qty: ${item.system.quantity}`;
-                            props.appendChild(qtySpan);
-                        }
-                        
-                        div.appendChild(props);
-                    }
-                    li.appendChild(div);
-                    if (window.jQuery) {
-                        window.jQuery(div).hide().slideDown(200);
-                    }
-                }
-                
-                li.classList.toggle("expanded");
+                event.stopPropagation();
+                return this._onOpenSheet(event, event.currentTarget);
             }
         }
-        
+
         return false;
+    }
+
+    async _toggleItemSummary(itemElement, item) {
+        if (!itemElement || !item) return;
+
+        if (itemElement.classList.contains("expanded")) {
+            const summary = itemElement.querySelector(".item-summary");
+            if (summary) {
+                if (window.jQuery) {
+                    window.jQuery(summary).slideUp(200, () => summary.remove());
+                } else {
+                    summary.remove();
+                }
+            }
+            itemElement.classList.toggle("expanded");
+            return;
+        }
+
+        const description = await CruxCompatibility.getDescription(item);
+        let enrichedDescription = description;
+        try {
+            enrichedDescription = await TextEditor.enrichHTML(description, {
+                secrets: item.actor?.isOwner ?? false,
+                rollData: item.getRollData ? item.getRollData() : {},
+                relativeTo: item
+            });
+        } catch (error) {
+            console.warn("Crux | Item description enrichment failed", item, error);
+        }
+
+        const div = document.createElement('div');
+        div.className = 'item-summary';
+        div.innerHTML = enrichedDescription;
+
+        const chatData = await item.getChatData({ secrets: item.actor?.isOwner });
+        if (chatData?.properties?.length) {
+            const props = document.createElement('div');
+            props.className = 'item-properties';
+            chatData.properties.forEach(p => {
+                const span = document.createElement('span');
+                span.className = 'tag';
+                span.textContent = p;
+                props.appendChild(span);
+            });
+            if (item.system.quantity !== undefined && item.system.quantity > 0) {
+                const qtySpan = document.createElement('span');
+                qtySpan.className = 'tag';
+                qtySpan.textContent = `Qty: ${item.system.quantity}`;
+                props.appendChild(qtySpan);
+            }
+            div.appendChild(props);
+        }
+
+        itemElement.appendChild(div);
+        if (window.jQuery) {
+            window.jQuery(div).hide().slideDown(200);
+        }
+        itemElement.classList.toggle("expanded");
     }
 }
