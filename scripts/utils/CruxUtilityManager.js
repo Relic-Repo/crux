@@ -6,6 +6,18 @@ export default class CruxUtils {
      */
     static isDnd5eSkipDialogEvent(event) {
         if (!event || game.system.id !== "dnd5e") return false;
+        return ["skipDialogNormal", "skipDialogAdvantage", "skipDialogDisadvantage"]
+            .some(action => this.isDnd5eKeybindingEvent(event, action));
+    }
+
+    /**
+     * Check whether a dnd5e keybinding is active for an event.
+     * @param {Event} event
+     * @param {string} action
+     * @returns {boolean}
+     */
+    static isDnd5eKeybindingEvent(event, action) {
+        if (!event || game.system.id !== "dnd5e") return false;
         const downKeys = game.keyboard?.downKeys ?? new Set();
         const activeModifiers = new Set();
         if (event.altKey) {
@@ -30,13 +42,23 @@ export default class CruxUtils {
         }
 
         const isPressed = key => downKeys.has(key) || activeModifiers.has(key);
-        const bindings = ["skipDialogNormal", "skipDialogAdvantage", "skipDialogDisadvantage"];
-        return bindings.some(action => game.keybindings.get("dnd5e", action)?.some(binding => {
+        return game.keybindings.get("dnd5e", action)?.some(binding => {
             const modifiers = binding.modifiers ?? [];
             if (isPressed(binding.key) && modifiers.every(isPressed)) return true;
             if (modifiers.length) return false;
             return activeModifiers.has(binding.key);
-        }));
+        }) ?? false;
+    }
+
+    /**
+     * Get dnd5e advantage options from skip-dialog keybindings.
+     * @param {Event} event
+     * @returns {Object}
+     */
+    static getDnd5eRollOptionsFromSkipDialogEvent(event) {
+        if (this.isDnd5eKeybindingEvent(event, "skipDialogAdvantage")) return { advantage: true };
+        if (this.isDnd5eKeybindingEvent(event, "skipDialogDisadvantage")) return { disadvantage: true };
+        return {};
     }
 
     /**

@@ -49,7 +49,6 @@ const VISUAL_PRESETS = {
             "--crux-panel-texture-opacity": "0.76",
             "--crux-panel-texture-blend-mode": "multiply",
             "--crux-actor-ac-bg-rgb": "17, 17, 17",
-            "--crux-actor-ac-text": "rgba(201, 89, 63, 0.96)",
             "--crux-actor-ac-border-rgb": "17, 17, 17",
             "--crux-actor-ac-border-opacity": "0.5",
             "--crux-actor-ac-border-width": "0.5px"

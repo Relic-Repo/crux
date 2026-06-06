@@ -1,0 +1,20 @@
+<div class="crux-movement__list">
+    {{#each choices as |choice|}}
+        <div class="crux-movement__choice {{#if choice.active}}active{{/if}}"
+             role="button"
+             tabindex="0"
+             data-action="selectMovement"
+             data-movement-action="{{choice.id}}"
+             title="{{choice.title}}">
+            <span class="crux-movement__icon">
+                {{#if choice.img}}
+                    <img src="{{choice.img}}" alt="">
+                {{else}}
+                    <i class="{{choice.icon}}" inert></i>
+                {{/if}}
+            </span>
+            <span class="crux-movement__label">{{choice.label}}</span>
+            <span class="crux-movement__amount">{{choice.amount}}</span>
+        </div>
+    {{/each}}
+</div>

@@ -82,7 +82,11 @@ export default class CruxStateManager {
      * @returns {boolean}
      */
     isActorActive(actor) {
-        return this.#activeActors.has(actor);
+        if (!actor) return false;
+        if (this.#activeActors.has(actor)) return true;
+        return Array.from(this.#activeActors).some(activeActor =>
+            activeActor?.uuid && activeActor.uuid === actor.uuid
+        );
     }
 
     /**

@@ -1,6 +1,8 @@
 import CruxTrayAppV2 from "../apps/CruxTrayAppV2.js";
 import CruxStateManager from "../state/CruxStateManager.js";
+import CruxElevationAppV2 from "../apps/CruxElevationAppV2.js";
 import CruxEffectsAppV2 from "../apps/CruxEffectsAppV2.js";
+import CruxMovementAppV2 from "../apps/CruxMovementAppV2.js";
 import CruxSettings from "../settings/CruxSettings.js";
 import CruxCompatibility from "../utils/CruxCompatibility.js";
 
@@ -154,7 +156,21 @@ export default class CruxHooksManager {
                 }
             }
             if (isControlled && token.actor) {
+                CruxElevationAppV2.updateInstance(token.actor, token);
                 CruxEffectsAppV2.updateInstance(token.actor, token);
+                CruxMovementAppV2.updateInstance(token.actor, token);
+            }
+        });
+
+        Hooks.on("updateToken", (tokenDocument, changes) => {
+            if (!game.crux?.app) return;
+            const actor = this.resolveActor(tokenDocument);
+            if (!actor || !game.crux.state.isActorActive(actor)) return;
+            const elevationChanged = "elevation" in changes || "level" in changes;
+            if ("movementAction" in changes || "delta" in changes || "actorId" in changes || elevationChanged) {
+                game.crux.app.render();
+                if (elevationChanged) CruxElevationAppV2.updateInstance(actor, tokenDocument.object);
+                CruxMovementAppV2.updateInstance(actor, tokenDocument.object);
             }
         });
 
@@ -162,7 +178,25 @@ export default class CruxHooksManager {
             if (!game.crux?.app) return;
             if (game.crux.state.isActorActive(actor)) {
                 game.crux.app.render();
+                const token = canvas.tokens?.controlled.find(t => t.actor === actor || t.actor?.uuid === actor.uuid)
+                    ?? actor.getActiveTokens?.()[0];
+                if (token) {
+                    CruxElevationAppV2.updateInstance(actor, token);
+                    CruxMovementAppV2.updateInstance(actor, token);
+                }
             }
+        });
+
+        const levelHooks = ["createLevel", "updateLevel", "deleteLevel"];
+        levelHooks.forEach(hook => {
+            Hooks.on(hook, (level) => {
+                if (!game.crux?.app) return;
+                const instance = CruxElevationAppV2.activeInstance;
+                if (!instance?.rendered) return;
+                if (instance.token?.document?.parent?.id !== level.parent?.id) return;
+                instance._resetPendingState();
+                instance.render();
+            });
         });
 
         const itemHooks = ["updateItem", "deleteItem"];
@@ -195,11 +229,13 @@ export default class CruxHooksManager {
 
         Hooks.on("updateCombat", () => {
             if (!game.crux?.app) return;
+            if (game.crux.app.suppressCombatRender) return;
             game.crux.app.render();
         });
 
         Hooks.on("createCombatant", (combatant) => {
             if (!game.crux?.app) return;
+            if (game.crux.app.suppressCombatRender) return;
             if (game.crux.state.isActorActive(combatant.actor)) {
                 game.crux.app.render();
             }
@@ -207,6 +243,7 @@ export default class CruxHooksManager {
 
         Hooks.on("updateCombatant", (combatant) => {
             if (!game.crux?.app) return;
+            if (game.crux.app.suppressCombatRender) return;
             if (game.crux.state.isActorActive(combatant.actor)) {
                 game.crux.app.render();
             }
@@ -330,7 +367,7 @@ export default class CruxHooksManager {
         if (candidate instanceof CONFIG.Actor.documentClass) {
             return candidate;
         } else if (candidate instanceof CONFIG.Token.documentClass) {
-            return candidate.object.actor;
+            return candidate.object?.actor ?? candidate.actor ?? null;
         } else if (candidate.actor instanceof CONFIG.Actor.documentClass) {
             return candidate.actor;
         } else {
@@ -343,7 +380,15 @@ export default class CruxHooksManager {
         if (!game.crux?.app) return;
         const actor = this.resolveActor(effect?.parent);
         if (!actor || !game.crux.state.isActorActive(actor)) return;
-        setTimeout(() => game.crux.app.render(), 0);
+        setTimeout(() => {
+            game.crux.app.render();
+            const token = canvas.tokens?.controlled.find(t => t.actor === actor || t.actor?.uuid === actor.uuid)
+                ?? actor.getActiveTokens?.()[0];
+            if (token) {
+                CruxElevationAppV2.updateInstance(actor, token);
+                CruxMovementAppV2.updateInstance(actor, token);
+            }
+        }, 0);
     }
 
     /**

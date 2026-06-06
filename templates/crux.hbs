@@ -231,10 +231,13 @@
                                             <strong>{{numberFormat actorStats.initiative decimals=0 sign=true}}</strong>
                                             <span>INIT</span>
                                         </button>
-                                        <div class="crux__action-stat-tab">
-                                            <strong>{{actorStats.speed}}</strong>
-                                            <span>SPD</span>
-                                        </div>
+                                        <button type="button"
+                                                class="crux__action-stat-tab"
+                                                data-action="openMovement"
+                                                title="{{actorStats.movement.title}}">
+                                            <strong>{{actorStats.movement.value}}</strong>
+                                            <span>{{actorStats.movement.label}}</span>
+                                        </button>
                                         <div class="crux__action-stat-tab">
                                             <strong>{{numberFormat actorStats.proficiency decimals=0 sign=true}}</strong>
                                             <span>PROF</span>
@@ -416,10 +419,13 @@
                                     <strong>{{numberFormat actorStats.initiative decimals=0 sign=true}}</strong>
                                     <span>INIT</span>
                                 </button>
-                                <div class="crux__actor-stat-tab">
-                                    <strong>{{actorStats.speed}}</strong>
-                                    <span>SPD</span>
-                                </div>
+                                <button type="button"
+                                        class="crux__actor-stat-tab"
+                                        data-action="openMovement"
+                                        title="{{actorStats.movement.title}}">
+                                    <strong>{{actorStats.movement.value}}</strong>
+                                    <span>{{actorStats.movement.label}}</span>
+                                </button>
                                 <div class="crux__actor-stat-tab">
                                     <strong>{{numberFormat actorStats.proficiency decimals=0 sign=true}}</strong>
                                     <span>PROF</span>

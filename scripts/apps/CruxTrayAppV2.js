@@ -2,7 +2,9 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 import CruxHooksManager from "../hooks/CruxHooksManager.js";
 import CruxCompatibility from "../utils/CruxCompatibility.js";
 import CruxDomUtils from "../utils/CruxDomUtils.js";
+import CruxElevationAppV2 from "./CruxElevationAppV2.js";
 import CruxEffectsAppV2 from "./CruxEffectsAppV2.js";
+import CruxMovementAppV2 from "./CruxMovementAppV2.js";
 import CruxSettings from "../settings/CruxSettings.js";
 import CruxUtils from "../utils/CruxUtilityManager.js";
 
@@ -45,6 +47,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             expandCollapse: function(event, target) { this._onExpandCollapse(event, target); },
             addToCombat: function(event, target) { this._onAddToCombat(event, target); },
             setElevation: function(event, target) { this._onSetElevation(event, target); },
+            openMovement: function(event, target) { this._onOpenMovement(event, target); },
             openToken: function(event, target) { this._onOpenToken(event, target); },
             rollInitiative: function(event, target) { this._onRollInitiative(event, target); },
             shortRest: function(event, target) { this._onShortRest(event, target); },
@@ -233,7 +236,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             sections = this._removeEmptySections(sections);
             sections = this._addSpellLevelUses(sections, actorData);
             sections = this._sortItems(sections, settingSortAlphabetically);
-            const combatant = game.combat?.combatants.find(c => c.actor?.id === actor.id);
+            const combatant = this._getCombatantForActor(actor);
             const needsInitiative = combatant && combatant.initiative === null;
             const isCurrentTurn = combatant && game.combat?.current?.combatantId === combatant.id;
             const actorState = game.crux.state.getActorState(actor);
@@ -254,7 +257,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 };
             }
 
-            const token = actor.getActiveTokens()[0];
+            const token = this._getSelectedTokenForActor(actor) ?? actor.getActiveTokens()[0];
             const elevation = token?.elevation ?? 0;
 
             return {
@@ -262,7 +265,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 name: actor.name,
                 isNpc: actor.type === "npc",
                 sections,
-                actorStats: this._getActorStats(actorData),
+                actorStats: this._getActorStats(actorData, actor, token),
                 actorIdentity: this._getActorIdentity(actor),
                 actorTraits: this._getActorTraits(actor),
                 needsInitiative,
@@ -326,7 +329,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         return groups;
     }
 
-    _getActorStats(actorData) {
+    _getActorStats(actorData, actor, token) {
         const hp = actorData.attributes?.hp ?? {};
         const movement = actorData.attributes?.movement ?? {};
         const hitDice = actorData.attributes?.hd ?? {};
@@ -361,14 +364,115 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             initiative: initiative.total ?? initiative.mod ?? 0,
             proficiency: actorData.attributes?.prof ?? 0,
             speed: movement.walk ?? movement.fly ?? movement.swim ?? movement.climb ?? movement.burrow ?? 0,
+            movement: this._getMovementDisplay(actor, token),
             exhaustion: Math.min(Math.max(exhaustion, 0), 6),
             senses: {
-                darkvision: senses.darkvision ?? 0,
-                blindsight: senses.blindsight ?? 0,
-                tremorsense: senses.tremorsense ?? 0,
-                truesight: senses.truesight ?? 0
+                darkvision: CruxCompatibility.getSenseValue(senses, "darkvision"),
+                blindsight: CruxCompatibility.getSenseValue(senses, "blindsight"),
+                tremorsense: CruxCompatibility.getSenseValue(senses, "tremorsense"),
+                truesight: CruxCompatibility.getSenseValue(senses, "truesight")
             }
         };
+    }
+
+    _getMovementDisplay(actor, token) {
+        const movement = actor?.system?.attributes?.movement ?? {};
+        const sourceAction = token?.document?._source?.movementAction ?? null;
+        const effectiveAction = token?.document?.movementAction ?? CONFIG.Token.movement.defaultAction ?? "walk";
+        const action = sourceAction ?? null;
+        const displayAction = action ?? "speed";
+        const actionConfig = CONFIG.Token.movement.actions?.[effectiveAction] ?? CONFIG.Token.movement.actions?.walk ?? {};
+        return {
+            action,
+            effectiveAction,
+            label: this._getMovementLabel(displayAction),
+            value: this._formatMovementAmount(this._getMovementAmount(displayAction, movement)),
+            title: action
+                ? game.i18n.localize(actionConfig.label)
+                : `SPD (${game.i18n.localize(actionConfig.label)})`,
+            icon: actionConfig.icon,
+            img: actionConfig.img
+        };
+    }
+
+    _getMovementLabel(action) {
+        return {
+            speed: "SPD",
+            walk: "WLK",
+            burrow: "BRRW",
+            fly: "FLY",
+            swim: "SWM",
+            climb: "CLMB",
+            crawl: "CRWL",
+            jump: "JMP",
+            blink: "BLNK"
+        }[action] ?? String(action ?? "SPD").toUpperCase();
+    }
+
+    _getMovementAmount(action, movement) {
+        const walk = Number(movement.walk ?? movement.speed ?? 0) || 0;
+        const halfWalk = walk ? Math.floor(walk / 2) : undefined;
+        switch (action) {
+            case "speed":
+                return movement.speed ?? movement.walk;
+            case "walk":
+                return movement.walk;
+            case "burrow":
+                return movement.burrow;
+            case "fly":
+                return movement.fly;
+            case "swim":
+                return movement.swim || halfWalk;
+            case "climb":
+                return movement.climb || halfWalk;
+            case "crawl":
+                return halfWalk;
+            case "jump":
+                return movement.jump;
+            case "blink":
+                return Infinity;
+            default:
+                return movement[action];
+        }
+    }
+
+    _formatMovementAmount(value) {
+        if (value === Infinity) return "\u221E";
+        if (!Number.isFinite(Number(value))) return "--";
+        return String(Number(value));
+    }
+
+    _getCombatantForActor(actor) {
+        const combat = game.combat;
+        if (!combat || !actor) return null;
+
+        const combatants = Array.from(combat.combatants ?? []);
+        const tokenDocuments = [];
+        const selectedToken = this._getSelectedTokenForActor(actor);
+        if (selectedToken?.document) tokenDocuments.push(selectedToken.document);
+        if (actor.isToken && actor.token) tokenDocuments.push(actor.token);
+        for (const token of actor.getActiveTokens?.() ?? []) {
+            if (token?.document) tokenDocuments.push(token.document);
+        }
+
+        for (const tokenDocument of tokenDocuments) {
+            const combatant = combatants.find(c =>
+                c.tokenId === tokenDocument.id
+                && (!c.sceneId || !tokenDocument.parent?.id || c.sceneId === tokenDocument.parent.id)
+            );
+            if (combatant) return combatant;
+        }
+
+        return combatants.find(c => c.actor === actor || c.actor?.uuid === actor.uuid)
+            ?? combatants.find(c => c.actorId === actor.id || c.actor?.id === actor.id)
+            ?? null;
+    }
+
+    _getSelectedTokenForActor(actor) {
+        if (!actor) return null;
+        return canvas.tokens?.controlled.find(token =>
+            token?.actor === actor || token?.actor?.uuid === actor.uuid
+        ) ?? null;
     }
 
     _getActorIdentity(actor) {
@@ -524,8 +628,8 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     _getSenseTags(senses) {
         const config = CONFIG.DND5E.senses ?? {};
         const tags = [];
-        for (const [key, value] of Object.entries(senses)) {
-            if (key === "units" || key === "special") continue;
+        const ranges = CruxCompatibility.getSensesRanges(senses);
+        for (const [key, value] of Object.entries(ranges)) {
             const distance = Number(value) || 0;
             if (distance <= 0) continue;
             const label = this._localizeLabel(config[key]?.label ?? config[key] ?? key.titleCase?.() ?? key);
@@ -912,11 +1016,8 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         this._setupTaskbarCompatibility();
         const activeActors = game.crux.state.getActiveActors();
         const currentCombatant = game.combat?.combatant;
-        const actorsInCombat = activeActors.filter(actor =>
-            game.combat?.combatants.some(c => c.actor?.id === actor.id)
-        );
         const isCurrentCombatant = activeActors.some(actor =>
-            currentCombatant?.actor?.id === actor.id
+            this._getCombatantForActor(actor)?.id === currentCombatant?.id
         );
         if (isCurrentCombatant) {
             this.element.classList.add("is-current-combatant");
@@ -926,7 +1027,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         activeActors.forEach(actor => {
             const actorElement = this.element.querySelector(`.crux__actor[data-actor-uuid="${actor.uuid}"]`);
             if (actorElement) {
-                const combatant = game.combat?.combatants.find(c => c.actor?.id === actor.id);
+                const combatant = this._getCombatantForActor(actor);
                 if (combatant) {
                     const needsInitiative = combatant.initiative === null;
                     const isCurrentTurn = game.combat?.current?.combatantId === combatant.id;
@@ -1596,7 +1697,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (!actor) return;
 
-        const token = actor.getActiveTokens()[0];
+        const token = this._getSelectedTokenForActor(actor) ?? actor.getActiveTokens()[0];
         if (token) {
             token.setTarget(!token.isTargeted, { releaseOthers: false });
         }
@@ -1627,10 +1728,44 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
                 CruxEffectsAppV2.activeInstance.actor.id === actor.id) {
                 CruxEffectsAppV2.activeInstance.close();
             } else {
-                const app = new CruxEffectsAppV2(actor, token, event.currentTarget);
+                const app = new CruxEffectsAppV2(actor, token, event);
                 app.render(true);
             }
         }
+    }
+
+    _onOpenMovement(event, target) {
+        event.preventDefault();
+        event.stopPropagation();
+        let actorElement = target.closest('.crux__actor');
+        let actorUuid;
+        if (!actorElement) {
+            const actors = game.crux.state.getActiveActors();
+            if (actors.length === 1) {
+                actorElement = this.element.querySelector('.crux__actor');
+                actorUuid = actorElement?.dataset.actorUuid ?? actors[0].uuid;
+            }
+            if (!actorUuid) return;
+        } else {
+            actorUuid = actorElement.dataset.actorUuid;
+        }
+        const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
+        if (!actor) return;
+        const token = this._getSelectedTokenForActor(actor) ?? actor.getActiveTokens()[0];
+        if (!token?.document) {
+            ui.notifications.warn("No token available for movement selection");
+            return;
+        }
+        if (CruxMovementAppV2.activeInstance?.rendered &&
+            CruxMovementAppV2.activeInstance.actor.id === actor.id &&
+            CruxMovementAppV2.activeInstance.token?.document?.id === token.document.id) {
+            CruxMovementAppV2.activeInstance.close();
+            return;
+        }
+        const app = new CruxMovementAppV2(actor, token, event, {
+            movementDisplay: this._getMovementDisplay(actor, token)
+        });
+        app.render(true);
     }
 
     _onExpandCollapse(event, target) {
@@ -1680,6 +1815,8 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
     }
 
     async _onAddToCombat(event, target) {
+        const rollImmediately = event.shiftKey;
+        const rollOptions = CruxUtils.getDnd5eRollOptionsFromSkipDialogEvent(event);
         const actors = game.crux.state.getActiveActors();
         if (!actors.length) return;
         const combat = game.combat;
@@ -1691,7 +1828,7 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             return;
         }
         const newActors = actors.filter(actor => {
-            const token = actor.getActiveTokens()[0];
+            const token = this._getSelectedTokenForActor(actor) ?? actor.getActiveTokens()[0];
             if (!token) return false;
             const alreadyInCombat = game.combat.combatants.some(c =>
                 c.actorId === actor.id && c.tokenId === token.id
@@ -1703,29 +1840,56 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
             return true;
         });
         if (newActors.length) {
-            const combatants = newActors.map(actor => ({
-                actorId: actor.id,
-                tokenId: actor.getActiveTokens()[0].id,
-                hidden: false
-            }));
+            const combatants = newActors.map(actor => {
+                const token = this._getSelectedTokenForActor(actor) ?? actor.getActiveTokens()[0];
+                return {
+                    actorId: actor.id,
+                    tokenId: token.id,
+                    hidden: false
+                };
+            });
             if (combatants.length) {
-                await game.combat.createEmbeddedDocuments("Combatant", combatants);
+                this.suppressCombatRender = rollImmediately;
+                try {
+                    const createdCombatants = await game.combat.createEmbeddedDocuments("Combatant", combatants);
+                    if (rollImmediately) {
+                        await this._rollCombatantsInitiative(createdCombatants, rollOptions);
+                    }
+                } finally {
+                    this.suppressCombatRender = false;
+                }
+                this.render();
+            }
+        }
+    }
+
+    async _rollCombatantsInitiative(combatants, rollOptions = {}) {
+        const cachedActors = new Set();
+        try {
+            for (const combatant of combatants) {
+                const actor = combatant?.actor;
+                if (!actor?.getInitiativeRoll) continue;
+                actor._cachedInitiativeRoll = actor.getInitiativeRoll(rollOptions);
+                cachedActors.add(actor);
+            }
+            await game.combat?.rollInitiative(combatants.map(combatant => combatant.id));
+        } finally {
+            for (const actor of cachedActors) {
+                delete actor._cachedInitiativeRoll;
             }
         }
     }
 
     _onSetElevation(event, target) {
+        event.preventDefault();
+        event.stopPropagation();
         let actorElement = target.closest('.crux__actor');
         let actorUuid;
         if (!actorElement) {
             const actors = game.crux.state.getActiveActors();
             if (actors.length === 1) {
                 actorElement = this.element.querySelector('.crux__actor');
-                if (actorElement) {
-                    actorUuid = actorElement.dataset.actorUuid;
-                } else {
-                    actorUuid = actors[0].uuid;
-                }
+                actorUuid = actorElement?.dataset.actorUuid ?? actors[0].uuid;
             }
             if (!actorUuid) return;
         } else {
@@ -1733,37 +1897,19 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         }
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (!actor) return;
-        const token = actor.getActiveTokens()[0];
-        if (!token) return;
-        const currentElevation = token.elevation ?? 0;
-        const content = `
-            <form>
-                <div class="form-group">
-                    <label>${game.i18n.localize("crux.elevation.label")}</label>
-                    <input type="number" name="elevation" value="${currentElevation}" step="any" style="width: 80px;"/>
-                </div>
-            </form>`;
-
-        new foundry.applications.api.DialogV2({
-            window: { title: game.i18n.localize("crux.elevation.title") },
-            content: content,
-            buttons: [
-                {
-                    action: "set",
-                    label: game.i18n.localize("crux.elevation.set"),
-                    default: true,
-                    callback: async (event, button, dialog) => {
-                        const newElevation = Number(button.form.elements.elevation.value);
-                        await token.document.update({ elevation: newElevation });
-                    }
-                },
-                {
-                    action: "cancel",
-                    label: game.i18n.localize("crux.elevation.cancel")
-                }
-            ],
-            default: "set"
-        }).render(true);
+        const token = this._getSelectedTokenForActor(actor) ?? actor.getActiveTokens()[0];
+        if (!token?.document) {
+            ui.notifications.warn("No token available for elevation selection");
+            return;
+        }
+        if (CruxElevationAppV2.activeInstance?.rendered &&
+            CruxElevationAppV2.activeInstance.actor.id === actor.id &&
+            CruxElevationAppV2.activeInstance.token?.document?.id === token.document.id) {
+            CruxElevationAppV2.activeInstance.close();
+            return;
+        }
+        const app = new CruxElevationAppV2(actor, token, event);
+        app.render(true);
     }
 
     _onOpenToken(event, target) {
@@ -1886,7 +2032,9 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         return true;
     }
 
-    _onRollInitiative(event, target) {
+    async _onRollInitiative(event, target) {
+        event.preventDefault();
+        event.stopPropagation();
         let actorElement = target.closest('.crux__actor');
         let actorUuid;
         if (!actorElement) {
@@ -1905,7 +2053,15 @@ export default class CruxTrayAppV2 extends HandlebarsApplicationMixin(Applicatio
         }
         const actor = CruxHooksManager.resolveActor(CruxHooksManager.fromUuid(actorUuid));
         if (!actor) return;
-        actor.rollInitiative({ createCombatants: true });
+        const rollOptions = CruxUtils.getDnd5eRollOptionsFromSkipDialogEvent(event);
+        const combatant = this._getCombatantForActor(actor);
+        if (combatant) {
+            await this._rollCombatantsInitiative([combatant], rollOptions);
+            this.render();
+            return;
+        }
+        await actor.rollInitiative({ createCombatants: true }, rollOptions);
+        this.render();
     }
 
     _onShortRest(event, target) {

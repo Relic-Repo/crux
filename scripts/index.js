@@ -4,7 +4,9 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
  * Main entry point for the Crux module
  */
 import CruxTrayAppV2 from "./apps/CruxTrayAppV2.js";
+import CruxElevationAppV2 from "./apps/CruxElevationAppV2.js";
 import CruxEffectsAppV2 from "./apps/CruxEffectsAppV2.js";
+import CruxMovementAppV2 from "./apps/CruxMovementAppV2.js";
 import CruxStateManager from "./state/CruxStateManager.js";
 import CruxHooksManager from "./hooks/CruxHooksManager.js";
 import CruxSettings from "./settings/CruxSettings.js";
@@ -53,7 +55,9 @@ Hooks.once('init', () => {
     CruxItemFormInjector.init(); // Initialize the item form injector
     game.crux = {
         CruxTrayAppV2,
+        CruxElevationAppV2,
         CruxEffectsAppV2,
+        CruxMovementAppV2,
         state: CruxStateManager.getInstance(),
         utils: {
             compatibility: CruxCompatibility,
@@ -66,7 +70,9 @@ Hooks.once('init', () => {
 
 export {
     CruxTrayAppV2,
+    CruxElevationAppV2,
     CruxEffectsAppV2,
+    CruxMovementAppV2,
     CruxStateManager,
     CruxHooksManager,
     CruxSettings,

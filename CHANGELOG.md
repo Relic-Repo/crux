@@ -2,6 +2,37 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2026-06-06] [2.2.2]
+
+### Added
+- Added a Movement Type popout for the SPD control on both the Actions and Actor panels.
+  - Displays available token movement actions from Foundry/dnd5e, including movement icons and calculated speeds.
+  - Supports Speed, Walk, Fly, Swim, Burrow, Crawl, Climb, Jump, and Blink where available.
+  - Updates the token's movement action so Foundry movement and Scene Region movement costs can respond to the selected type.
+- Added a new Elevation popout to replace the previous Foundry dialog flow.
+  - Supports Level-relative and Scene elevation modes on Foundry V14 Scene Levels.
+  - Shows GM-only Scene Level selection when levels are available.
+  - Keeps V13-compatible elevation behavior through the compatibility layer.
+- Added a GM-only setting to allow players to see and use Scene elevation mode.
+  - Players never see the Scene Level selection list.
+
+### Changed
+- Updated Status Effects, Movement Type, and Elevation controls to use Crux anchored popouts.
+  - Flyouts now open beside the Crux tray at the click position.
+  - Flyouts close when focus/click moves outside them.
+- Updated the SPD box on both panels to show the token's current movement action rather than only the actor's base speed.
+- Updated movement speed display calculations for movement actions that derive from walk speed, such as Crawl, Swim, and Climb.
+- Updated elevation controls with Set/Cancel buttons, direct numeric entry, and step buttons.
+  - Left click steps by 1.
+  - Shift-click steps by 5.
+  - Shift+Alt-click steps by 10.
+- Updated initiative rolling to respect dnd5e Skip Dialog Advantage and Skip Dialog Disadvantage keybindings.
+- Updated Shift-click Add to Combat to immediately add combatants and roll initiative.
+
+### Fixed
+- Fixed NPC combatants not receiving the Roll Initiative popup button immediately after being added to combat.
+- Fixed dnd5e senses compatibility warnings by reading the current `senses.ranges` schema while retaining legacy compatibility.
+
 ## [2026-06-03] [2.2.1]
 
 ### Added

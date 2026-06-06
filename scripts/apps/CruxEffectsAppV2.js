@@ -1,15 +1,17 @@
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+import CruxAnchoredFlyout from "../utils/CruxAnchoredFlyout.js";
 
 /**
  * Application for managing token effects using ApplicationV2
  */
 export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
     static activeInstance = null;
-    constructor(actor, token, anchor) {
+    constructor(actor, token, event) {
         super();
         this.actor = actor;
         this.token = token;
-        this.anchor = anchor;
+        this.anchorEvent = event;
+        this.anchorTarget = event?.currentTarget;
         CruxEffectsAppV2.activeInstance = this;
     }
     static updateInstance(actor, token) {
@@ -24,13 +26,13 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
      */
     static DEFAULT_OPTIONS = {
         id: "crux-effects",
-        classes: ["crux-effects", "crux-effects-small"],
+        classes: ["crux-effects", "crux-effects-small", "crux-flyout"],
         popOut: false,
         minimizable: false,
         resizable: false,
         headerButtons: [],
         position: {
-            width: 250,
+            width: 200,
             height: "auto"
         },
         form: {
@@ -128,25 +130,25 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
             console.log("[Crux] ESC-initiated close ignored.");
             return false;
         }
+        CruxAnchoredFlyout.unregisterCloseOnBlur(this);
+        this.anchorTarget?.blur?.();
         return super.close(options);
     }
     /**
-     * Position the window relative to the anchor element
-     * Ignores scale parameter from uiscaler
+     * Position the window beside the Crux tray at the click elevation.
      */
-    setPosition({left, top, scale, ...otherOptions} = {}) {
-        const position = this.anchor.getBoundingClientRect();
-        return super.setPosition({
-            left: left ?? position.right + 5,
-            top: top ?? position.top,
-            ...otherOptions
-        });
+    setPosition(options = {}) {
+        return super.setPosition(CruxAnchoredFlyout.getPosition(this, this.anchorEvent, options));
     }
     /**
      * Handle post-render setup
      */
     _onRender(context, options) {
         super._onRender(context, options);
+        CruxAnchoredFlyout.applyTheme(this.element);
+        this.setPosition();
+        this.anchorTarget?.blur?.();
+        CruxAnchoredFlyout.registerCloseOnBlur(this, this.element, this.anchorTarget);
         this.element.querySelectorAll('.effect-control').forEach(el => {
             el.addEventListener('click', this._onToggleEffect.bind(this));
             el.addEventListener('contextmenu', this._onContextMenu.bind(this));

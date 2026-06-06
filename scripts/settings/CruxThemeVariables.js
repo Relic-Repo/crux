@@ -1,4 +1,5 @@
 export const EXTERNAL_THEME_VARIABLES = [
+    "--crux-accent-rgb",
     "--crux-element-bg-rgb",
     "--crux-element-bg",
     "--crux-element-bg-strong",
@@ -7,8 +8,10 @@ export const EXTERNAL_THEME_VARIABLES = [
     "--crux-border-width-light",
     "--crux-border-width-strong",
     "--crux-text",
+    "--crux-text-strong",
     "--crux-text-light",
     "--crux-active-bg",
+    "--crux-active-border",
     "--crux-element-hover-bg",
     "--crux-element-hover-border",
     "--crux-element-hover-text",
@@ -26,24 +29,6 @@ export const PALETTE_VARIABLE_MAP = {
     textLight: "--crux-text-light-rgb",
     textStrong: "--crux-text-strong-rgb"
 };
-
-const ELEMENT_SLOT_PROPERTIES = [
-    "bg",
-    "bg-light",
-    "bg-strong",
-    "border-color",
-    "border-color-light",
-    "border-color-strong",
-    "border-width",
-    "border-width-light",
-    "border-width-strong",
-    "text",
-    "text-light",
-    "text-strong",
-    "hover-bg",
-    "hover-border",
-    "hover-text"
-];
 
 const ALWAYS_CLEAR_PRESET_VARIABLES = [
     "--crux-border-color",
@@ -84,16 +69,6 @@ const ALWAYS_CLEAR_PRESET_VARIABLES = [
     "--crux-actor-ac-border-width"
 ];
 
-function getElementSlotVariableNames() {
-    const names = [];
-    for (let slot = 1; slot <= 10; slot += 1) {
-        for (const property of ELEMENT_SLOT_PROPERTIES) {
-            names.push(`--crux-element-${slot}-${property}`);
-        }
-    }
-    return names;
-}
-
 export function getCruxAppElement() {
     return game.crux?.app?.element ?? document.getElementById("crux");
 }
@@ -126,9 +101,6 @@ export function getVisualPresetVariables(preset) {
         if (value !== undefined) paletteVariables[variableName] = value;
     }
 
-    if (paletteVariables["--crux-text-light-rgb"] && !paletteVariables["--crux-muted-text-rgb"]) {
-        paletteVariables["--crux-muted-text-rgb"] = paletteVariables["--crux-text-light-rgb"];
-    }
     if (preset.solidHighlight !== undefined) {
         paletteVariables["--crux-highlight-solid"] = String(Boolean(preset.solidHighlight));
     }
@@ -142,7 +114,6 @@ export function getVisualPresetVariables(preset) {
 export function getVisualPresetVariableNames(visualPresets) {
     return new Set([
         ...ALWAYS_CLEAR_PRESET_VARIABLES,
-        ...getElementSlotVariableNames(),
         ...Object.values(visualPresets).flatMap(preset => Object.keys(getVisualPresetVariables(preset)))
     ]);
 }
@@ -182,11 +153,9 @@ export function applyCruxAppThemeVariables(getSetting) {
     const panelBgRgb = getCruxThemeValue("--crux-panel-bg-rgb") || "0, 0, 0";
     const elementBgRgb = getCruxThemeValue("--crux-element-bg-rgb") || "0, 0, 0";
     const accentRgb = getCruxThemeValue("--crux-accent-rgb") || "153, 25, 79";
-    const legacyTextRgb = getCruxThemeValue("--crux-text-rgb") || "220, 222, 226";
-    const legacyMutedTextRgb = getCruxThemeValue("--crux-muted-text-rgb") || "190, 194, 202";
-    const textRgb = resolveRgbValue("--crux-text-rgb", legacyTextRgb);
-    const textStrongRgb = resolveRgbValue("--crux-text-strong-rgb", textRgb);
-    const textLightRgb = resolveRgbValue("--crux-text-light-rgb", legacyMutedTextRgb);
+    const textRgb = resolveRgbValue("--crux-text-rgb") || "220, 222, 226";
+    const textStrongRgb = getCruxThemeValue("--crux-text-strong-rgb") || textRgb;
+    const textLightRgb = getCruxThemeValue("--crux-text-light-rgb") || textRgb;
     const text = getCruxAppVariableValue("--crux-text") || `rgba(${textRgb}, 0.92)`;
     const textStrong = getCruxAppVariableValue("--crux-text-strong") || `rgba(${textStrongRgb}, 0.96)`;
     const textLight = getCruxAppVariableValue("--crux-text-light") || `rgba(${textLightRgb}, 0.76)`;
@@ -236,7 +205,6 @@ export function applyCruxAppThemeVariables(getSetting) {
         "--crux-border-width-light": widthLight,
         "--crux-border-width-strong": borderWidthStrong,
         "--crux-text-rgb": textRgb,
-        "--crux-muted-text-rgb": textLightRgb,
         "--crux-text-strong-rgb": textStrongRgb,
         "--crux-text-light-rgb": textLightRgb,
         "--crux-text": text,
@@ -286,14 +254,14 @@ export function applyThemeToExternalRoot(root) {
     const appElement = getCruxAppElement();
     const sourceStyles = appElement ? getComputedStyle(appElement) : getComputedStyle(document.documentElement);
 
-    for (const name of [...EXTERNAL_THEME_VARIABLES, ...getElementSlotVariableNames()]) {
+    for (const name of EXTERNAL_THEME_VARIABLES) {
         const value = sourceStyles.getPropertyValue(name).trim();
         if (value) root.style.setProperty(name, value);
     }
 }
 
 export function syncExternalThemeRoots() {
-    for (const root of document.querySelectorAll(".crux__activities-menu")) {
+    for (const root of document.querySelectorAll(".crux__activities-menu, .crux-flyout")) {
         applyThemeToExternalRoot(root);
     }
 }

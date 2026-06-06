@@ -21,6 +21,18 @@ export function createCruxSettingDefinitions(CruxSettings) {
             type: Boolean,
             default: false
         },
+        "allow-player-scene-elevation": {
+            name: "Allow Players Scene Elevation",
+            hint: "Allow players to use the Scene elevation mode in the Crux elevation flyout. Players never see the scene level selection list.",
+            scope: "world",
+            config: true,
+            restricted: true,
+            type: Boolean,
+            default: false,
+            onChange: () => {
+                game.crux?.CruxElevationAppV2?.activeInstance?.render();
+            }
+        },
         "show-favorites-section": {
             name: "Show Favorites Section",
             hint: "Display the Favorites section in the tray.",

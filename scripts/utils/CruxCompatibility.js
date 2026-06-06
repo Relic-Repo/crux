@@ -1,5 +1,48 @@
 export default class CruxCompatibility {
     /**
+     * Check whether the current Foundry build supports V14 Scene Levels.
+     * @param {Scene} [scene=canvas.scene] - The scene to check
+     * @returns {boolean} True if Scene Levels are available
+     */
+    static supportsSceneLevels(scene = canvas.scene) {
+        return !!scene?.levels;
+    }
+
+    /**
+     * Get token elevation across Foundry versions.
+     * @param {TokenDocument} tokenDocument - The token document
+     * @returns {number} The token elevation
+     */
+    static getTokenElevation(tokenDocument) {
+        return Number(tokenDocument?._source?.elevation ?? tokenDocument?.elevation ?? 0) || 0;
+    }
+
+    /**
+     * Update token elevation across Foundry versions.
+     * @param {TokenDocument} tokenDocument - The token document
+     * @param {object} data - Elevation update data
+     * @param {string|null} [data.level] - V14 Scene Level id
+     * @param {number} data.elevation - Absolute token elevation
+     * @param {object} [options={}] - Update options
+     * @returns {Promise<*>} The update result
+     */
+    static async updateTokenElevation(tokenDocument, {level = null, elevation} = {}, options = {}) {
+        const scene = tokenDocument?.parent;
+        if (!tokenDocument || !scene) return null;
+        if (this.supportsSceneLevels(scene) && typeof scene.moveTokens === "function") {
+            return scene.moveTokens({
+                [tokenDocument.id]: {
+                    destination: {
+                        level,
+                        elevation
+                    }
+                }
+            }, {method: "api", animate: false, ...options});
+        }
+        return tokenDocument.update({elevation}, {animate: false, ...options});
+    }
+
+    /**
      * Check if DnD5e system version is 4.0 or higher
      * @returns {boolean} True if system version is 4.0+
      */
@@ -19,6 +62,25 @@ export default class CruxCompatibility {
         if (system.id !== "dnd5e") return false;
         const [major, minor] = system.version.split('.').map(n => parseInt(n));
         return major > 5 || (major === 5 && minor >= 1);
+    }
+
+    /**
+     * Get dnd5e senses ranges across legacy and current schemas.
+     * @param {object} senses - The actor senses data
+     * @returns {object} The keyed senses range values
+     */
+    static getSensesRanges(senses) {
+        return senses?.ranges ?? senses ?? {};
+    }
+
+    /**
+     * Get a single dnd5e sense range value across legacy and current schemas.
+     * @param {object} senses - The actor senses data
+     * @param {string} key - The sense key
+     * @returns {number} The sense value
+     */
+    static getSenseValue(senses, key) {
+        return this.getSensesRanges(senses)?.[key] ?? 0;
     }
 
     static METHOD_TO_LEGACY = {

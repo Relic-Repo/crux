@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/Foundry_VTT-v13%2B-orange" alt="Foundry VTT v13+">
   <img src="https://img.shields.io/badge/Verified-v14-blue" alt="Verified Foundry v14">
   <img src="https://img.shields.io/badge/dnd5e-3.0%2B-red" alt="dnd5e 3.0+">
-  <img src="https://img.shields.io/badge/Latest-2.2.1-brightgreen" alt="Latest version 2.2.1">
+  <img src="https://img.shields.io/badge/Latest-2.2.2-brightgreen" alt="Latest version 2.2.2">
   <img src="https://img.shields.io/badge/Manifest-module.json-informational" alt="Manifest">
 </p>
 

@@ -1,0 +1,39 @@
+<div class="crux-elevation__panel {{#if showLevels}}has-levels{{/if}}">
+    <div class="crux-elevation__tabs {{#unless showSceneMode}}single{{/unless}}">
+        <button type="button" class="crux-elevation__tab {{#if (eq mode "level")}}active{{/if}}"
+                data-action="setElevationMode" data-mode="level">{{levelLabel}}</button>
+        {{#if showSceneMode}}
+        <button type="button" class="crux-elevation__tab {{#if (eq mode "scene")}}active{{/if}}"
+                data-action="setElevationMode" data-mode="scene">scene</button>
+        {{/if}}
+    </div>
+
+    <div class="crux-elevation__editor">
+        <div class="crux-elevation__actions">
+            <button type="button" data-action="setElevation">set</button>
+            <button type="button" data-action="cancelElevation">cancel</button>
+        </div>
+        <div class="crux-elevation__stepper">
+            <button type="button" class="crux-elevation__step crux-elevation__step--up"
+                    data-action="stepElevation" data-direction="up">+</button>
+            <button type="button" class="crux-elevation__step crux-elevation__step--down"
+                    data-action="stepElevation" data-direction="down">-</button>
+        </div>
+        <input class="crux-elevation__value" data-elevation-value type="text" inputmode="decimal" value="{{value}}">
+    </div>
+
+    {{#if showLevels}}
+    <div class="crux-elevation__levels">
+        {{#each levels as |level|}}
+        <div class="crux-elevation__level {{#if level.active}}active{{/if}}" role="button" tabindex="0"
+             data-action="selectLevel" data-level-id="{{level.id}}" title="{{level.name}}">
+            <span class="crux-elevation__level-name">{{level.name}}</span>
+            <span class="crux-elevation__level-range">
+                <span>{{level.top}}</span>
+                <span>{{level.bottom}}</span>
+            </span>
+        </div>
+        {{/each}}
+    </div>
+    {{/if}}
+</div>
