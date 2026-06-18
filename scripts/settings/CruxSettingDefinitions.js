@@ -22,8 +22,8 @@ export function createCruxSettingDefinitions(CruxSettings) {
             default: false
         },
         "allow-player-scene-elevation": {
-            name: "Allow Players Scene Elevation",
-            hint: "Allow players to use the Scene elevation mode in the Crux elevation flyout. Players never see the scene level selection list.",
+            name: "crux.settings.allow-player-scene-elevation.name",
+            hint: "crux.settings.allow-player-scene-elevation.hint",
             scope: "world",
             config: true,
             restricted: true,
@@ -472,16 +472,24 @@ export function createCruxSettingDefinitions(CruxSettings) {
             default: "fa-thin fa-dragon"
         },
         "auto-select-first-activity": {
-            name: "Auto-select First Activity",
-            hint: "When enabled, Crux will automatically use the first activity without showing the activity selection dialog. When disabled, the system will handle activity selection according to its own rules.",
+            name: "crux.settings.auto-select-first-activity.name",
+            hint: "crux.settings.auto-select-first-activity.hint",
             scope: "client",
             config: true,
             type: Boolean,
             default: false
         },
+        "clear-targets-on-drag-target": {
+            name: "crux.settings.clear-targets-on-drag-target.name",
+            hint: "crux.settings.clear-targets-on-drag-target.hint",
+            scope: "client",
+            config: true,
+            type: Boolean,
+            default: true
+        },
         "process-compendium-items": {
-            name: "Process Compendium Items",
-            hint: "When enabled, Crux will process items in unlocked compendiums to set tray visibility flags. Disable this if you experience performance issues during startup.",
+            name: "crux.settings.process-compendium-items.name",
+            hint: "crux.settings.process-compendium-items.hint",
             scope: "client",
             config: true,
             type: Boolean,

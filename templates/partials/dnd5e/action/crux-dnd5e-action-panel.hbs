@@ -1,0 +1,9 @@
+<div class="crux__tab-panel crux__tab-panel--actions" data-crux-tab-panel="actions">
+    {{#each actors as |actor|}}
+        {{> crux-dnd5e-action-actor}}
+    {{/each}}
+
+    {{#unless actors.length}}
+        {{> crux-empty-tray}}
+    {{/unless}}
+</div>

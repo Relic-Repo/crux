@@ -1,0 +1,33 @@
+<div class="crux__actor-vitals">
+    <div class="crux__actor-vital">
+        <span>Hit Points</span>
+        <div class="crux__actor-bar crux__actor-bar--hp {{#if actorStats.hp.temp}}has-temp-hp{{/if}}">
+            <div class="crux__actor-bar-main" data-action="toggleHpEditor" data-hp-field="value" data-edit="false">
+                <div class="crux__actor-bar-fill crux__actor-bar-fill--hp" style="width: {{actorStats.hp.pct}}%"></div>
+                <strong class="display-mode">{{actorStats.hp.value}} / {{actorStats.hp.max}}</strong>
+                <div class="edit-mode hidden">
+                    <input type="number" min="0" max="{{actorStats.hp.max}}" value="{{actorStats.hp.value}}">
+                </div>
+            </div>
+            <div class="crux__actor-temp-hp" data-action="toggleHpEditor" data-hp-field="temp" data-edit="false">
+                <span class="display-mode">
+                    {{#if actorStats.hp.temp}}
+                        {{actorStats.hp.temp}}
+                    {{else}}
+                        TMP
+                    {{/if}}
+                </span>
+                <div class="edit-mode hidden">
+                    <input type="number" min="0" value="{{actorStats.hp.temp}}">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="crux__actor-vital">
+        <span>Hit Dice</span>
+        <div class="crux__actor-bar crux__actor-bar--hd">
+            <div class="crux__actor-bar-fill crux__actor-bar-fill--hd" style="width: {{actorStats.hitDice.pct}}%"></div>
+            <strong>{{actorStats.hitDice.value}} / {{actorStats.hitDice.max}}</strong>
+        </div>
+    </div>
+</div>

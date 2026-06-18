@@ -1,11 +1,4 @@
-/**
- * Handles injection of UI elements into DnD5e activity sheets and item sheets
- * Updated for ApplicationV2 (Foundry v14 / DnD5e 5.x) — uses native DOM APIs
- */
 export default class CruxItemFormInjector {
-    /**
-     * Initialize the injector
-     */
     static init() {
         Hooks.on("renderItemSheet5e", (app, options) => {
             const html = app.element;
@@ -28,12 +21,6 @@ export default class CruxItemFormInjector {
         });
     }
 
-    /**
-     * Handle rendering of an activity sheet
-     * @param {Application} app - The application being rendered
-     * @param {HTMLElement} html - The rendered HTML element
-     * @private
-     */
     static _onRenderActivitySheet(app, html) {
         let behaviorFieldset = null;
         const fieldsets = html.querySelectorAll('fieldset');
@@ -108,12 +95,6 @@ export default class CruxItemFormInjector {
         }
     }
 
-    /**
-     * Handle rendering of an item sheet
-     * @param {Application} app - The application being rendered
-     * @param {HTMLElement} html - The rendered HTML element
-     * @private
-     */
     static _onRenderItemSheet(app, html) {
         const detailsTab = html.querySelector('section.tab[data-tab="details"]')
                         || html.querySelector('.tab.details')

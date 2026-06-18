@@ -1,8 +1,5 @@
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-/**
- * Main entry point for the Crux module
- */
 import CruxTrayAppV2 from "./apps/CruxTrayAppV2.js";
 import CruxElevationAppV2 from "./apps/CruxElevationAppV2.js";
 import CruxEffectsAppV2 from "./apps/CruxEffectsAppV2.js";
@@ -14,6 +11,14 @@ import CruxCompatibility from "./utils/CruxCompatibility.js";
 import CruxDomUtils from "./utils/CruxDomUtils.js";
 import CruxUtils from "./utils/CruxUtilityManager.js";
 import CruxItemFormInjector from "./utils/CruxItemFormInjector.js";
+import CruxDragDropUtils from "./utils/CruxDragDropUtils.js";
+import CruxDragTargeting from "./utils/CruxDragTargeting.js";
+import CruxDropPortal from "./utils/CruxDropPortal.js";
+import CruxTemplatePartials from "./utils/CruxTemplatePartials.js";
+import CruxWorkspaceApi from "./api/CruxWorkspaceApi.js";
+import CruxBubbleRegistry from "./bubbles/CruxBubbleRegistry.js";
+import CruxPanelRegistry from "./panels/CruxPanelRegistry.js";
+import CruxSystemRegistry from "./systems/CruxSystemRegistry.js";
 
 Handlebars.registerHelper({
     getActivationType: (item) => CruxCompatibility.getActivationType(item),
@@ -52,7 +57,7 @@ Hooks.once('init', () => {
     console.log("Crux | Initializing Crux module");
     CruxSettings.registerSettings();
     CruxHooksManager.init();
-    CruxItemFormInjector.init(); // Initialize the item form injector
+    CruxItemFormInjector.init();
     game.crux = {
         CruxTrayAppV2,
         CruxElevationAppV2,
@@ -63,9 +68,30 @@ Hooks.once('init', () => {
             compatibility: CruxCompatibility,
             dom: CruxDomUtils,
             cruxUtils: CruxUtils,
-            itemFormInjector: CruxItemFormInjector
+            itemFormInjector: CruxItemFormInjector,
+            dragDrop: CruxDragDropUtils,
+            dragTargeting: CruxDragTargeting,
+            dropPortal: CruxDropPortal,
+            templatePartials: CruxTemplatePartials
+        },
+        systems: {
+            registry: CruxSystemRegistry,
+            getAdapter: () => CruxSystemRegistry.getAdapter()
+        },
+        api: CruxWorkspaceApi,
+        panels: {
+            registry: CruxPanelRegistry,
+            getTabs: context => CruxWorkspaceApi.getTabs(context),
+            getPanels: context => CruxWorkspaceApi.getPanels(context),
+            getPanel: id => CruxWorkspaceApi.getPanel(id)
+        },
+        bubbles: {
+            registry: CruxBubbleRegistry,
+            getBubbles: context => CruxWorkspaceApi.getBubbles(context),
+            getBubble: id => CruxWorkspaceApi.getBubble(id)
         }
     };
+    CruxTemplatePartials.load().catch(error => console.error("Crux | Failed to load template partials", error));
 });
 
 export {
@@ -79,5 +105,13 @@ export {
     CruxCompatibility,
     CruxDomUtils,
     CruxUtils,
-    CruxItemFormInjector
+    CruxItemFormInjector,
+    CruxDragDropUtils,
+    CruxDragTargeting,
+    CruxDropPortal,
+    CruxTemplatePartials,
+    CruxWorkspaceApi,
+    CruxBubbleRegistry,
+    CruxPanelRegistry,
+    CruxSystemRegistry
 };

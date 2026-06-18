@@ -1,0 +1,27 @@
+{{#if (or items.length (and uses.maximum showSpellDots))}}
+    <div class="crux__group">
+        <div class="crux__group-header flexrow" data-action="toggleGroup">
+            <h3>
+                <span>{{localize title}}</span>
+                {{#if (and uses showSpellDots)}}
+                    <div class="group-dots" data-group-name="{{groupName}}">
+                        {{#each (cruxSlots uses.available uses.maximum) as |available slotNumber|}}
+                            <div class="dot {{#unless available}}empty{{/unless}}" data-slot="{{slotNumber}}"></div>
+                        {{/each}}
+                    </div>
+                {{/if}}
+            </h3>
+            {{#if uses}}
+                {{#if showSpellFractions}}
+                    <div class="group-uses">{{uses.available}}/{{uses.maximum}}</div>
+                {{/if}}
+            {{/if}}
+            <i class="fas fa-caret-up"></i>
+        </div>
+        <div class="crux__group-content">
+            {{#with items}}
+                {{> crux-dnd5e-item-list}}
+            {{/with}}
+        </div>
+    </div>
+{{/if}}

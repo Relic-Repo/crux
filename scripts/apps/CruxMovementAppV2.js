@@ -1,9 +1,8 @@
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 import CruxAnchoredFlyout from "../utils/CruxAnchoredFlyout.js";
+import CruxFoundryAccess from "../runtime/CruxFoundryAccess.js";
+import CruxDnd5eAccess from "../runtime/dnd5e/CruxDnd5eAccess.js";
 
-/**
- * Application for selecting the token movement action used by Foundry movement and regions.
- */
 export default class CruxMovementAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
     static activeInstance = null;
 
@@ -45,13 +44,13 @@ export default class CruxMovementAppV2 extends HandlebarsApplicationMixin(Applic
 
     static PARTS = {
         movement: {
-            template: "modules/crux/templates/movement-window.hbs"
+            template: "modules/crux/templates/flyouts/crux-movement-flyout.hbs"
         }
     };
 
     async _prepareContext(options) {
-        const currentAction = this.token?.document?._source?.movementAction ?? null;
-        const effectiveAction = this.token?.document?.movementAction ?? CONFIG.Token.movement.defaultAction;
+        const currentAction = CruxFoundryAccess.getTokenMovementAction(this.token?.document);
+        const effectiveAction = CruxFoundryAccess.getEffectiveTokenMovementAction(this.token?.document);
         const choices = [
             {
                 id: "",
@@ -106,7 +105,7 @@ export default class CruxMovementAppV2 extends HandlebarsApplicationMixin(Applic
     }
 
     _getMovementAmount(action) {
-        const movement = this.actor?.system?.attributes?.movement ?? {};
+        const movement = CruxDnd5eAccess.getMovement(this.actor);
         const walk = Number(movement.walk ?? movement.speed ?? 0) || 0;
         const halfWalk = walk ? Math.floor(walk / 2) : undefined;
         switch (action) {
@@ -146,7 +145,7 @@ export default class CruxMovementAppV2 extends HandlebarsApplicationMixin(Applic
         event.stopPropagation();
         if (!this.token?.document) return;
         const action = event.currentTarget.dataset.movementAction || null;
-        await this.token.document.update({ movementAction: action });
+        await CruxFoundryAccess.updateTokenMovementAction(this.token.document, action);
         game.crux?.app?.render();
         await this.close();
     }

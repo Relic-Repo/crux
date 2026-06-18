@@ -1,0 +1,21 @@
+{{#if uuid}}
+    <button type="button"
+            class="crux__actor-identity-card"
+            data-action="openIdentityItem"
+            data-item-uuid="{{uuid}}"
+            title="{{label}}">
+        <img src="{{img}}" alt="">
+        <span>
+            <strong>{{label}}</strong>
+            {{#if subtitle}}<em>{{subtitle}}</em>{{/if}}
+        </span>
+    </button>
+{{else}}
+    <div class="crux__actor-identity-card crux__actor-identity-card--static" title="{{label}}">
+        <img src="{{img}}" alt="">
+        <span>
+            <strong>{{label}}</strong>
+            {{#if subtitle}}<em>{{subtitle}}</em>{{/if}}
+        </span>
+    </div>
+{{/if}}

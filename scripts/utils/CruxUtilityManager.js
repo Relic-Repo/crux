@@ -1,21 +1,13 @@
+import CruxDragDropUtils from "./CruxDragDropUtils.js";
+import CruxDnd5eAccess from "../runtime/dnd5e/CruxDnd5eAccess.js";
+
 export default class CruxUtils {
-    /**
-     * Check whether a dnd5e skip-dialog keybinding is active.
-     * @param {Event} event
-     * @returns {boolean}
-     */
     static isDnd5eSkipDialogEvent(event) {
         if (!event || game.system.id !== "dnd5e") return false;
         return ["skipDialogNormal", "skipDialogAdvantage", "skipDialogDisadvantage"]
             .some(action => this.isDnd5eKeybindingEvent(event, action));
     }
 
-    /**
-     * Check whether a dnd5e keybinding is active for an event.
-     * @param {Event} event
-     * @param {string} action
-     * @returns {boolean}
-     */
     static isDnd5eKeybindingEvent(event, action) {
         if (!event || game.system.id !== "dnd5e") return false;
         const downKeys = game.keyboard?.downKeys ?? new Set();
@@ -50,34 +42,18 @@ export default class CruxUtils {
         }) ?? false;
     }
 
-    /**
-     * Get dnd5e advantage options from skip-dialog keybindings.
-     * @param {Event} event
-     * @returns {Object}
-     */
     static getDnd5eRollOptionsFromSkipDialogEvent(event) {
         if (this.isDnd5eKeybindingEvent(event, "skipDialogAdvantage")) return { advantage: true };
         if (this.isDnd5eKeybindingEvent(event, "skipDialogDisadvantage")) return { disadvantage: true };
         return {};
     }
 
-    /**
-     * Filter rider activities from an item.
-     * @param {Item5e} item
-     * @returns {Array}
-     */
     static filterActivities(item) {
-        if (!item?.system?.activities) return [];
-        return Object.values(item.system.activities.contents).filter(
+        return CruxDnd5eAccess.getActivityEntries(item).map(([, activity]) => activity).filter(
             activity => !item.getFlag("dnd5e", "riders.activity")?.includes(activity.id)
         );
     }
 
-    /**
-     * Prepare display data for an activity.
-     * @param {Object} activity
-     * @returns {Object}
-     */
     static prepareExecution(activity) {
         const hasRecharge = activity.uses?.max && activity.uses.recovery?.[0]?.period === "recharge";
         const isOnCooldown = hasRecharge && activity.uses.value < 1;
@@ -100,13 +76,76 @@ export default class CruxUtils {
         };
     }
 
-    /**
-     * Activate an item or activity.
-     * @param {string} itemUuid
-     * @param {string} [activityId]
-     * @param {Event} [event]
-     * @returns {Promise}
-     */
+    static _finishItemActivation(render = false) {
+        if (!game.crux) return;
+        game.crux.cruxItemActive = false;
+        game.crux.cruxTemplateRestoreActive = false;
+        if (render) game.crux.app?.render();
+    }
+
+    static _restoreLastSelectedTokens() {
+        const savedTokens = game.crux?.lastSelectedTokens ?? [];
+        let hasControlled = false;
+        for (const saved of savedTokens) {
+            if (saved.sceneId && canvas.scene?.id !== saved.sceneId) continue;
+            let token = canvas.tokens.placeables.find(t => t.id === saved.tokenId);
+            if (!token && saved.actorId) {
+                token = canvas.tokens.placeables.find(t => t.actor?.id === saved.actorId);
+            }
+            if (!token) continue;
+            token.control({ releaseOthers: !hasControlled });
+            hasControlled = true;
+        }
+    }
+
+    static _watchTemplatePlacement() {
+        if (!game.crux) return;
+        game.crux.cruxTemplateRestoreActive = true;
+
+        let done = false;
+        let createHook;
+        let updateHook;
+        let createRegionHook;
+        let updateRegionHook;
+        let timeoutId;
+
+        const cleanup = render => {
+            if (done) return;
+            done = true;
+            if (createHook !== undefined) Hooks.off("createMeasuredTemplate", createHook);
+            if (updateHook !== undefined) Hooks.off("updateMeasuredTemplate", updateHook);
+            if (createRegionHook !== undefined) Hooks.off("createRegion", createRegionHook);
+            if (updateRegionHook !== undefined) Hooks.off("updateRegion", updateRegionHook);
+            if (timeoutId) clearTimeout(timeoutId);
+            CruxUtils._finishItemActivation(render);
+        };
+
+        const restore = () => {
+            ui.controls.initialize({ tool: "select", control: "token" });
+            CruxUtils._restoreLastSelectedTokens();
+            cleanup(true);
+        };
+
+        const onTemplatePlaced = (...args) => {
+            const userId = args.at(-1);
+            if (userId && userId !== game.user.id) return;
+            setTimeout(restore, 0);
+        };
+
+        const onRegionTemplatePlaced = (region, ...args) => {
+            const isTemplateRegion = foundry.utils.getProperty(region, "flags.core.MeasuredTemplate")
+                || region?.getFlag?.("core", "MeasuredTemplate");
+            if (!isTemplateRegion) return;
+            onTemplatePlaced(region, ...args);
+        };
+
+        createHook = Hooks.on("createMeasuredTemplate", onTemplatePlaced);
+        updateHook = Hooks.on("updateMeasuredTemplate", onTemplatePlaced);
+        createRegionHook = Hooks.on("createRegion", onRegionTemplatePlaced);
+        updateRegionHook = Hooks.on("updateRegion", onRegionTemplatePlaced);
+        timeoutId = setTimeout(() => cleanup(true), 15000);
+    }
+
     static activateItem(itemUuid, activityId = null, event = null) {
         if (!itemUuid) return;
         const item = fromUuidSync(itemUuid);
@@ -117,59 +156,18 @@ export default class CruxUtils {
                 game.crux.lastSelectedTokens = canvas.tokens.controlled.map(t => ({
                     tokenId: t.id,
                     actorId: t.actor?.id,
+                    sceneId: t.scene?.id,
                     name: t.name || t.document.name
                 }));
             }
         }
         const configure = !CruxUtils.isDnd5eSkipDialogEvent(event);
-        if (activityId && item?.system?.activities) {
-            let activity = null;
-            try {
-                if (item.system.activities.contents) {
-                    if (item.system.activities.contents[activityId]) {
-                        activity = item.system.activities.contents[activityId];
-                    } else {
-                        const allActivities = Object.values(item.system.activities.contents)
-                            .filter(a => a !== undefined);
-                        activity = allActivities.find(a => a.id === activityId || a._id === activityId);
-                    }
-                } else if (item.system.activities instanceof Map) {
-                    activity = item.system.activities.get(activityId);
-                }
-            } catch (e) {
-                console.warn("Crux | Error finding activity", e);
-            }
+        if (activityId && CruxDnd5eAccess.hasActivities(item)) {
+            const activity = CruxDnd5eAccess.getActivity(item, activityId);
             if (activity) {
-                const placesTemplate = item.hasAreaTarget || 
-                                      (item.system.target?.type === "template") || 
-                                      (activity.target?.type === "template");
-                
-                if (placesTemplate) {
-                    Hooks.once("updateMeasuredTemplate", (template, updates, options, userId) => {
-                        if (userId !== game.user.id) return;
-                        ui.controls.initialize({ tool: "select", control: "token" });
-                        if (game.crux?.lastSelectedTokens?.length > 0) {
-                            const tokenId = game.crux.lastSelectedTokens[0].tokenId;
-                            const actorId = game.crux.lastSelectedTokens[0].actorId;
-                            let token = canvas.tokens.placeables.find(t => t.id === tokenId);
-                            if (!token && actorId) {
-                                token = canvas.tokens.placeables.find(t => t.actor?.id === actorId);
-                            }                        
-                            if (token) {
-                                token.control();
-                            }
-                        }                    
-                        if (game.crux) {
-                            game.crux.cruxItemActive = false;
-                        }
-                    });
-                } else {
-                    setTimeout(() => {
-                        if (game.crux) {
-                            game.crux.cruxItemActive = false;
-                        }
-                    }, 500);
-                }
+                const placesTemplate = CruxDragDropUtils.itemPlacesTemplate(item, activityId);
+                if (placesTemplate) CruxUtils._watchTemplatePlacement();
+                else setTimeout(() => CruxUtils._finishItemActivation(), 500);
                 
                 const result = activity.use({ 
                     event,
@@ -184,38 +182,12 @@ export default class CruxUtils {
             const activity = activities.find(a => a.id === activityId);
             if (!activity) {
                 console.warn("Crux | Activity not found in filtered list");
-                if (game.crux) game.crux.cruxItemActive = false;
+                CruxUtils._finishItemActivation();
                 return;
             }
-            const placesTemplate = item.hasAreaTarget || 
-                                  (item.system.target?.type === "template") || 
-                                  (activity.target?.type === "template");            
-            if (placesTemplate) {
-                Hooks.once("updateMeasuredTemplate", (template, updates, options, userId) => {
-                    if (userId !== game.user.id) return;
-                    ui.controls.initialize({ tool: "select", control: "token" });
-                    if (game.crux?.lastSelectedTokens?.length > 0) {
-                        const tokenId = game.crux.lastSelectedTokens[0].tokenId;
-                        const actorId = game.crux.lastSelectedTokens[0].actorId;
-                        let token = canvas.tokens.placeables.find(t => t.id === tokenId);
-                        if (!token && actorId) {
-                            token = canvas.tokens.placeables.find(t => t.actor?.id === actorId);
-                        }                        
-                        if (token) {
-                            token.control();
-                        }
-                    }                    
-                    if (game.crux) {
-                        game.crux.cruxItemActive = false;
-                    }
-                });
-            } else {
-                setTimeout(() => {
-                    if (game.crux) {
-                        game.crux.cruxItemActive = false;
-                    }
-                }, 500);
-            }
+            const placesTemplate = CruxDragDropUtils.itemPlacesTemplate(item, activityId);
+            if (placesTemplate) CruxUtils._watchTemplatePlacement();
+            else setTimeout(() => CruxUtils._finishItemActivation(), 500);
             const result = activity.use({ 
                 event,
                 configure,
@@ -227,36 +199,9 @@ export default class CruxUtils {
             const autoSelectFirstActivity = game.settings.get("crux", "auto-select-first-activity");
             if (autoSelectFirstActivity) {
                 const firstActivity = activities[0];
-                const placesTemplate = item.hasAreaTarget || 
-                                      (item.system.target?.type === "template") || 
-                                      (firstActivity.target?.type === "template");            
-                if (placesTemplate) {
-                    Hooks.once("updateMeasuredTemplate", (template, updates, options, userId) => {
-                        if (userId !== game.user.id) return;
-                        ui.controls.initialize({ tool: "select", control: "token" });
-                        if (game.crux?.lastSelectedTokens?.length > 0) {
-                            const tokenId = game.crux.lastSelectedTokens[0].tokenId;
-                            const actorId = game.crux.lastSelectedTokens[0].actorId;
-                            let token = canvas.tokens.placeables.find(t => t.id === tokenId);
-                            if (!token && actorId) {
-                                token = canvas.tokens.placeables.find(t => t.actor?.id === actorId);
-                            }
-                            
-                            if (token) {
-                                token.control();
-                            }
-                        }                    
-                        if (game.crux) {
-                            game.crux.cruxItemActive = false;
-                        }
-                    });
-                } else {
-                    setTimeout(() => {
-                        if (game.crux) {
-                            game.crux.cruxItemActive = false;
-                        }
-                    }, 500);
-                }            
+                const placesTemplate = CruxDragDropUtils.itemPlacesTemplate(item, firstActivity.id);
+                if (placesTemplate) CruxUtils._watchTemplatePlacement();
+                else setTimeout(() => CruxUtils._finishItemActivation(), 500);
                 const result = firstActivity.use({ 
                     event,
                     configure,
@@ -273,35 +218,11 @@ export default class CruxUtils {
         };
         if (event?.createScrollItem !== undefined) {
             useOptions.createScrollItem = event.createScrollItem;
-        }        
+        }
+        const placesTemplate = CruxDragDropUtils.itemPlacesTemplate(item);
+        if (placesTemplate) CruxUtils._watchTemplatePlacement();
+        else setTimeout(() => CruxUtils._finishItemActivation(), 500);
         const result = item.use(useOptions);
-        const placesTemplate = item.hasAreaTarget || (item.system.target?.type === "template");        
-        if (placesTemplate) {
-            Hooks.once("updateMeasuredTemplate", (template, updates, options, userId) => {
-                if (userId !== game.user.id) return;
-                ui.controls.initialize({ tool: "select", control: "token" });
-                if (game.crux?.lastSelectedTokens?.length > 0) {
-                    const tokenId = game.crux.lastSelectedTokens[0].tokenId;
-                    const actorId = game.crux.lastSelectedTokens[0].actorId;
-                    let token = canvas.tokens.placeables.find(t => t.id === tokenId);
-                    if (!token && actorId) {
-                        token = canvas.tokens.placeables.find(t => t.actor?.id === actorId);
-                    }                    
-                    if (token) {
-                        token.control();
-                    }
-                }
-                if (game.crux) {
-                    game.crux.cruxItemActive = false;
-                }
-            });
-        } else {
-            setTimeout(() => {
-                if (game.crux) {
-                    game.crux.cruxItemActive = false;
-                }
-            }, 500);
-        }        
         return result;
     }
 }

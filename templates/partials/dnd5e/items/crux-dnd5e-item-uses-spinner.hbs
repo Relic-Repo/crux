@@ -1,0 +1,13 @@
+{{#if uses}}
+    {{#if (and uses.maximum (gt uses.maximum 0) @root.showUses)}}
+    <div class="crux-spinner u-spinner" data-action="toggleUSpinner" data-edit="false" data-item-uuid="{{item.uuid}}">
+        <div class="display-mode">
+            <span class="letter"> </span>
+            <span class="value">{{uses.available}}/{{uses.maximum}}</span>
+        </div>
+        <div class="edit-mode hidden">
+            <input type="number" min="0" max="{{uses.maximum}}" value="{{uses.available}}">
+        </div>
+    </div>
+    {{/if}}
+{{/if}}

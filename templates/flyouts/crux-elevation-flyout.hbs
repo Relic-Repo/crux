@@ -4,14 +4,14 @@
                 data-action="setElevationMode" data-mode="level">{{levelLabel}}</button>
         {{#if showSceneMode}}
         <button type="button" class="crux-elevation__tab {{#if (eq mode "scene")}}active{{/if}}"
-                data-action="setElevationMode" data-mode="scene">scene</button>
+                data-action="setElevationMode" data-mode="scene">{{sceneLabel}}</button>
         {{/if}}
     </div>
 
     <div class="crux-elevation__editor">
         <div class="crux-elevation__actions">
-            <button type="button" data-action="setElevation">set</button>
-            <button type="button" data-action="cancelElevation">cancel</button>
+            <button type="button" data-action="setElevation">{{setLabel}}</button>
+            <button type="button" data-action="cancelElevation">{{cancelLabel}}</button>
         </div>
         <div class="crux-elevation__stepper">
             <button type="button" class="crux-elevation__step crux-elevation__step--up"

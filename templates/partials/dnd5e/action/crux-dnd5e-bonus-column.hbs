@@ -1,0 +1,20 @@
+<div class="crux__action-stat-column">
+    <button type="button"
+            class="crux__action-stat-tab"
+            data-action="rollInitiative"
+            title="{{localize "crux.roll-initiative"}}">
+        <strong>{{numberFormat actorStats.initiative decimals=0 sign=true}}</strong>
+        <span>INIT</span>
+    </button>
+    <button type="button"
+            class="crux__action-stat-tab"
+            data-action="openMovement"
+            title="{{actorStats.movement.title}}">
+        <strong>{{actorStats.movement.value}}</strong>
+        <span>{{actorStats.movement.label}}</span>
+    </button>
+    <div class="crux__action-stat-tab">
+        <strong>{{numberFormat actorStats.proficiency decimals=0 sign=true}}</strong>
+        <span>PROF</span>
+    </div>
+</div>

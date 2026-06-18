@@ -1,0 +1,14 @@
+{{#if (or
+  (and (eq item.type "consumable") (eq item.system.type.value "ammo") @root.showQuantity)
+  (and (has item.system.properties "thr") @root.showQuantity)
+  (and item.system.quantity @root.showQuantity))}}
+<div class="crux-spinner q-spinner" data-action="toggleQSpinner" data-edit="false" data-item-uuid="{{item.uuid}}">
+    <div class="display-mode">
+        <span class="letter">x</span>
+        <span class="value">{{item.system.quantity}}</span>
+    </div>
+    <div class="edit-mode hidden">
+        <input type="number" min="0" value="{{item.system.quantity}}">
+    </div>
+</div>
+{{/if}}

@@ -1,0 +1,14 @@
+<div class="crux__section">
+    <h2 class="crux__section-header" data-action="toggleSection">
+        <span>{{localize title}}</span>
+        <i class="fas fa-caret-up"></i>
+    </h2>
+    <div class="crux__section-content">
+        {{#with items}}
+            {{> crux-dnd5e-item-list}}
+        {{/with}}
+        {{#each groups as |group groupName|}}
+            {{> crux-dnd5e-item-group groupName=groupName showSpellDots=@root.showSpellDots showSpellFractions=@root.showSpellFractions}}
+        {{/each}}
+    </div>
+</div>

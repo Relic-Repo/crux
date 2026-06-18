@@ -6,13 +6,7 @@ import CruxMovementAppV2 from "../apps/CruxMovementAppV2.js";
 import CruxSettings from "../settings/CruxSettings.js";
 import CruxCompatibility from "../utils/CruxCompatibility.js";
 
-/**
- * Manages hook registrations and initialization for Crux
- */
 export default class CruxHooksManager {
-    /**
-     * Initialize hooks
-     */
     static init() {
         console.log("Crux | Initializing Crux hooks");
 
@@ -20,9 +14,6 @@ export default class CruxHooksManager {
         this.#registerKeybindings();
     }
 
-    /**
-     * Register all required hooks
-     */
     static #registerHooks() {
         Hooks.once('ready', async () => {
             if (!game.crux?.app) {
@@ -135,6 +126,11 @@ export default class CruxHooksManager {
 
         Hooks.on("controlToken", (token, isControlled) => {
             if (!game.crux?.app) return;
+            const transientCruxItemDeselect = !isControlled
+                && game.crux.cruxTemplateRestoreActive
+                && canvas.tokens.controlled.length === 0
+                && game.crux.lastSelectedTokens?.length > 0;
+            if (transientCruxItemDeselect) return;
             game.crux.app.render();
             if (game.crux.app.element && document.body.contains(game.crux.app.element)) {
                 const trayMode = game.settings.get("crux", "tray-mode");
@@ -272,9 +268,6 @@ export default class CruxHooksManager {
         });
     }
 
-    /**
-     * Register keybindings
-     */
     static #registerKeybindings() {
         game.keybindings.register("crux", "toggle-tray", {
             name: "Toggle Tray",
@@ -335,20 +328,11 @@ export default class CruxHooksManager {
         });
     }
 
-    /**
-     * Resolve an entity from its UUID synchronously
-     * @param {string} uuid - The UUID of the entity to retrieve
-     * @returns {object|null} The entity if found, null otherwise
-     */
     static fromUuid(uuid) {
         if (!uuid) return null;
         return fromUuidSync(uuid);
     }
 
-    /**
-     * Get the currently active actor in combat
-     * @returns {Actor|null} The active actor if in combat, null otherwise
-     */
     static currentlyActiveActor() {
         const combat = game.combat;
         if (!combat) return null;
@@ -357,11 +341,6 @@ export default class CruxHooksManager {
         return this.resolveActor(combatant.token);
     }
 
-    /**
-     * Resolve a token, actor, or item into its associated actor
-     * @param {object} candidate - The object to resolve into an actor
-     * @returns {Actor|null} The resolved actor if successful, null otherwise
-     */
     static resolveActor(candidate) {
         if (!candidate) return null;
         if (candidate instanceof CONFIG.Actor.documentClass) {
@@ -391,13 +370,6 @@ export default class CruxHooksManager {
         }, 0);
     }
 
-    /**
-     * Ensure an item has the tray visibility flag set
-     * @param {Item} item - The item to check and update
-     * @param {boolean} [noAwait=false]
-     * @returns {Promise<boolean>} True if the flag was set, false otherwise.
-     * @private
-     */
     static async _ensureItemTrayVisibility(item, noAwait = false) {
         if (!item) return false;
         try {

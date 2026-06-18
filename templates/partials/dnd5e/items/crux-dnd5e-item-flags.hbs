@@ -1,0 +1,28 @@
+{{#if (and (eq item.type "spell") (has item.system.properties "ritual"))}}
+    <div class="ritual flag" title="{{localize "crux.flag.ritual-title"}}">{{localize "crux.flag.ritual"}}</div>
+{{/if}}
+
+{{#if (eq (getActivationType item) "bonus")}}
+    <div class="bonus flag" title="{{localize "crux.flag.bonus-title"}}">{{localize "crux.flag.bonus"}}</div>
+{{/if}}
+{{#if (eq (getActivationType item) "reaction")}}
+    <div class="reaction flag" title="{{localize "crux.flag.reaction-title"}}">{{localize "crux.flag.reaction"}}</div>
+{{/if}}
+{{#if (eq (getActivationType item) "legendary")}}
+    <div class="legendary flag" title="{{localize "crux.flag.legendary-title"}}">{{localize "crux.flag.legendary"}}</div>
+{{/if}}
+
+{{#if (and (eq item.type "spell") (has item.system.properties "concentration"))}}
+    <div class="concentration flag" title="{{localize "crux.flag.concentration-title"}}">{{localize "crux.flag.concentration"}}</div>
+{{/if}}
+
+{{#if (and (hasRechargeRecovery item) (hasRemainingUses item))}}
+<div class="flag"><i class="fas fa-bolt"></i></div>
+{{/if}}
+{{#if (and (hasRechargeRecovery item) (not (hasRemainingUses item)))}}
+<div class="flag"><a data-action="rechargeItem"><i class="fas fa-dice-six"></i> {{getRechargeFormula item}}+</a></div>
+{{/if}}
+
+{{#if (and (eq (getSpellMethod item) "prepared") (not (getSpellPrepared item)) (ne item.system.level 0))}}
+    <div class="unprepared flag" title="{{localize "crux.flag.unprepared-title"}}">{{localize "crux.flag.unprepared"}}</div>
+{{/if}}

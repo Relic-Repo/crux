@@ -2,9 +2,6 @@ import { createCruxSettingDefinitions } from "./CruxSettingDefinitions.js";
 import CRUX_VISUAL_PRESETS from "./CruxVisualPresets.js";
 import * as CruxThemeVariables from "./CruxThemeVariables.js";
 
-/**
- * Manages settings registration and access for Crux
- */
 export default class CruxSettings {
     static EXTERNAL_THEME_VARIABLES = CruxThemeVariables.EXTERNAL_THEME_VARIABLES;
 
@@ -12,14 +9,8 @@ export default class CruxSettings {
 
     static _lastSavedVisualPreset = null;
 
-    /**
-     * Configuration settings for the module
-     */
     static SETTINGS = createCruxSettingDefinitions(this);
 
-    /**
-     * Register all module settings
-     */
     static registerSettings() {
         for (const [key, setting] of Object.entries(this.SETTINGS)) {
             const originalOnChange = setting.onChange;
@@ -92,11 +83,6 @@ export default class CruxSettings {
         });
     }
 
-    /**
-     * Handle changes to the tray-mode setting
-     * @param {string} value - The new tray-mode value
-     * @private
-     */
     static _handleTrayModeChange(value) {
         if (!game.crux?.app?.element || !document.body.contains(game.crux.app.element)) return;
 
@@ -122,18 +108,10 @@ export default class CruxSettings {
         }
     }
 
-    /**
-     * Get the Carolingian UI font from CSS variable
-     * @returns {string} The Carolingian UI font family
-     */
     static getCarolingianUIFont() {
         return getComputedStyle(document.body).getPropertyValue("--crlngn-font-family").trim() || "Work Sans, Arial, sans-serif";
     }
 
-    /**
-     * Get the selected font family based on settings
-     * @returns {string} The selected font family
-     */
     static getSelectedFontFamily() {
         const fontSetting = this.getSetting("font-family");
 
@@ -279,10 +257,6 @@ export default class CruxSettings {
         this._syncExternalThemeRoots();
     }
 
-    /**
-     * Update the font family CSS variable based on settings
-     * @private
-     */
     static _updateFontFamily() {
         const fontFamily = this.getSelectedFontFamily();
         this._setCruxAppVariable('--crux-font-family', fontFamily);
@@ -303,10 +277,6 @@ export default class CruxSettings {
         appElement.style.height = 'auto';
     }
 
-    /**
-     * Update the global font size multiplier CSS variable based on settings
-     * @private
-     */
     static _updateGlobalFontSizeMultiplier() {
         const rawMultiplier = this.getSetting("global-font-size-multiplier");
         const globalFontSizeMultiplier = rawMultiplier;
@@ -324,10 +294,6 @@ export default class CruxSettings {
         game.settings.set("crux", "global-font-scale-rebased", true);
     }
 
-    /**
-     * Update the content text size multiplier CSS variable based on settings
-     * @private
-     */
     static _updateContentTextSizeMultiplier() {
         const contentTextSizeMultiplier = this.getSetting("content-text-size-multiplier");
         this._setCruxAppVariable('--crux-content-text-size-multiplier', contentTextSizeMultiplier);
@@ -504,45 +470,22 @@ export default class CruxSettings {
         });
     }
 
-    /**
-     * Check if tray should auto-hide
-     * @returns {boolean} True if auto-hide is enabled
-     */
     static isTrayAutoHide() {
         return game.settings.get("crux", "tray-mode") === "auto";
     }
 
-    /**
-     * Check if tray should always be visible
-     * @returns {boolean} True if always-on mode is enabled
-     */
     static isTrayAlwaysOn() {
         return game.settings.get("crux", "tray-mode") === "always";
     }
 
-    /**
-     * Get a setting value
-     * @param {string} key - Setting key
-     * @returns {any} Setting value
-     */
     static getSetting(key) {
         return game.settings.get("crux", key);
     }
 
-    /**
-     * Set a setting value
-     * @param {string} key - Setting key
-     * @param {any} value - New value
-     * @returns {Promise} Promise that resolves when setting is updated
-     */
     static async setSetting(key, value) {
         return game.settings.set("crux", key, value);
     }
 
-    /**
-     * Get all section visibility settings
-     * @returns {Object} Map of section keys to visibility states
-     */
     static getSectionVisibility() {
         return {
             favorites: this.getSetting("show-favorites-section"),
@@ -553,10 +496,6 @@ export default class CruxSettings {
         };
     }
 
-    /**
-     * Get all expansion states
-     * @returns {Object} Map of expansion settings
-     */
     static getExpansionStates() {
         return {
             skills: this.getSetting("skills-expanded") === "open",

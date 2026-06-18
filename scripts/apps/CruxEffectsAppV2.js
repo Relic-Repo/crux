@@ -1,9 +1,6 @@
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 import CruxAnchoredFlyout from "../utils/CruxAnchoredFlyout.js";
 
-/**
- * Application for managing token effects using ApplicationV2
- */
 export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
     static activeInstance = null;
     constructor(actor, token, event) {
@@ -21,9 +18,6 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
             CruxEffectsAppV2.activeInstance.render();
         }
     }
-    /**
-     * Default configuration options
-     */
     static DEFAULT_OPTIONS = {
         id: "crux-effects",
         classes: ["crux-effects", "crux-effects-small", "crux-flyout"],
@@ -43,18 +37,12 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
         }
     };
 
-    /**
-     * Template parts used by the application
-     */
     static PARTS = {
         effects: {
-            template: "modules/crux/templates/effects-window.hbs"
+            template: "modules/crux/templates/flyouts/crux-status-effects-flyout.hbs"
         }
     };
 
-    /**
-     * Prepare data for rendering
-     */
     async _prepareContext(options) {
         const choices = {};
         for (const status of CONFIG.statusEffects) {
@@ -99,9 +87,6 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
         };
         return result;
     }
-    /**
-     * Handle effect toggling
-     */
     async _onToggleEffect(event, {overlay = false} = {}) {
         event.preventDefault();
         event.stopPropagation();        
@@ -113,18 +98,11 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
         await this.actor.toggleStatusEffect(statusId, {overlay});
         this.render();
     }
-    /**
-     * Handle right-click on effects
-     */
     _onContextMenu(event) {
         event.preventDefault();
         event.stopPropagation();
         this._onToggleEffect(event, {overlay: true});
     }    
-    /**
-     * Override close method to prevent ESC key from closing the window
-     * @override
-     */
     async close(options = {}) {
         if (options?.closeKey) {
             console.log("[Crux] ESC-initiated close ignored.");
@@ -134,15 +112,10 @@ export default class CruxEffectsAppV2 extends HandlebarsApplicationMixin(Applica
         this.anchorTarget?.blur?.();
         return super.close(options);
     }
-    /**
-     * Position the window beside the Crux tray at the click elevation.
-     */
     setPosition(options = {}) {
         return super.setPosition(CruxAnchoredFlyout.getPosition(this, this.anchorEvent, options));
     }
-    /**
-     * Handle post-render setup
-     */
+
     _onRender(context, options) {
         super._onRender(context, options);
         CruxAnchoredFlyout.applyTheme(this.element);

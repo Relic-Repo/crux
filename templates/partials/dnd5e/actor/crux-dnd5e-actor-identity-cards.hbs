@@ -1,0 +1,11 @@
+<div class="crux__actor-identity-cards">
+    {{#with actorIdentity.creatureType}}
+        {{> crux-dnd5e-actor-identity-card}}
+    {{/with}}
+    {{#with actorIdentity.species}}
+        {{> crux-dnd5e-actor-identity-card}}
+    {{/with}}
+    {{#with actorIdentity.background}}
+        {{> crux-dnd5e-actor-identity-card}}
+    {{/with}}
+</div>

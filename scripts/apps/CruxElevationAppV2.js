@@ -1,10 +1,7 @@
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 import CruxAnchoredFlyout from "../utils/CruxAnchoredFlyout.js";
-import CruxCompatibility from "../utils/CruxCompatibility.js";
+import CruxFoundryAccess from "../runtime/CruxFoundryAccess.js";
 
-/**
- * Application for setting token elevation and, for GMs, token scene level.
- */
 export default class CruxElevationAppV2 extends HandlebarsApplicationMixin(ApplicationV2) {
     static activeInstance = null;
 
@@ -48,7 +45,7 @@ export default class CruxElevationAppV2 extends HandlebarsApplicationMixin(Appli
 
     static PARTS = {
         elevation: {
-            template: "modules/crux/templates/elevation-window.hbs"
+            template: "modules/crux/templates/flyouts/crux-elevation-flyout.hbs"
         }
     };
 
@@ -56,8 +53,8 @@ export default class CruxElevationAppV2 extends HandlebarsApplicationMixin(Appli
         const tokenDocument = this.token?.document;
         const level = this._getTokenLevel();
         const base = this._getLevelBase(level);
-        this.pendingLevelId = tokenDocument?._source?.level ?? level?.id ?? null;
-        this.pendingSceneElevation = CruxCompatibility.getTokenElevation(tokenDocument);
+        this.pendingLevelId = CruxFoundryAccess.getTokenLevelId(tokenDocument) ?? level?.id ?? null;
+        this.pendingSceneElevation = CruxFoundryAccess.getTokenElevation(tokenDocument);
         this.pendingLevelElevation = this.pendingSceneElevation - base;
     }
 
@@ -70,7 +67,10 @@ export default class CruxElevationAppV2 extends HandlebarsApplicationMixin(Appli
             mode: this.mode,
             value: this._formatEditableValue(activeValue),
             sign: activeValue > 0 ? "positive" : activeValue < 0 ? "negative" : "zero",
-            levelLabel: supportsSceneLevels ? "level" : "Elevation",
+            levelLabel: supportsSceneLevels ? game.i18n.localize("crux.elevation.level") : game.i18n.localize("crux.elevation.elevation"),
+            sceneLabel: game.i18n.localize("crux.elevation.scene"),
+            setLabel: game.i18n.localize("crux.elevation.set"),
+            cancelLabel: game.i18n.localize("crux.elevation.cancel"),
             showSceneMode,
             showLevels: supportsSceneLevels && game.user.isGM && this._getSceneLevels().length > 1,
             levels: this._getLevelChoices()
@@ -78,7 +78,7 @@ export default class CruxElevationAppV2 extends HandlebarsApplicationMixin(Appli
     }
 
     _supportsSceneLevels() {
-        return CruxCompatibility.supportsSceneLevels(this._getScene());
+        return CruxFoundryAccess.supportsSceneLevels(this._getScene());
     }
 
     _canUseSceneMode() {
@@ -93,7 +93,7 @@ export default class CruxElevationAppV2 extends HandlebarsApplicationMixin(Appli
 
     _getSceneLevels() {
         if (!this._supportsSceneLevels()) return [];
-        const levels = Array.from(this._getScene()?.levels ?? []);
+        const levels = CruxFoundryAccess.getSceneLevels(this._getScene());
         return levels.sort((a, b) => {
             return this._getLevelBase(b) - this._getLevelBase(a)
                 || (a.sort - b.sort)
@@ -104,12 +104,12 @@ export default class CruxElevationAppV2 extends HandlebarsApplicationMixin(Appli
     _getTokenLevel() {
         if (!this._supportsSceneLevels()) return null;
         const scene = this._getScene();
-        const levelId = this.pendingLevelId ?? this.token?.document?._source?.level;
-        return scene?.levels?.get(levelId) ?? scene?.initialLevel ?? canvas.level ?? null;
+        const levelId = this.pendingLevelId ?? CruxFoundryAccess.getTokenLevelId(this.token?.document);
+        return CruxFoundryAccess.getLevel(scene, levelId) ?? CruxFoundryAccess.getInitialLevel(scene) ?? canvas.level ?? null;
     }
 
     _getLevelBase(level) {
-        return Number(level?.elevation?.base ?? level?.elevation?.bottom ?? 0) || 0;
+        return CruxFoundryAccess.getLevelBase(level);
     }
 
     _getLevelChoices() {
@@ -118,8 +118,8 @@ export default class CruxElevationAppV2 extends HandlebarsApplicationMixin(Appli
         return levels.map(level => ({
             id: level.id,
             name: level.name,
-            top: this._formatRangeValue(level.elevation?.top),
-            bottom: this._formatRangeValue(level.elevation?.bottom),
+            top: this._formatRangeValue(CruxFoundryAccess.getLevelTop(level)),
+            bottom: this._formatRangeValue(CruxFoundryAccess.getLevelBottom(level)),
             active: level.id === this.pendingLevelId
         }));
     }
@@ -182,7 +182,7 @@ export default class CruxElevationAppV2 extends HandlebarsApplicationMixin(Appli
         const tokenDocument = this.token?.document;
         const scene = this._getScene();
         if (!tokenDocument || !scene) return;
-        await CruxCompatibility.updateTokenElevation(tokenDocument, {
+        await CruxFoundryAccess.updateTokenElevation(tokenDocument, {
             level: this.pendingLevelId,
             elevation: this.pendingSceneElevation
         });
@@ -228,7 +228,7 @@ export default class CruxElevationAppV2 extends HandlebarsApplicationMixin(Appli
         event.stopPropagation();
         if (!game.user.isGM) return;
         this._syncFromActiveInput();
-        const level = this._getScene()?.levels?.get(event.currentTarget.dataset.levelId);
+        const level = CruxFoundryAccess.getLevel(this._getScene(), event.currentTarget.dataset.levelId);
         if (!level) return;
         this.pendingLevelId = level.id;
         this.pendingSceneElevation = this._getLevelBase(level) + this.pendingLevelElevation;

@@ -1,0 +1,37 @@
+<div class="crux__actor-hero">
+    <div class="crux__actor-portrait-wrap">
+        <img class="crux__actor-portrait" src="{{actor.img}}" alt="{{name}}">
+        <div class="crux__actor-ability-tabs">
+            {{#each abilities as |details abbr|}}
+                <button type="button"
+                        class="crux__actor-ability-tab"
+                        data-action="rollAbility"
+                        data-ability="{{abbr}}"
+                        title="{{details.label}} {{details.value}} ({{numberFormat details.mod decimals=0 sign=true}})">
+                    <span class="crux__actor-ability-abbr">{{uppercase abbr}}:</span>
+                    <span class="crux__actor-ability-score">{{details.value}} / {{numberFormat details.mod decimals=0 sign=true}}</span>
+                </button>
+            {{/each}}
+        </div>
+    </div>
+    {{#unless isNpc}}
+        <div class="crux__actor-exhaustion">
+            {{#each (cruxSlots actorStats.exhaustion 6) as |active|}}
+                <span class="crux__actor-exhaustion-dot {{#unless active}}is-empty{{/unless}}"></span>
+            {{/each}}
+        </div>
+        <div class="crux__actor-death-saves" title="Death Saves">
+            <div class="crux__actor-death-row crux__actor-death-row--success">
+                {{#each (cruxSlots actorStats.death.success 3) as |active|}}
+                    <span class="crux__actor-death-dot {{#unless active}}is-empty{{/unless}}"></span>
+                {{/each}}
+            </div>
+            <div class="crux__actor-death-row crux__actor-death-row--failure">
+                {{#each (cruxSlots actorStats.death.failure 3) as |active|}}
+                    <span class="crux__actor-death-dot {{#unless active}}is-empty{{/unless}}"></span>
+                {{/each}}
+            </div>
+        </div>
+    {{/unless}}
+    <div class="crux__actor-ac-badge">{{actorStats.ac}}</div>
+</div>

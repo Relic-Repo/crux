@@ -1,0 +1,14 @@
+<div class="crux__actor-saves">
+    <h2><span class="crux__svg-icon crux__svg-icon--shield" role="img" aria-label="Saving Throws"></span> Saving Throws</h2>
+    <div class="crux__actor-save-grid">
+        {{#each abilities as |details abbr|}}
+            <button type="button"
+                    class="crux__actor-save crux__bubble-element crux__bubble-element--interactive"
+                    data-action="rollSave"
+                    data-ability="{{abbr}}">
+                <span>{{details.label}}</span>
+                <strong>{{numberFormat details.save decimals=0 sign=true}}</strong>
+            </button>
+        {{/each}}
+    </div>
+</div>

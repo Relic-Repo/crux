@@ -1,0 +1,29 @@
+<div class="crux__skill-container {{skillMode}} {{#if showSkills}}is-open{{/if}}">
+    <a class="crux__skill-header" data-action="toggleSkills">
+        <span class="crux__skill-header-label">Skills</span>
+        <i class="fas fa-caret-up"></i>
+    </a>
+    <div class="crux__skills">
+        {{#each actor.system.skills as |skill s|}}
+            <div class="crux__skill-row {{#if (gte skill.proficient 1)}}proficient{{/if}}">
+                <div class="flex0" data-action="rollSkill" data-skill="{{s}}">
+                    {{#if (eq skill.proficient 0)}}<i class="far fa-circle"></i>{{/if}}
+                    {{#if (eq skill.proficient 0.5)}}<i class="fas fa-adjust"></i>{{/if}}
+                    {{#if (eq skill.proficient 1)}}<i class="fas fa-check"></i>{{/if}}
+                    {{#if (eq skill.proficient 2)}}<i class="fas fa-check-double"></i>{{/if}}
+                </div>
+                <div class="crux__skill-label" data-action="rollSkill" data-skill="{{s}}">
+                    {{#with (lookup ../skills s)}}
+                        <span>{{label}}</span>
+                    {{/with}}
+                </div>
+                <div class="crux__skill-bonus" data-action="rollSkill" data-skill="{{s}}">
+                    {{numberFormat total decimals=0 sign=true}}
+                </div>
+                <div class="crux__skill-passive" data-action="rollSkill" data-skill="{{s}}">
+                    ({{add total 10}})
+                </div>
+            </div>
+        {{/each}}
+    </div>
+</div>

@@ -1,10 +1,8 @@
 export default class CruxStateManager {
     static #instance;
     
-    /** @type {Map<string, Object>} */
     #actorStates = new Map();
     
-    /** @type {Set<Actor>} */
     #activeActors = new Set();
 
     static getInstance() {
@@ -12,10 +10,6 @@ export default class CruxStateManager {
         return this.#instance;
     }
 
-    /**
-     * Get currently active actors.
-     * @returns {Actor[]}
-     */
     getActiveActors() {
         const controlled = canvas.tokens.controlled.filter(t => 
             ["character", "npc"].includes(t.actor?.type)
@@ -37,11 +31,6 @@ export default class CruxStateManager {
         return [];
     }
 
-    /**
-     * Update state for an actor UUID.
-     * @param {string} actorUuid
-     * @param {Object} newState
-     */
     updateActorStateByUuid(actorUuid, newState) {
         if (!actorUuid) return;        
         const currentState = this.#actorStates.get(actorUuid) || {};
@@ -61,11 +50,6 @@ export default class CruxStateManager {
         this.#actorStates.set(actorUuid, updatedState);
     }
 
-    /**
-     * Get state for an actor UUID.
-     * @param {string} actorUuid
-     * @returns {Object|null}
-     */
     getActorStateByUuid(actorUuid) {
         if (!actorUuid) return null;
         const state = this.#actorStates.get(actorUuid);
@@ -76,11 +60,6 @@ export default class CruxStateManager {
         this.#actorStates.clear();
     }
 
-    /**
-     * Check whether an actor is active.
-     * @param {Actor} actor
-     * @returns {boolean}
-     */
     isActorActive(actor) {
         if (!actor) return false;
         if (this.#activeActors.has(actor)) return true;
@@ -89,32 +68,16 @@ export default class CruxStateManager {
         );
     }
 
-    /**
-     * Update UI state for an actor.
-     * @param {Actor} actor
-     * @param {Object} state
-     */
     updateActorState(actor, state) {
         if (!actor) return;
         this.updateActorStateByUuid(actor.uuid, state);
     }
 
-    /**
-     * Get UI state for an actor.
-     * @param {Actor} actor
-     * @returns {Object|null}
-     */
     getActorState(actor) {
         if (!actor) return null;
         return this.getActorStateByUuid(actor.uuid);
     }
 
-    /**
-     * Update section state.
-     * @param {Actor} actor
-     * @param {string} sectionTitle
-     * @param {boolean} isCollapsed
-     */
     updateSectionState(actor, sectionTitle, isCollapsed) {
         if (!actor) return;
         
@@ -125,12 +88,6 @@ export default class CruxStateManager {
         this.updateActorState(actor, { sectionStates });
     }
 
-    /**
-     * Update group state.
-     * @param {Actor} actor
-     * @param {string} groupTitle
-     * @param {boolean} isCollapsed
-     */
     updateGroupState(actor, groupTitle, isCollapsed) {
         if (!actor) return;
         
@@ -141,42 +98,24 @@ export default class CruxStateManager {
         this.updateActorState(actor, { groupStates });
     }
 
-    /**
-     * Get section state.
-     * @param {Actor} actor
-     * @param {string} sectionTitle
-     * @returns {boolean}
-     */
     getSectionState(actor, sectionTitle) {
         const state = this.getActorState(actor);
         return state?.sectionStates?.[sectionTitle] ?? true;
     }
 
-    /**
-     * Get group state.
-     * @param {Actor} actor
-     * @param {string} groupTitle
-     * @returns {boolean}
-     */
     getGroupState(actor, groupTitle) {
         const state = this.getActorState(actor);
         return state?.groupStates?.[groupTitle] ?? true;
     }
     
-    /**
-     * @param {Object} newState
-     * @deprecated Use updateActorState instead
-     */
+    /** @deprecated Use updateActorState instead */
     updateScrollPosition(newState) {
         if (newState.uuid) {
             this.updateActorStateByUuid(newState.uuid, newState);
         }
     }
 
-    /**
-     * @returns {Object}
-     * @deprecated Use getActorState instead
-     */
+    /** @deprecated Use getActorState instead */
     getScrollPosition() {
         for (const state of this.#actorStates.values()) {
             return { ...state };

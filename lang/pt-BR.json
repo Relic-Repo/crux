@@ -1,6 +1,10 @@
 {
     "crux.warning.dropOnToken": "Solte o item em um token para usá-lo",
     "crux.warning.holdTargetKey": "Segure a tecla de alvo enquanto solta para usar o item",
+    "crux.warning.drop-no-permission": "Você não tem permissão para adicionar itens a {name}.",
+    "crux.warning.drop-item-unresolved": "O Crux não conseguiu identificar o item arrastado.",
+    "crux.warning.drop-select-one-actor": "Selecione um ator ativo antes de arrastar itens para o Crux.",
+    "crux.warning.drop-no-active-actor": "Nenhum ator ativo está disponível para soltar.",
     "crux.error.itemNotFound": "Não foi possível encontrar o item arrastado",
     "crux.error.useItemFailed": "Erro ao usar o item no alvo",
     "crux": {
@@ -23,9 +27,13 @@
         "toggle-target": "Alternar Alvo",
         "drag-target": "Arrastar Alvo",
         "status-effects": "Efeitos de Status",
+        "expand-collapse": "Expandir/Recolher Tudo",
         "elevation": {
             "title": "Definir Elevação do Token",
             "label": "Digite o valor da elevação",
+            "elevation": "Elevação",
+            "level": "andar",
+            "scene": "cena",
             "set": "Definir",
             "cancel": "Cancelar"
         },
@@ -133,6 +141,22 @@
             "show-inventory-section-hint": "Exibir a seção de Inventário na bandeja",
             "show-all-npc-items": "Mostrar Todos os Itens de NPCs",
             "show-all-npc-items-hint": "Exibir todos os itens para NPCs na bandeja, não apenas os passivos",
+            "allow-player-scene-elevation": {
+                "name": "Permitir Elevação de Cena para Jogadores",
+                "hint": "Permite que os jogadores utilizem o modo de elevação da Cena no painel de elevação do Crux. Os jogadores nunca visualizarão a lista de seleção de andares da cena."
+            },
+            "auto-select-first-activity": {
+                "name": "Auto-Selecionar Primeira Atividade",
+                "hint": "Quando ativado, o Crux utilizará automaticamente a primeira atividade sem exibir a janela de seleção de atividades. Quando desativado, o sistema tratará a seleção de atividades de acordo com suas próprias regras."
+            },
+            "clear-targets-on-drag-target": {
+                "name": "Limpar Alvos ao Arrastar para um Alvo",
+                "hint": "Quando ativado, arrastar um item do Crux para um token remove os alvos anteriores antes de selecionar o novo token como alvo."
+            },
+            "process-compendium-items": {
+                "name": "Processar Itens dos Compêndios",
+                "hint": "Quando ativado, o Crux processará itens em compêndios desbloqueados para definir as flags de visibilidade da bandeja. Desative esta opção caso enfrente problemas de desempenho durante a inicialização."
+            },
             "exclude-container-items": {
                 "name": "Excluir Itens em Recipientes",
                 "hint": "Se ativado, os itens armazenados dentro de itens de recipientes (como mochilas ou bolsas) não serão exibidos na bandeja do Crux."

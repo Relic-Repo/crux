@@ -1,51 +1,19 @@
+import CruxFoundryAccess from "../runtime/CruxFoundryAccess.js";
+import CruxDnd5eAccess from "../runtime/dnd5e/CruxDnd5eAccess.js";
+
 export default class CruxCompatibility {
-    /**
-     * Check whether the current Foundry build supports V14 Scene Levels.
-     * @param {Scene} [scene=canvas.scene] - The scene to check
-     * @returns {boolean} True if Scene Levels are available
-     */
     static supportsSceneLevels(scene = canvas.scene) {
-        return !!scene?.levels;
+        return CruxFoundryAccess.supportsSceneLevels(scene);
     }
 
-    /**
-     * Get token elevation across Foundry versions.
-     * @param {TokenDocument} tokenDocument - The token document
-     * @returns {number} The token elevation
-     */
     static getTokenElevation(tokenDocument) {
-        return Number(tokenDocument?._source?.elevation ?? tokenDocument?.elevation ?? 0) || 0;
+        return CruxFoundryAccess.getTokenElevation(tokenDocument);
     }
 
-    /**
-     * Update token elevation across Foundry versions.
-     * @param {TokenDocument} tokenDocument - The token document
-     * @param {object} data - Elevation update data
-     * @param {string|null} [data.level] - V14 Scene Level id
-     * @param {number} data.elevation - Absolute token elevation
-     * @param {object} [options={}] - Update options
-     * @returns {Promise<*>} The update result
-     */
     static async updateTokenElevation(tokenDocument, {level = null, elevation} = {}, options = {}) {
-        const scene = tokenDocument?.parent;
-        if (!tokenDocument || !scene) return null;
-        if (this.supportsSceneLevels(scene) && typeof scene.moveTokens === "function") {
-            return scene.moveTokens({
-                [tokenDocument.id]: {
-                    destination: {
-                        level,
-                        elevation
-                    }
-                }
-            }, {method: "api", animate: false, ...options});
-        }
-        return tokenDocument.update({elevation}, {animate: false, ...options});
+        return CruxFoundryAccess.updateTokenElevation(tokenDocument, { level, elevation }, options);
     }
 
-    /**
-     * Check if DnD5e system version is 4.0 or higher
-     * @returns {boolean} True if system version is 4.0+
-     */
     static isDnDv4() {
         const system = game.system;
         if (system.id !== "dnd5e") return false;
@@ -53,10 +21,6 @@ export default class CruxCompatibility {
         return major >= 4;
     }
 
-    /**
-     * Check if DnD5e system version is 5.1 or higher
-     * @returns {boolean} True if system version is 5.1+
-     */
     static isDnDv5_1() {
         const system = game.system;
         if (system.id !== "dnd5e") return false;
@@ -64,21 +28,10 @@ export default class CruxCompatibility {
         return major > 5 || (major === 5 && minor >= 1);
     }
 
-    /**
-     * Get dnd5e senses ranges across legacy and current schemas.
-     * @param {object} senses - The actor senses data
-     * @returns {object} The keyed senses range values
-     */
     static getSensesRanges(senses) {
         return senses?.ranges ?? senses ?? {};
     }
 
-    /**
-     * Get a single dnd5e sense range value across legacy and current schemas.
-     * @param {object} senses - The actor senses data
-     * @param {string} key - The sense key
-     * @returns {number} The sense value
-     */
     static getSenseValue(senses, key) {
         return this.getSensesRanges(senses)?.[key] ?? 0;
     }
@@ -92,10 +45,6 @@ export default class CruxCompatibility {
         "apothecary": "apothecary"
     };
 
-    /**
-     * @param {Item} item - The spell item
-     * @returns {string|null} The preparation mode (legacy-compatible)
-     */
     static getSpellMethod(item) {
         if (!item?.system) return null;
         if (this.isDnDv5_1()) {
@@ -108,10 +57,6 @@ export default class CruxCompatibility {
         return item.system.preparation?.mode ?? null;
     }
 
-    /**
-     * @param {Item} item - The spell item
-     * @returns {boolean} Whether the spell is prepared
-     */
     static getSpellPrepared(item) {
         if (!item?.system) return false;
         if (this.isDnDv5_1()) {
@@ -124,103 +69,27 @@ export default class CruxCompatibility {
         return item.system.preparation?.prepared ?? false;
     }
 
-    /**
-     * Get item description handling both pre-v4 and v4+ property paths
-     * @param {Item} item - The item to check
-     * @returns {string} The item description
-     */
     static getDescription(item) {
-        if (!item?.system) return "";
-        if (this.isDnDv4()) {
-            return item.system.description?.value || "";
-        }
-        const desc = item.system.description;
-        return (desc?.value !== undefined) ? desc.value : desc || "";
+        return CruxDnd5eAccess.getDescription(item);
     }
 
-    /**
-     * Get activities for an item with hook for modification
-     * @param {Item} item - The item to check
-     * @param {boolean} [applyHook=true] - Whether to apply the cruxFilterActivities hook
-     * @returns {Map|Object} The activities collection
-     */
     static getActivities(item, applyHook = true) {
-        if (!this.isDnDv4() || !item?.system?.activities) return null;
-        if (!applyHook) return item.system.activities;
-        let activities;        
-        try {
-            if (item.system.activities instanceof Map) {
-                activities = new Map(item.system.activities);
-            } else if (item.system.activities.contents) {
-                activities = { ...item.system.activities };
-                activities.contents = { ...item.system.activities.contents };
-            } else {
-                activities = { ...item.system.activities };
-            }
-            Hooks.callAll("cruxFilterActivities", activities, item);            
-            return activities;
-        } catch (e) {
-            console.warn("Crux | Failed to copy activities:", e);
-            return item.system.activities;
-        }
+        return CruxDnd5eAccess.getActivities(item, applyHook);
     }
 
-    /**
-     * Check if an item has activities in DnD v4
-     * @param {Item} item - The item to check
-     * @param {boolean} [applyHook=false] - Whether to apply the cruxFilterActivities hook
-     * @returns {boolean} True if the item has activities
-     */
     static hasActivities(item, applyHook = false) {
-        if (!this.isDnDv4() || !item?.system?.activities) return false;
-        const activities = applyHook ? this.getActivities(item, true) : item.system.activities;
-        if (!activities) return false;
-        if (activities.contents && Object.keys(activities.contents).length > 0) {
-            return true;
-        }        
-        if (typeof activities.size === 'number' && activities.size > 0) {
-            return true;
-        }        
-        try {
-            return Array.from(activities.entries()).length > 0;
-        } catch (e) {
-            console.warn("Crux | Failed to check activities using entries method:", e);
-            return false;
-        }
+        return CruxDnd5eAccess.hasActivities(item, applyHook);
     }
 
-    /**
-     * Get item activation type handling both pre-v4 and v4+ property paths
-     * @param {Item} item - The item to check
-     * @returns {string|null} The activation type
-     */
     static getActivationType(item) {
         if (!item?.system) return null;
         if (this.isDnDv4()) {
-            if (!item.system.activities) return null;
-            const activities = item.system.activities;
-            if (!activities) return null;
-            if (activities.contents && Object.keys(activities.contents).length > 0) {
-                const firstKey = Object.keys(activities.contents)[0];
-                return activities.contents[firstKey]?.activation?.type || null;
-            }            
-            try {
-                const entries = Array.from(activities.entries());
-                if (entries.length === 0) return null;
-                return entries[0]?.[1]?.activation?.type || null;
-            } catch (e) {
-                console.warn("Crux | Failed to get activation type using entries method:", e);
-                return null;
-            }
+            const firstActivity = CruxDnd5eAccess.getActivityEntries(item)[0]?.[1];
+            return firstActivity?.activation?.type || null;
         }
         return item.system.actionType || null;
     }
 
-    /**
-     * Get item duration data handling both pre-v4 and v4+ property paths
-     * @param {Item} item - The item to check
-     * @returns {Object|null} The duration data
-     */
     static getDuration(item) {
         if (!item?.system) return null;
         if (this.isDnDv4()) {
@@ -232,11 +101,6 @@ export default class CruxCompatibility {
         };
     }
 
-    /**
-     * Get item target data handling both pre-v4 and v4+ property paths
-     * @param {Item} item - The item to check
-     * @returns {Object|null} The target data
-     */
     static getTarget(item) {
         if (!item?.system) return null;
         if (this.isDnDv4()) {
@@ -249,11 +113,6 @@ export default class CruxCompatibility {
         };
     }
 
-    /**
-     * Get item components handling both pre-v4 and v4+ property paths
-     * @param {Item} item - The item to check
-     * @returns {Set<string>} The components
-     */
     static getComponents(item) {
         if (!item?.system) return new Set();
         if (this.isDnDv4()) {
@@ -267,79 +126,50 @@ export default class CruxCompatibility {
         return components;
     }
 
-    /**
-     * Check if item has recharge recovery handling both pre-v4 and v4+ property paths
-     * @param {Item} item - The item to check
-     * @returns {boolean} True if item has recharge recovery
-     */
     static hasRechargeRecovery(item) {
         if (!item?.system) return false;
         if (this.isDnDv4()) {
-            return item.system.uses?.recovery?.period === 'recharge';
+            const recovery = CruxDnd5eAccess.getUses(item).recovery;
+            return recovery?.period === "recharge" || recovery?.[0]?.period === "recharge";
         }
         return item.system.recharge?.value > 0;
     }
 
-    /**
-     * Check if item has remaining uses handling both pre-v4 and v4+ property paths
-     * @param {Item} item - The item to check
-     * @returns {boolean} True if item has remaining uses
-     */
     static hasRemainingUses(item) {
         if (!item?.system) return false;
         if (this.isDnDv4()) {
-            return item.system.uses?.value > 0;
+            return CruxDnd5eAccess.getUses(item).value > 0;
         }
         return item.system.recharge?.charged;
     }
 
-    /**
-     * Get item recharge formula handling both pre-v4 and v4+ property paths
-     * @param {Item} item - The item to check
-     * @returns {string|number|null} The recharge formula
-     */
     static getRechargeFormula(item) {
         if (!item?.system) return null;
         if (this.isDnDv4()) {
-            return item.system.uses?.recovery?.formula;
+            const recovery = CruxDnd5eAccess.getUses(item).recovery;
+            return recovery?.formula ?? recovery?.[0]?.formula;
         }
         return item.system.recharge?.value;
     }
 
-    /**
-     * Check if item uses can be modified
-     * @param {Item} item - The item to check
-     * @returns {boolean} True if item uses can be modified
-     */
     static canModifyUses(item) {
         if (!item?.system) return false;
         if (this.isDnDv4()) {
-            return item.system.uses?.max > 0;
+            return CruxDnd5eAccess.getUses(item).max > 0;
         }
         return item.system.uses?.max > 0;
     }
 
-    /**
-     * Get current and maximum uses for an item
-     * @param {Item} item - The item to check
-     * @returns {Object|null} Object containing current and max uses
-     */
     static getUses(item) {
         if (!item?.system) return null;
         if (this.isDnDv4()) {
-            const uses = item.system.uses;
-            return uses ? { value: uses.value, max: uses.max } : null;
+            const uses = CruxDnd5eAccess.getUses(item);
+            return uses.max !== undefined ? { value: uses.value, max: uses.max } : null;
         }
         const uses = item.system.uses;
         return uses ? { value: uses.value, max: uses.max } : null;
     }
 
-    /**
-     * Update item uses
-     * @param {Item} item - The item to update
-     * @param {number} newValue - The new uses value
-     * @returns {Promise} Promise that resolves when update is complete
-     */
     static async updateUses(item, newValue) {
         if (!this.canModifyUses(item)) return;
         
@@ -347,6 +177,6 @@ export default class CruxCompatibility {
         if (!uses) return;
 
         const clampedValue = Math.max(0, Math.min(newValue, uses.max));
-        await item.update({"system.uses.value": clampedValue});
+        await item.update({ [CruxDnd5eAccess.usesValueUpdatePath()]: clampedValue });
     }
 }

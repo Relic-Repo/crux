@@ -1,0 +1,17 @@
+{{#if actorTraits.length}}
+    <div class="crux__actor-traits">
+        {{#each actorTraits as |category|}}
+            <section class="crux__actor-trait-category crux__actor-trait-category--{{category.id}}">
+                <h2><i class="{{category.icon}}"></i> {{category.label}}</h2>
+                <div class="crux__actor-trait-tags">
+                    {{#each category.tags as |tag|}}
+                        <span class="crux__actor-trait-tag">
+                            <strong>{{tag.label}}</strong>
+                            {{#if tag.value}}<em>{{tag.value}}</em>{{/if}}
+                        </span>
+                    {{/each}}
+                </div>
+            </section>
+        {{/each}}
+    </div>
+{{/if}}

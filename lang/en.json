@@ -1,6 +1,10 @@
 {
     "crux.warning.dropOnToken": "Drop the item on a token to use it",
     "crux.warning.holdTargetKey": "Hold the targeting key while dropping to use the item",
+    "crux.warning.drop-no-permission": "You do not have permission to add items to {name}.",
+    "crux.warning.drop-item-unresolved": "Crux could not resolve the dropped item.",
+    "crux.warning.drop-select-one-actor": "Select one active actor before dropping items onto Crux.",
+    "crux.warning.drop-no-active-actor": "No active actor is available for this drop.",
     "crux.error.itemNotFound": "Could not find the dragged item",
     "crux.error.useItemFailed": "Error using item on target",
     "crux": {
@@ -23,9 +27,13 @@
         "toggle-target": "Toggle Target",
         "drag-target": "Drag Target",
         "status-effects": "Status Effects",
+        "expand-collapse": "Expand/Collapse All",
         "elevation": {
             "title": "Set Token Elevation",
             "label": "Enter elevation value",
+            "elevation": "Elevation",
+            "level": "level",
+            "scene": "scene",
             "set": "Set",
             "cancel": "Cancel"
         },
@@ -133,6 +141,22 @@
             "show-inventory-section-hint": "Display the Inventory section in the tray",
             "show-all-npc-items": "Show All NPC Items",
             "show-all-npc-items-hint": "Display all items for NPCs in the tray, not just passive ones",
+            "allow-player-scene-elevation": {
+                "name": "Allow Players Scene Elevation",
+                "hint": "Allow players to use Scene elevation mode in the Crux elevation flyout. Players never see the scene level selection list."
+            },
+            "auto-select-first-activity": {
+                "name": "Auto-select First Activity",
+                "hint": "When enabled, Crux will automatically use the first activity without showing the activity selection dialog. When disabled, the system handles activity selection according to its own rules."
+            },
+            "clear-targets-on-drag-target": {
+                "name": "Clear Targets on Drag Target",
+                "hint": "When enabled, dragging a Crux item onto a token clears previous targets before targeting the new token."
+            },
+            "process-compendium-items": {
+                "name": "Process Compendium Items",
+                "hint": "When enabled, Crux will process items in unlocked compendiums to set tray visibility flags. Disable this if you experience performance issues during startup."
+            },
             "exclude-container-items": {
                 "name": "Exclude Items Within Containers",
                 "hint": "If enabled, items stored inside container items (like backpacks or pouches) will not be displayed in the Crux tray"

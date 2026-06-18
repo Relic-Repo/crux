@@ -1,0 +1,44 @@
+<div class="crux__portrait" title="{{#unless (gt actor.system.attributes.hp.value 0)}}Roll Death Saving Throw{{else}}Flip actor card{{/unless}}">
+    <div class="crux__portrait-inner">
+        <div class="crux__portrait-front {{#if (gt (calculateHealthOverlay actor.system.attributes.hp.value actor.system.attributes.hp.max) 50)}}breathe{{/if}}">
+            {{#if (lookup @root.settings "health-overlay-enabled")}}
+                <div class="crux__portrait-health-overlay {{#if (eq (lookup @root.settings "health-overlay-direction") "up")}}health-overlay-up{{else}}health-overlay-down{{/if}}"
+                    style="height: {{calculateHealthOverlay actor.system.attributes.hp.value actor.system.attributes.hp.max}}%"
+                    data-current-hp="{{actor.system.attributes.hp.value}}"
+                    data-max-hp="{{actor.system.attributes.hp.max}}">
+                </div>
+            {{/if}}
+
+            {{#unless (gt actor.system.attributes.hp.value 0)}}
+                <div class="crux__dead-icon-container">
+                    <img src="modules/crux/img/dead.svg" alt="Dead Character" class="crux__dead-icon">
+                </div>
+            {{else}}
+                <img src="{{actor.img}}" alt="Character Portrait">
+            {{/unless}}
+        </div>
+        <div class="crux__portrait-back">
+            <div class="crux__stat-row">
+                <span class="crux__svg-icon crux__svg-icon--shield" role="img" aria-label="AC"></span>
+                <span>AC: {{actor.system.attributes.ac.value}}</span>
+            </div>
+            <div class="crux__stat-row">
+                <span class="crux__svg-icon crux__svg-icon--hearts" role="img" aria-label="HP"></span>
+                <span>HP: {{actor.system.attributes.hp.value}}/{{actor.system.attributes.hp.max}}</span>
+            </div>
+            <div class="crux__stat-row">
+                <span class="crux__svg-icon crux__svg-icon--eye-target" role="img" aria-label="Passive Perception"></span>
+                <span>P. Perc.: {{add actor.system.skills.prc.total 10}}</span>
+            </div>
+
+            <div class="crux__rest-buttons">
+                <a class="crux__rest-button" data-action="shortRest" title="{{localize "crux.short-rest"}}">
+                    <span class="crux__svg-icon crux__svg-icon--knife-fork" role="img" aria-label="{{localize "crux.short-rest"}}"></span>
+                </a>
+                <a class="crux__rest-button" data-action="longRest" title="{{localize "crux.long-rest"}}">
+                    <span class="crux__svg-icon crux__svg-icon--camping-tent" role="img" aria-label="{{localize "crux.long-rest"}}"></span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,9 @@
+<div class="crux__info-section">
+    <div class="crux__abilities">
+        {{#each abilities as |details abbr|}}
+            <a class="crux__ability" data-action="rollAbility" data-ability="{{abbr}}" title="{{details.label}} {{details.value}} ({{numberFormat details.mod decimals=0 sign=true}} / {{#if details.save}}{{numberFormat details.save decimals=0 sign=true}}{{else}}+0{{/if}})">
+            {{abbr}}
+            </a>
+        {{/each}}
+    </div>
+</div>

@@ -1,0 +1,14 @@
+<div class="crux__combat-actions">
+    {{#if needsInitiative}}
+        <a class="crux__initiative flexrow" data-action="rollInitiative">
+            <span class="flex0 crux__svg-icon crux__svg-icon--sword crux__initiative-icon" role="img" aria-label="{{localize "crux.roll-initiative"}}"></span>
+            <div>{{localize "crux.roll-initiative"}}</div>
+        </a>
+    {{/if}}
+    {{#if isCurrentTurn}}
+        <a class="crux__end-turn-button flexrow" data-action="endTurn">
+            <span class="flex0 crux__svg-icon crux__svg-icon--hourglass" role="img" aria-label="{{localize "crux.end-turn"}}"></span>
+            <div>{{localize "crux.end-turn"}}</div>
+        </a>
+    {{/if}}
+</div>

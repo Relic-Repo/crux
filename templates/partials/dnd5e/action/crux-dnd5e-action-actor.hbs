@@ -1,0 +1,16 @@
+<div class="crux__actor" data-actor-uuid="{{actor.uuid}}">
+    {{> crux-dnd5e-action-actor-card-bubble}}
+    {{> crux-combat-controls}}
+
+    {{#if (eq skillMode "dropdown")}}
+        {{> crux-dnd5e-skill-section}}
+    {{/if}}
+
+    {{> crux-dnd5e-basic-action-controls-bubble}}
+    {{> crux-token-utility-controls-bubble}}
+    {{> crux-dnd5e-action-item-sections}}
+
+    {{#if (eq skillMode "append")}}
+        {{> crux-dnd5e-skill-section}}
+    {{/if}}
+</div>

@@ -2,6 +2,45 @@
 
 All notable changes to the CRUX module will be documented in this file.
 
+## [2026-06-18] [2.2.5]
+
+### Added
+- Added Drag Targeting from Crux item images to the canvas.
+  - Drag an item from Crux onto a token to target and use it.
+  - Template-based items now open template placement instead of forcing token targeting.
+  - Drag targeting avoids native Foundry item-drop behavior to prevent Item Piles and spell-scroll conflicts.
+- Added Drag to Crux support.
+  - Dropping a Foundry/dnd5e item onto Crux adds it to the currently active actor.
+  - Includes permission checks, active actor checks, and invalid-drop warnings.
+- Added a setting to clear previous targets when using Crux Drag Targeting.
+  - Default: enabled.
+- Added early Crux Workspace API foundations for registered panels and bubbles.
+- Added internal panel and bubble registries.
+- Added shared controller layers for actor actions, combat controls, flyouts, items, render behavior, and tray state.
+- Added runtime access layers for Foundry and dnd5e data paths.
+  - Provides a cleaner compatibility layer for Foundry V13/V14 and dnd5e schema changes.
+- Added new template partial structure for Crux panels, controls, item rows, action sections, actor sections, flyouts, and bubble shells.
+- Added Brazilian Portuguese localization updates for new settings and warnings. Thank You Kharmans
+
+### Changed
+- Split the large Crux tray template into focused Handlebars partials.
+- Split much of `CruxTrayAppV2` behavior into smaller controllers and system adapters.
+- Updated Skills placement behavior so the bottom Skills bubble remains collapsible and keeps its caret.
+- Updated Saving Throw roll controls to use shared bubble-element interaction styling.
+- Updated item activation/drag handling to better support Midi-QOL workflows and dnd5e template placement.
+- Updated drop feedback so Crux darkens as a receiving surface without drawing the old moving portal box.
+
+### Fixed
+- Fixed bottom-positioned Skills losing collapse behavior.
+- Fixed Saving Throw click highlighting persisting after the roll.
+- Fixed several V13/V14 compatibility paths by routing volatile document access through runtime helpers.
+
+### Internal
+- Added `CruxDnd5eSystemAdapter` and `CruxSystemRegistry`.
+- Added `CruxPanelRegistry`, `CruxBubbleRegistry`, and `CruxWorkspaceApi`.
+- Added shared utilities for drag/drop, drag targeting, drop handling, inline editing, template partial registration, and tray resolution.
+- Prepared Crux for future addon modules that register panels, bubbles, and larger flyout workspaces.
+
 ## [2026-06-06] [2.2.2]
 
 ### Added

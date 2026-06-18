@@ -1,15 +1,15 @@
 :root {
-    --crux-width: 260px;
+    --crux-width: 230px;
     --crux-tab-rail-width: 18px;
     --crux-occupied-width: calc(var(--crux-width) + var(--crux-tab-rail-width));
     --crux-interface-push-width: calc(var(--crux-width) + var(--crux-tab-rail-width) - 12px);
-    --crux-panel-bg-rgb: 0, 0, 0;
-    --crux-element-bg-rgb: 0, 0, 0;
-    --crux-accent-rgb: 153, 25, 79;
-    --crux-text-rgb: 220, 222, 226;
+    --crux-panel-bg-rgb: 11, 10, 19;
+    --crux-element-bg-rgb: 11, 10, 19;
+    --crux-accent-rgb: 201, 89, 63;
+    --crux-text-rgb: 231, 209, 177;
     --crux-text-strong-rgb: var(--crux-text-rgb);
-    --crux-text-light-rgb: 190, 194, 202;
-    --crux-border-rgb: 255, 255, 255;
+    --crux-text-light-rgb: 209, 200, 195;
+    --crux-border-rgb: 231, 209, 177;
     --crux-icon-small-ratio: 0.11;
     --crux-icon-medium-ratio: 0.14;
     --crux-icon-large-ratio: 0.16;
@@ -95,6 +95,32 @@
     --crux-end-turn-button-box-shadow: none;
 }
 
+.crux__bubble {
+    display: contents;
+}
+
+.crux__bubble-element--interactive:hover {
+    background: var(--crux-element-hover-bg) !important;
+    border-color: var(--crux-element-hover-border) !important;
+    color: var(--crux-element-hover-text) !important;
+}
+
+.crux__bubble-element--interactive:hover strong {
+    color: var(--crux-element-hover-text) !important;
+}
+
+.crux__bubble-element--interactive:active {
+    background: var(--crux-active-bg) !important;
+    border-color: var(--crux-active-border) !important;
+    color: var(--crux-element-hover-text) !important;
+}
+
+.crux__bubble-element--interactive:focus,
+.crux__bubble-element--interactive:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 .crux {
     font-family: var(--crux-font-family) !important;
     font-size: calc(1em * var(--crux-global-font-size-multiplier)) !important;
@@ -149,9 +175,12 @@
     font-size: calc(var(--crux-width) * 0.042 * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }
 
-.crux__skill-row span,
+.crux__skill-row span {
+    font-size: calc(var(--crux-width) * var(--crux-text-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+}
+
 .crux__skill-passive {
-    font-size: calc(var(--crux-width) * var(--crux-text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }
 
 .crux__item .item-summary {
@@ -257,6 +286,43 @@
     --background-color: transparent !important;
     --filigree-background-color: transparent !important;
     --color-data-background: transparent !important;
+}
+
+.crux.crux-drop-portal-active .crux__tray::before {
+    display: block !important;
+    content: "" !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    z-index: 5 !important;
+}
+
+.crux.crux-drop-portal-active .crux__tray::before {
+    inset: 0 !important;
+    background: rgba(0, 0, 0, 0.42) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: inset 0 0 0 var(--crux-border-width) rgba(var(--crux-accent-rgb), 0.38) !important;
+}
+
+.crux-drag-ghost {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 32px;
+    height: 32px;
+    z-index: 100000;
+    pointer-events: none;
+    border: var(--crux-border-width-strong, 1px) solid rgba(var(--crux-accent-rgb, 153, 25, 79), 0.95);
+    border-radius: 7px;
+    background-color: rgba(0, 0, 0, 0.74);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.5),
+        0 0 14px rgba(var(--crux-accent-rgb, 153, 25, 79), 0.45);
+    opacity: 0.92;
+    transform: translate(-20px, -20px);
 }
 
 .crux__panel-backdrop {
@@ -869,6 +935,12 @@
     font-family: var(--crux-font-family) !important;
     font-size: calc(var(--crux-width) * 0.062 * var(--crux-global-font-size-multiplier)) !important;
     font-weight: 700 !important;
+}
+
+.crux__actor-save:focus,
+.crux__actor-save:focus-visible {
+    border: 0 !important;
+    border-bottom: var(--crux-border-width-light) dotted var(--crux-border-color-light) !important;
 }
 
 .crux__actor-save strong {
@@ -2178,10 +2250,6 @@ button.crux__action-stat-tab:focus:not(:hover) {
     animation: infinite forwards 1.8s init-jiggle;
 }
 
-.crux__skill-container.is-open .crux__skills, .crux__skill-container.append .crux__skills {
-    display: initial;
-}
-
 .crux__skill-container.append {
     margin-top: 15px !important;
 }
@@ -2225,10 +2293,6 @@ button.crux__action-stat-tab:focus:not(:hover) {
     display: none;
 }
 
-.crux__skill-container.append .crux__skill-header i {
-    display: none;
-}
-
 .crux__skill-container .crux__skill-header i {
     transition: transform 0.3s ease;
     color: inherit !important;
@@ -2240,8 +2304,7 @@ button.crux__action-stat-tab:focus:not(:hover) {
     transform: rotate(0deg);
 }
 
-.crux__skill-container.is-open .crux__skills,
-.crux__skill-container.append .crux__skills {
+.crux__skill-container.is-open .crux__skills {
     display: grid;
 }
 
@@ -2269,7 +2332,7 @@ button.crux__action-stat-tab:focus:not(:hover) {
 }
 
 .crux__skill-row span {
-    font-size: calc(var(--crux-width) * var(--crux-text-small-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
+    font-size: calc(var(--crux-width) * var(--crux-text-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
     line-height: 1 !important;
 }
 
@@ -2287,6 +2350,7 @@ button.crux__action-stat-tab:focus:not(:hover) {
     text-align: center;
     justify-content: center;
     width: 30px;
+    font-size: calc(var(--crux-width) * var(--crux-text-ratio) * var(--crux-content-text-size-multiplier) * var(--crux-global-font-size-multiplier)) !important;
 }
 .crux__skill-passive {
     text-align: center;
