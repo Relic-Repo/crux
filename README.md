@@ -16,12 +16,7 @@
   <img src="https://img.shields.io/badge/dnd5e-3.0%2B-red" alt="dnd5e 3.0+">
   <img src="https://img.shields.io/badge/Latest-2.2.5-brightgreen" alt="Latest version 2.2.5">
   <img src="https://img.shields.io/badge/Manifest-module.json-informational" alt="Manifest">
-</p>
-
-<p align="center">
-  <a href="https://discord.gg/DA2pzYu4v8">
-    <img src="https://img.shields.io/badge/🚪%20Enter%20the%20Archive-Discord-5865F2?style=for-the-badge" />
-  </a>
+  <img src="https://img.shields.io/badge/🚪%20Enter%20the%20Archive-Discord-5865F2?style=for-the-badge" />
 </p>
 
 **CRUX** adds a tabbed left-side play panel to Foundry VTT for dnd5e, giving players quick access to actions, spells, abilities, actor status, token controls, and common combat tools without opening the character sheet.
