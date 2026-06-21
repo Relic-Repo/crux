@@ -18,6 +18,12 @@
   <img src="https://img.shields.io/badge/Manifest-module.json-informational" alt="Manifest">
 </p>
 
+<p align="center">
+  <a href="https://discord.gg/DA2pzYu4v8">
+    <img src="https://img.shields.io/badge/🚪%20Enter%20the%20Archive-Discord-5865F2?style=for-the-badge" />
+  </a>
+</p>
+
 **CRUX** adds a tabbed left-side play panel to Foundry VTT for dnd5e, giving players quick access to actions, spells, abilities, actor status, token controls, and common combat tools without opening the character sheet.
 
 Designed to complement Foundry's left-side interface, Crux keeps the character's most-used options close at hand during play. The Actions panel handles fast item and combat flow, while the Actor panel provides an alternate character sheet view for the information players usually need at the table.
